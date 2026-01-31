@@ -1,0 +1,24 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct type_GradientUniformBuffer
+{
+    float2 resolution;
+    float4 bottom_color;
+    float4 top_color;
+};
+
+struct main0_out
+{
+    float4 out_var_SV_Target [[color(0)]];
+};
+
+fragment main0_out main0(constant type_GradientUniformBuffer& GradientUniformBuffer [[buffer(0)]], float4 gl_FragCoord [[position]])
+{
+    main0_out out = {};
+    out.out_var_SV_Target = mix(GradientUniformBuffer.top_color, GradientUniformBuffer.bottom_color, float4((gl_FragCoord.xy / GradientUniformBuffer.resolution).y));
+    return out;
+}
+

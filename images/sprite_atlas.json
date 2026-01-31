@@ -1,0 +1,29 @@
+{
+	"Name": "sprite_atlas",
+	"Width": 256,
+	"Height": 128,
+	"Images": [
+		{
+			"Name": "fish_0.png",
+			"X": 131,
+			"Y": 0,
+			"W": 70,
+			"H": 36,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 70,
+			"UntrimmedHeight": 36
+		},
+		{
+			"Name": "sand_0.png",
+			"X": 0,
+			"Y": 0,
+			"W": 131,
+			"H": 54,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": -20,
+			"UntrimmedWidth": 131,
+			"UntrimmedHeight": 74
+		}
+	]
+}
