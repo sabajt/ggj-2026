@@ -20,22 +20,22 @@ enter_main :: proc()
 	grid_size_y := 22
 	wizard_pad := 5
 
-	for x in 0 ..< grid_size_x {
-		for y in 0 ..< grid_size_y {
-			if rand.int_max(wizard_pad) >= 4 {
-				spr_i := add_sprite("fire.png", pos = cell_pos(x,y), anchor = .bottom_left)
-				spr := &sprites[spr_i]
-			}
-		}
-	}
+	// for x in 0 ..< grid_size_x {
+	// 	for y in 0 ..< grid_size_y {
+	// 		if rand.int_max(wizard_pad) >= 4 {
+	// 			spr_i := add_sprite("fire.png", pos = cell_pos({x, y}), anchor = .bottom_left)
+	// 			spr := &sprites[spr_i]
+	// 		}
+	// 	}
+	// }
 
 	cell := [2]int { 
 		wizard_pad + rand.int_max(grid_size_x - 2 * wizard_pad), 
 		wizard_pad + rand.int_max(grid_size_y - 2 * wizard_pad)
 	}
-	spr_i := add_sprite("wiz.png", pos = cell_pos(cell.x, cell.y), anchor = .bottom_left)
-	spr := &sprites[spr_i]
-	player = Wizard { sprite = spr, cell = cell}
+	spr_i := add_sprite("wiz.png", pos = cell_pos(cell), anchor = .bottom_left)
+	// spr := &sprites[spr_i]
+	player = Wizard { sprite = spr_i, cell = cell}
 }
 
 exit_main :: proc()

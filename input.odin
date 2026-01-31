@@ -9,17 +9,26 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
             return .SUCCESS
         case .KEY_DOWN:
             #partial switch event.key.scancode {
+                
+                // quit
                 case .Q:
                     return .SUCCESS
+                
+                // move
                 case .LEFT:
-                    handle_move_wizard(.left)
+                    handle_wizard_move(.left)
                 case .RIGHT:
-                    handle_move_wizard(.right)
+                    handle_wizard_move(.right)
                 case .UP:
-                    handle_move_wizard(.up)
+                    handle_wizard_move(.up)
                 case .DOWN:
-                    handle_move_wizard(.down)
+                    handle_wizard_move(.down)
+
+                // spell
+                case .Z:
+                    handle_wizard_spell(.fire_tree)
                 }
+
     }
     return .CONTINUE
 }

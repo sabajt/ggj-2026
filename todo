@@ -1,0 +1,15 @@
+x get minimum engine working
+x sprites on grid
+x move player sprite
+
+- fire spell (fire mask)
+- enemy with another spell
+- hit enemy w/ spell
+- collect mask from enemy
+- switch masks (inventory?)
+- more enemies loop
+- add sound / music
+
+bugs
+
+- fullscreen resolution scaling bug (needs window size before texture creation)
