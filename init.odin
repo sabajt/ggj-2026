@@ -9,8 +9,8 @@ init :: proc() {
 	ok := sdl.Init({.VIDEO, .GAMEPAD, .AUDIO})
 	assert(ok)
 
-	// window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {})
-	window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {.FULLSCREEN})
+	window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {})
+	// window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {.FULLSCREEN})
 	assert(window != nil)
 
 	gpu = sdl.CreateGPUDevice({.MSL, .SPIRV, .DXIL}, true, nil)
@@ -150,6 +150,9 @@ init_transfer_mem :: proc()
 	text_items = [dynamic]TTF_Text_Item{} 
 
 	// scale sampler / texture
+
+	// aspect ratio calculation for letterbox not stretch
+	// TODO: bug here in that letterbox res isn't fullscreen yet
 
 	letterbox_texture = sdl.CreateGPUTexture(gpu, {
 		type = .D2,
