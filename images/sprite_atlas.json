@@ -5,23 +5,23 @@
 	"Images": [
 		{
 			"Name": "fire.png",
-			"X": 14,
+			"X": 0,
 			"Y": 0,
-			"W": 12,
-			"H": 12,
-			"TrimOffsetX": -2,
-			"TrimOffsetY": -2,
+			"W": 16,
+			"H": 16,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
 			"UntrimmedWidth": 16,
 			"UntrimmedHeight": 16
 		},
 		{
 			"Name": "wiz.png",
-			"X": 0,
+			"X": 16,
 			"Y": 0,
-			"W": 14,
-			"H": 14,
-			"TrimOffsetX": -1,
-			"TrimOffsetY": -1,
+			"W": 16,
+			"H": 16,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
 			"UntrimmedWidth": 16,
 			"UntrimmedHeight": 16
 		}

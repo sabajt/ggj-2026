@@ -9,8 +9,8 @@ init :: proc() {
 	ok := sdl.Init({.VIDEO, .GAMEPAD, .AUDIO})
 	assert(ok)
 
-	window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {})
-	// window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {.FULLSCREEN})
+	// window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {})
+	window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {.FULLSCREEN})
 	assert(window != nil)
 
 	gpu = sdl.CreateGPUDevice({.MSL, .SPIRV, .DXIL}, true, nil)
