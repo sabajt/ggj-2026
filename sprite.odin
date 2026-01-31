@@ -58,8 +58,8 @@ spr_size :: proc(spr: Sprite) -> [2]f32
 create_gpu_sprite :: proc(spr: Sprite, dt: f32) -> GPU_Sprite
 { 
     atlas_image := sprite_atlas_map[spr.name]
-    w := f32(atlas_image.W)
-    h := f32(atlas_image.H)
+    w := f32(atlas_image.UntrimmedWidth)
+    h := f32(atlas_image.UntrimmedHeight)
 
     anchor: [2]f32
     switch spr.anchor {
@@ -78,8 +78,8 @@ create_gpu_sprite :: proc(spr: Sprite, dt: f32) -> GPU_Sprite
         anchor = anchor,
         tex_u = f32(atlas_image.X) / f32(sprite_atlas.Width),
         tex_v = f32(atlas_image.Y) / f32(sprite_atlas.Height),
-        tex_w = f32(atlas_image.W) / f32(sprite_atlas.Width),
-        tex_h = f32(atlas_image.H) / f32(sprite_atlas.Height),
+        tex_w = f32(atlas_image.UntrimmedWidth) / f32(sprite_atlas.Width),
+        tex_h = f32(atlas_image.UntrimmedHeight) / f32(sprite_atlas.Height),
         color = spr.col,
     }
 }

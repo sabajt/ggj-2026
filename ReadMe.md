@@ -1,0 +1,5 @@
+
+generate spritesheet:
+
+cramcli /Users/johnsaba/Dev/ggj-2026/images/source /Users/johnsaba/Dev/ggj-2026/images sprite_atlas
+

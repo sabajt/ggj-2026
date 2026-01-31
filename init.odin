@@ -58,12 +58,13 @@ init_transfer_mem :: proc()
 
 	// grid vertex buffer
 
+	grid_alpha := f32(0.3)
 	grid_verts := []Grid_Vertex {
-		{ position = {0, 0}, color = {1, 0, 0, 1} }, // b
-		{ position = {0, 1}, color = {0, 1, 0, 1} }, // t
+		{ position = {0, 0}, color = {1, 1, 1, grid_alpha} }, // b
+		{ position = {0, 1}, color = {1, 1, 1, grid_alpha} }, // t
 
-		{ position = {0, 0}, color = {1, 0, 0, 1} }, // l
-		{ position = {1, 0}, color = {0, 0, 1, 1} }, // r
+		{ position = {0, 0}, color = {1, 1, 1, grid_alpha} }, // l
+		{ position = {1, 0}, color = {1, 1, 1, grid_alpha} }, // r
 	}
 	grid_verts_byte_size := len(grid_verts) * size_of(grid_verts[0]) // TODO: size_of(Grid_Vertex) the same?
 

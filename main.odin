@@ -12,6 +12,7 @@ resolution := [2]f32 {640, 360}
 letterbox_resolution: [2]f32
 
 INTERNAL_RES :: [2]f32 {640, 360} 
+GRID_PADDING : f32 : 16
 
 // frame timing
 

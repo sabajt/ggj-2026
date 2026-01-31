@@ -8,8 +8,6 @@ import "core:mem"
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
-GRID_PADDING : f32 : 40
-
 text_index_offset := 0
 text_vertex_offset := 0
 
