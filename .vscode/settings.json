@@ -10,7 +10,7 @@
 	// Disables ghost-text inline suggestions
 	"editor.inlineSuggest.enabled": false,
 	// Prevents suggestions from being accepted with the Enter key
-	"editor.acceptSuggestionOnEnter": "off",
+	"editor.acceptSuggestionOnEnter": "on",
 	// Prevents suggestions from being accepted when typing a character like . or (
 	"editor.acceptSuggestionOnCommitCharacter": false,
 	// Disables suggestions based on words in the current file

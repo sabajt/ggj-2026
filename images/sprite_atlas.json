@@ -4,6 +4,17 @@
 	"Height": 32,
 	"Images": [
 		{
+			"Name": "fire.png",
+			"X": 14,
+			"Y": 0,
+			"W": 12,
+			"H": 12,
+			"TrimOffsetX": -2,
+			"TrimOffsetY": -2,
+			"UntrimmedWidth": 16,
+			"UntrimmedHeight": 16
+		},
+		{
 			"Name": "wiz.png",
 			"X": 0,
 			"Y": 0,
