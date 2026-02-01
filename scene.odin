@@ -33,7 +33,7 @@ enter_main :: proc()
 		wizard_pad + rand.int_max(grid_size_x - 2 * wizard_pad), 
 		wizard_pad + rand.int_max(grid_size_y - 2 * wizard_pad)
 	}
-	spr_i := add_sprite("wiz.png", pos = cell_pos(cell), anchor = .bottom_left)
+	spr_i := add_sprite("mask_1.png", pos = cell_pos(cell), anchor = .bottom_left)
 	// spr := &sprites[spr_i]
 	player = Wizard { sprite = spr_i, cell = cell}
 }
