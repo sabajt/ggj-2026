@@ -23,7 +23,13 @@ update :: proc()
         update_sprite(spr, cell_pos(player.cell))
         snap_sprite_to_latest_frame(spr)
 
+        step_game()
         wizard_direction_request = nil
+    }
+
+    if wizard_wait_request { 
+        step_game()
+        wizard_wait_request = false
     }
 
     // update player spell request

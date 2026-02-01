@@ -23,6 +23,8 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                     handle_wizard_move(.up)
                 case .DOWN:
                     handle_wizard_move(.down)
+                case .X:
+                    handle_wizard_wait()
 
                 // spell
                 case .Z:

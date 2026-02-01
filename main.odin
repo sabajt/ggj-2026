@@ -8,13 +8,13 @@ import sdl "vendor:sdl3"
 
 window: ^sdl.Window
 
-// resolution := [2]f32 {640, 360} 
-resolution := [2]f32 {960, 540} 
-
-letterbox_resolution: [2]f32
-
 INTERNAL_RES :: [2]f32 {640, 360} 
 GRID_PADDING : f32 : 16
+
+// resolution := [2]f32 {640, 360} 
+// resolution := [2]f32 {960, 540} 
+resolution := 2 * INTERNAL_RES 
+letterbox_resolution: [2]f32
 
 // frame timing
 

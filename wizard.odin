@@ -11,16 +11,29 @@ Spell :: enum {
 
 wizard_direction_request: Maybe(Direction) = nil
 wizard_spell_request: Maybe(Spell) = nil
+wizard_wait_request: bool = false
+
+player: Wizard
 
 handle_wizard_move :: proc(dir: Direction)
 {
     wizard_direction_request = dir
-    step_spells()
+}
+
+handle_wizard_wait :: proc()
+{
+    wizard_wait_request = true
 }
 
 handle_wizard_spell :: proc(spell: Spell)
 {
     wizard_spell_request = spell
+}
+
+step_game :: proc()
+{
+    step_spells()
+
 }
 
 // Direction
@@ -49,4 +62,9 @@ turn_right :: proc(facing: Direction) -> Direction {
     }
     return result
 }
+
+// enemies
+
+enemy: Wizard
+
 
