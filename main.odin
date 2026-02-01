@@ -21,6 +21,7 @@ letterbox_resolution: [2]f32
 real_time := sdl.Uint64(0)
 sim_time := sdl.Uint64(0)
 lag_time := sdl.Uint64(0)
+game_step_time := int(0)
 
 MAX_FRAME_TIME : sdl.Uint64 : sdl.Uint64(0.25 * 1000.0)
 MS_PER_UPDATE : sdl.Uint64 : 16
