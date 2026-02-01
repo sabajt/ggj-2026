@@ -5,7 +5,8 @@ import "core:math/rand"
 
 Wizard :: struct {
     sprite: int,
-    cell: [2]int
+    cell: [2]int,
+    t: int
 }
 
 Spell :: enum {
@@ -82,6 +83,21 @@ add_enemy :: proc(cell: [2]int)
 }
 
 step_enemies :: proc()
+{
+    if enemy.t % 3 == 0 {
+        enemy_cast_spell()
+    } else {
+        move_enemy_to_player()
+    }
+    enemy.t += 1
+}
+
+enemy_cast_spell :: proc()
+{
+
+}
+
+move_enemy_to_player :: proc()
 {
 	astar: AStar_Grid
 	astar_grid_init(&astar)

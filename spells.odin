@@ -11,6 +11,7 @@ Fire :: struct {
 }
 
 fires := make(map[int]Fire)
+orbs := make(map[int]Fire)
 
 create_spell :: proc(spell: Spell)
 {

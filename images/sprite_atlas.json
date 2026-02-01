@@ -1,10 +1,10 @@
 {
 	"Name": "sprite_atlas",
-	"Width": 32,
+	"Width": 64,
 	"Height": 32,
 	"Images": [
 		{
-			"Name": "fire.png",
+			"Name": "wall_1.png",
 			"X": 0,
 			"Y": 0,
 			"W": 16,
@@ -15,8 +15,19 @@
 			"UntrimmedHeight": 16
 		},
 		{
-			"Name": "mask_2.png",
-			"X": 0,
+			"Name": "fire.png",
+			"X": 32,
+			"Y": 0,
+			"W": 16,
+			"H": 16,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 16,
+			"UntrimmedHeight": 16
+		},
+		{
+			"Name": "orb.png",
+			"X": 16,
 			"Y": 16,
 			"W": 16,
 			"H": 16,
@@ -26,9 +37,20 @@
 			"UntrimmedHeight": 16
 		},
 		{
-			"Name": "mask_1.png",
+			"Name": "mask_2.png",
 			"X": 16,
 			"Y": 0,
+			"W": 16,
+			"H": 16,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 16,
+			"UntrimmedHeight": 16
+		},
+		{
+			"Name": "mask_1.png",
+			"X": 0,
+			"Y": 16,
 			"W": 16,
 			"H": 16,
 			"TrimOffsetX": 0,
