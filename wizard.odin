@@ -37,7 +37,7 @@ step_game :: proc()
 {
     step_enemies()
     step_spells()
-    
+
     check_hits()
 }
 
@@ -113,7 +113,7 @@ step_enemies :: proc()
 	path, ok := astar_get_path(&astar, {i32(sp.x), i32(sp.y)}, {i32(ep.x), i32(ep.y)})
     defer { delete(path) }
 
-	if ok {
+	if ok && len(path) > 0 {
         next_move := path[0]
         enemy_sprite := &sprites[enemy.sprite]
         enemy.cell = {int(next_move.x), int(next_move.y)}
@@ -134,6 +134,10 @@ check_hits :: proc()
 
             add_enemy({spawn_x, spawn_y})
         }
+    }
+
+    if enemy.cell == player.cell {
+        reset_game()
     }
 }
 

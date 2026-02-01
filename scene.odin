@@ -17,15 +17,13 @@ WIZARD_PAD :: 5
 enter_main :: proc()
 {
 	game_state = .main
+	reset_game()
+}
 
-	// for x in 0 ..< grid_size_x {
-	// 	for y in 0 ..< grid_size_y {
-	// 		if rand.int_max(wizard_pad) >= 4 {
-	// 			spr_i := add_sprite("fire.png", pos = cell_pos({x, y}), anchor = .bottom_left)
-	// 			spr := &sprites[spr_i]
-	// 		}
-	// 	}
-	// }
+reset_game :: proc()
+{
+	clear(&fires)
+	clear(&sprites)
 
 	// add player
 	cell := [2]int { 
@@ -39,7 +37,16 @@ enter_main :: proc()
 	add_enemy({GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y})
 }
 
-exit_main :: proc()
-{
-}
+
+
+
+
+	// for x in 0 ..< grid_size_x {
+	// 	for y in 0 ..< grid_size_y {
+	// 		if rand.int_max(wizard_pad) >= 4 {
+	// 			spr_i := add_sprite("fire.png", pos = cell_pos({x, y}), anchor = .bottom_left)
+	// 			spr := &sprites[spr_i]
+	// 		}
+	// 	}
+	// }
 
