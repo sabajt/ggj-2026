@@ -3,7 +3,7 @@ package main
 import "core:math"
 import "core:fmt"
 
-sprites := map[int]Sprite {}
+sprites := make(map[int]Sprite)
 sprite_index := 0
 
 clear_sprites :: proc() { clear(&sprites) }

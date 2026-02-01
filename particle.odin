@@ -2,10 +2,8 @@
 
 package main
 
-import "core:fmt"
 import "core:math"
 import "core:math/rand"
-
 
 LINE_WIDTH := f32(3) // TODO: resolution scale abstract. something is messed up here (look at entry animation in)
 

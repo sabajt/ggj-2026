@@ -18,6 +18,7 @@ wizard_spell_request: Maybe(Spell) = nil
 handle_wizard_move :: proc(dir: Direction)
 {
     wizard_direction_request = dir
+    step_spells()
 }
 
 handle_wizard_spell :: proc(spell: Spell)
