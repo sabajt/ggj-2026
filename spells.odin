@@ -5,7 +5,8 @@ import "core:math/rand"
 Fire :: struct {
     t: int,
     dir: Direction,
-    spr: int
+    spr: int,
+    cell: [2]int
 }
 
 fires := make(map[int]Fire)
@@ -35,21 +36,25 @@ create_spell :: proc(spell: Spell)
 
             // 1 / 3 chance to have a branch left or right
             if rand.int_max(3) == 0 {
-                branch_dir := rand.int_max(2) == 0 ? Direction.left : Direction.right
-                branch_cell := cell_move(cell, branch_dir)
-                add_fire(branch_cell, branch_dir)
+                branch_dir := rand.int_max(2) == 0 ? turn_left(dir) : turn_right(dir)
+                branch_cell := cell
+                for i in 0 ..< (3 + rand.int_max(3)) {
+                    branch_cell = cell_move(branch_cell, branch_dir)
+                    add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3))
+                }
             }
         }
     }
 }
 
-add_fire :: proc(cell: [2]int, dir: Direction) 
+add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5) 
 {
     spr := add_sprite("fire.png", cell_pos(cell), anchor = .bottom_left)
     fire := Fire {
-        t = 3,
+        t = dur,
         dir = dir,
-        spr = spr
+        spr = spr,
+        cell = cell
     }
     fires[spr] = fire
 }
@@ -66,6 +71,11 @@ step_fire :: proc()
         if fire.t == 0 {
             delete_key(&sprites, key)
             delete_key(&fires, key)
+        } else {
+            fire.cell = cell_move(fire.cell, fire.dir)
+            sprite := &sprites[key]
+            update_sprite(sprite, cell_pos(fire.cell))
+            snap_sprite_to_latest_frame(sprite)
         }
     }
 }
