@@ -72,7 +72,10 @@ create_orb_spell :: proc(cast_cell: [2]int)
 
 add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20) 
 {
-    spr := add_sprite("orb.png", cell_pos(cell), anchor = .bottom_left)
+    col_i := rand.int_max(8)
+    enemy_col = colors[col_i]
+
+    spr := add_sprite("orb.png", cell_pos(cell), col = enem anchor = .bottom_left)
     orb := Projectile {
         t = dur,
         dir = dir,
