@@ -6,7 +6,8 @@ Fire :: struct {
     t: int,
     dir: Direction,
     spr: int,
-    cell: [2]int
+    cell: [2]int,
+    dur: int
 }
 
 fires := make(map[int]Fire)
@@ -54,7 +55,8 @@ add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5)
         t = dur,
         dir = dir,
         spr = spr,
-        cell = cell
+        cell = cell,
+        dur = dur
     }
     fires[spr] = fire
 }
@@ -74,7 +76,9 @@ step_fire :: proc()
         } else {
             fire.cell = cell_move(fire.cell, fire.dir)
             sprite := &sprites[key]
-            update_sprite(sprite, cell_pos(fire.cell))
+            col := sprite.col
+            col.a = f32(fire.t + 1) / f32(fire.dur)
+            update_sprite(sprite, cell_pos(fire.cell), col = col)
             snap_sprite_to_latest_frame(sprite)
         }
     }
