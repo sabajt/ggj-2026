@@ -83,8 +83,8 @@ step_enemies :: proc()
 	astar_grid_clear(&astar)
 
 	// `astar_block` sets points on the grid as impassable.
-    astar_block(&astar, {0,1})
-    astar_block(&astar, {2,1})
+    // astar_block(&astar, {0,1})
+    // astar_block(&astar, {2,1})
 
 	// // `astar_set_cost` can be used to add an additional cost value to a point, making it a less desirable point to visit.
     // 	pg.astar_set_cost(&astar, {2,0}, 3.)
@@ -102,10 +102,11 @@ step_enemies :: proc()
     defer { delete(path) }
 
 	if ok {
-        fmt.println()
-		for p,i in path {
-			fmt.printf("{}: {}", i, p)
-		}
+        next_move := path[0]
+        enemy_sprite := &sprites[enemy.sprite]
+        enemy.cell = {int(next_move.x), int(next_move.y)}
+        update_sprite(enemy_sprite, cell_pos(enemy.cell))
+        snap_sprite_to_latest_frame(enemy_sprite)
 	}
 }
 
