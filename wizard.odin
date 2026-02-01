@@ -10,7 +10,8 @@ Wizard :: struct {
 }
 
 Spell :: enum {
-    fire_tree
+    fire_tree,
+    orb
 }
 
 wizard_direction_request: Maybe(Direction) = nil
@@ -94,7 +95,7 @@ step_enemies :: proc()
 
 enemy_cast_spell :: proc()
 {
-
+    create_orb_spell(enemy.cell)
 }
 
 move_enemy_to_player :: proc()
@@ -140,6 +141,7 @@ move_enemy_to_player :: proc()
 
 check_hits :: proc()
 {
+    // check for enemies hitting player projectile
     for k, fire in fires {
         if enemy.cell == fire.cell {
             // next enemy
@@ -152,8 +154,16 @@ check_hits :: proc()
         }
     }
 
+    // reset if projectiles or enemies hits player
+    for k, orb in orbs {
+        if orb.cell == player.cell {
+            reset_game()
+            return
+        }
+    }
     if enemy.cell == player.cell {
         reset_game()
+        return
     }
 }
 

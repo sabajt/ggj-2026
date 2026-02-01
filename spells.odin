@@ -2,7 +2,7 @@ package main
 
 import "core:math/rand"
 
-Fire :: struct {
+Projectile :: struct {
     t: int,
     dir: Direction,
     spr: int,
@@ -10,22 +10,21 @@ Fire :: struct {
     dur: int
 }
 
-fires := make(map[int]Fire)
-orbs := make(map[int]Fire)
+fires := make(map[int]Projectile)
+orbs := make(map[int]Projectile)
 
 create_spell :: proc(spell: Spell)
 {
     switch spell {
         case .fire_tree:
             create_fire_tree_spell()
+        case .orb:
+            create_orb_spell(player.cell)
     }
 }
 
 @(private) create_fire_tree_spell :: proc() 
-{
-    cells := [dynamic][2]i32{}
-    defer { delete(cells) }
-    
+{    
     for dir in DIRECTIONS {
         // adjacent to player
         cell := cell_move(player.cell, dir)
@@ -52,7 +51,7 @@ create_spell :: proc(spell: Spell)
 add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5) 
 {
     spr := add_sprite("fire.png", cell_pos(cell), anchor = .bottom_left)
-    fire := Fire {
+    fire := Projectile {
         t = dur,
         dir = dir,
         spr = spr,
@@ -62,9 +61,32 @@ add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5)
     fires[spr] = fire
 }
 
+create_orb_spell :: proc(cast_cell: [2]int) 
+{    
+    for dir in DIRECTIONS {
+        // adjacent to player
+        cell := cell_move(cast_cell, dir)
+        add_orb(cell, dir)
+    }
+}
+
+add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20) 
+{
+    spr := add_sprite("orb.png", cell_pos(cell), anchor = .bottom_left)
+    orb := Projectile {
+        t = dur,
+        dir = dir,
+        spr = spr,
+        cell = cell,
+        dur = dur
+    }
+    orbs[spr] = orb
+}
+
 step_spells :: proc()
 {
     step_fire()
+    step_orb()
 }
 
 step_fire :: proc()
@@ -80,6 +102,24 @@ step_fire :: proc()
             col := sprite.col
             col.a = f32(fire.t + 1) / f32(fire.dur)
             update_sprite(sprite, cell_pos(fire.cell), col = col)
+            snap_sprite_to_latest_frame(sprite)
+        }
+    }
+}
+
+step_orb :: proc()
+{
+    for key, &orb in orbs {
+        orb.t -= 1
+        if orb.t == 0 {
+            delete_key(&sprites, key)
+            delete_key(&orbs, key)
+        } else {
+            orb.cell = cell_move(orb.cell, orb.dir)
+            sprite := &sprites[key]
+            col := sprite.col
+            col.a = f32(orb.t + 1) / f32(orb.dur)
+            update_sprite(sprite, cell_pos(orb.cell), col = col)
             snap_sprite_to_latest_frame(sprite)
         }
     }

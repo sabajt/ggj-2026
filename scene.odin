@@ -23,6 +23,7 @@ enter_main :: proc()
 reset_game :: proc()
 {
 	clear(&fires)
+	clear(&orbs)
 	clear(&sprites)
 
 	// add player
