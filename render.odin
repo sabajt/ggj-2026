@@ -507,7 +507,7 @@ needs_text_render: bool = false
 	}
 	if len(sprites) > 0 {
 		gpu_sprites: [dynamic]GPU_Sprite
-		for spr in sprites {
+		for i, spr in sprites {
 			append(&gpu_sprites, create_gpu_sprite(spr, dt))
 		}
 

@@ -3,7 +3,9 @@ package main
 import "core:math"
 import "core:fmt"
 
-sprites := [dynamic]Sprite {}
+sprites := map[int]Sprite {}
+sprite_index := 0
+
 clear_sprites :: proc() { clear(&sprites) }
 
 Anchor :: enum {
@@ -20,10 +22,12 @@ Sprite :: struct {
 
 add_sprite :: proc(name: string, pos: [2]f32 = 0, rot: f32 = 0, scale: [2]f32 = 1, col: [4]f32 = 1, anchor: Anchor = .center) -> int
 {
-    length := len(sprites)
     spr := Sprite {name, tf(pos, rot, scale), col, anchor}
-	append(&sprites, spr)
-    return length
+    sprites[sprite_index] = spr
+    last_index := sprite_index    
+    sprite_index += 1
+
+    return last_index
 }
 
 update_sprite :: proc(
