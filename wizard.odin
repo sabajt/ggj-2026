@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import "core:math/rand"
 
 Wizard :: struct {
     sprite: int,
@@ -34,8 +35,10 @@ handle_wizard_spell :: proc(spell: Spell)
 
 step_game :: proc()
 {
-    step_spells()
     step_enemies()
+    step_spells()
+    
+    check_hits()
 }
 
 // Direction
@@ -68,6 +71,15 @@ turn_right :: proc(facing: Direction) -> Direction {
 // enemies
 
 enemy: Wizard
+
+add_enemy :: proc(cell: [2]int)
+{
+	i := add_sprite("mask_2.png", pos = cell_pos(cell), anchor = .bottom_left)
+	enemy = Wizard {
+		sprite = i,
+		cell = cell
+	}
+}
 
 step_enemies :: proc()
 {
@@ -110,4 +122,18 @@ step_enemies :: proc()
 	}
 }
 
+check_hits :: proc()
+{
+    for k, fire in fires {
+        if enemy.cell == fire.cell {
+            // next enemy
+            delete_key(&sprites, enemy.sprite)
+
+            spawn_x := WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_X - WIZARD_PAD)
+            spawn_y := WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_Y - WIZARD_PAD)
+
+            add_enemy({spawn_x, spawn_y})
+        }
+    }
+}
 

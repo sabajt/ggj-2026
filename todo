@@ -2,11 +2,12 @@ x get minimum engine working
 x sprites on grid
 x move player sprite
 x fire spell (fire mask)
+- player die condition (reset)
 - enemy with another spell
-- hit enemy w/ spell
+x hit enemy w/ spell
 - collect mask from enemy
 - switch masks (inventory?)
-- more enemies loop
+x more enemies loop
 - add sound / music
 
 bugs

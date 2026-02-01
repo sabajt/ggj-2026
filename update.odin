@@ -35,6 +35,7 @@ update :: proc()
     // update player spell request
     if spell, ok := wizard_spell_request.?; ok { 
         create_spell(spell)
+        step_game()
 
         wizard_spell_request = nil
     }

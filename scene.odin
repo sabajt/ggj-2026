@@ -12,11 +12,11 @@ Game_State :: enum {
 
 GAME_GRID_SIZE_X :: 40
 GAME_GRID_SIZE_Y :: 22
+WIZARD_PAD :: 5
 
 enter_main :: proc()
 {
 	game_state = .main
-	wizard_pad := 5
 
 	// for x in 0 ..< grid_size_x {
 	// 	for y in 0 ..< grid_size_y {
@@ -29,19 +29,14 @@ enter_main :: proc()
 
 	// add player
 	cell := [2]int { 
-		wizard_pad + rand.int_max(GAME_GRID_SIZE_X - 2 * wizard_pad), 
-		wizard_pad + rand.int_max(GAME_GRID_SIZE_Y - 2 * wizard_pad)
+		WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_X - 2 * WIZARD_PAD), 
+		WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_Y - 2 * WIZARD_PAD)
 	}
 	spr_i := add_sprite("mask_1.png", pos = cell_pos(cell), anchor = .bottom_left)
 	player = Wizard { sprite = spr_i, cell = cell}
 
 	// add enemy
-	cell = {GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y}
-	spr_i = add_sprite("mask_2.png", pos = cell_pos(cell), anchor = .bottom_left)
-	enemy = Wizard {
-		sprite = spr_i,
-		cell = cell
-	}
+	add_enemy({GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y})
 }
 
 exit_main :: proc()
