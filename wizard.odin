@@ -73,10 +73,14 @@ turn_right :: proc(facing: Direction) -> Direction {
 // enemies
 
 enemy: Wizard
+enemy_col: [4]f32
 
 add_enemy :: proc(cell: [2]int)
 {
-	i := add_sprite("mask_2.png", pos = cell_pos(cell), anchor = .bottom_left)
+    col_i := rand.int_max(8)
+    enemy_col = colors[col_i]
+
+	i := add_sprite("mask_2.png", pos = cell_pos(cell), col = enemy_col, anchor = .bottom_left)
 	enemy = Wizard {
 		sprite = i,
 		cell = cell

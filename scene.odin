@@ -31,7 +31,7 @@ reset_game :: proc()
 		WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_X - 2 * WIZARD_PAD), 
 		WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_Y - 2 * WIZARD_PAD)
 	}
-	spr_i := add_sprite("mask_1.png", pos = cell_pos(cell), anchor = .bottom_left)
+	spr_i := add_sprite("mask_1.png", pos = cell_pos(cell), col = COL_LEMON_LIME, anchor = .bottom_left)
 	player = Wizard { sprite = spr_i, cell = cell}
 
 	// add enemy

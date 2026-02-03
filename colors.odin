@@ -12,6 +12,8 @@ COL_PANIC_RED := [4]f32 {1, 0.12, 0.22, 1}
 COL_WARNING_YELLOW := [4]f32 {0.98, 0.95, 0.12, 1}
 COL_FRESH_ORANGE := [4]f32 {1, 0.8, 0.22, 1}
 
+COL_LEMON_LIME := [4]f32 {0.6, 0.898, 0.313, 1}
+
 colors := [8][4]f32 {
     COL_BLUE_RASP,
     COL_ICY_BLUE,

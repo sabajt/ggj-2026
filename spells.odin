@@ -28,12 +28,12 @@ create_spell :: proc(spell: Spell)
     for dir in DIRECTIONS {
         // adjacent to player
         cell := cell_move(player.cell, dir)
-        add_fire(cell, dir, dur = 5 + rand.int_max(4))
+        add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
 
         // move 4 direction out
         for i in 0 ..< 8 {
             cell = cell_move(cell, dir)
-            add_fire(cell, dir, dur = 5 + rand.int_max(4))
+            add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
 
             // 1 / 3 chance to have a branch left or right
             if rand.int_max(3) == 0 {
@@ -41,16 +41,16 @@ create_spell :: proc(spell: Spell)
                 branch_cell := cell
                 for i in 0 ..< (3 + rand.int_max(4)) {
                     branch_cell = cell_move(branch_cell, branch_dir)
-                    add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3))
+                    add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = COL_LEMON_LIME)
                 }
             }
         }
     }
 }
 
-add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5) 
+add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32) 
 {
-    spr := add_sprite("fire.png", cell_pos(cell), anchor = .bottom_left)
+    spr := add_sprite("fire.png", cell_pos(cell), col = col, anchor = .bottom_left)
     fire := Projectile {
         t = dur,
         dir = dir,
@@ -72,10 +72,7 @@ create_orb_spell :: proc(cast_cell: [2]int)
 
 add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20) 
 {
-    col_i := rand.int_max(8)
-    enemy_col = colors[col_i]
-
-    spr := add_sprite("orb.png", cell_pos(cell), col = enem anchor = .bottom_left)
+    spr := add_sprite("orb.png", cell_pos(cell), col = enemy_col, anchor = .bottom_left)
     orb := Projectile {
         t = dur,
         dir = dir,
