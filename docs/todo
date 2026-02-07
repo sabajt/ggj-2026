@@ -1,0 +1,34 @@
+
+- mask combos system
+    - jump movement 
+    - random teleport movement
+    - step movement with increasing speed (multiple movement per game step)
+- right side UI
+- switch masks in UI
+- move between screens
+- connected areas
+- health HUD
+- small good looking text
+- normal enemy with line of sight for attack
+- boss with mask
+- collect mask from boss
+- mask levels / xp system
+- up / down levels 
+- buildings (use line of sight to hide interior)
+- gamepad
+- add sound / music
+
+bugs
+
+- fullscreen resolution scaling bug (needs window size before texture creation)
+
+done
+
+x get minimum engine working
+x sprites on grid
+x move player sprite
+x fire spell (fire mask)
+x player die condition (reset)
+x enemy with another spell
+x hit enemy w/ spell
+x more enemies loop

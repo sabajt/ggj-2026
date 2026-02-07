@@ -1,0 +1,31 @@
+Mask Mage 
+
+Goal: Obtain the mystik mask of Yotor, the most powerful mask in the universe.
+
+Summary: Turn based, simultaneous movement adventure. Single screens with N, S, E, W, Up, Down connections. Features a mask-based avatar system: mask is a combination of movement, attack, and other interactions that make up the player's available actions. Player starts with a mask equipped (might be a default loadout)
+, and begins encountering hostils, with their own attack and movement rules but they don't have masks. Areas are named and we eventually encounter hideouts/bases/lairs of infamous mask bearers. These are dungeons and hostils can be fought to fight the mask bearer, and gain the mask. When a player equips a new mask, they switch to its action set. Between the boss mask bearers are varying enemies. Defeating enemeis levels up the mask you are wearing, allowing player to chose which properties to upgrade. Ultimately, the mask of Yotor could be a big boss fight, or just you find it after dungeon.
+
+- Avatar hit points / health
+Health represented by circled dots above avatars' heads. Simple implementation: 1 hit = 1 point. Advanced implementation could vary in stregth. 1 through 5 or 6 might be ideal for small format. Health at its simplist could auto recover.  Advanced implementation could be picked up, given / expanded by special powers.
+
+- Enemies
+Enemies will be abundant and generally be weaker than players, but still require careful observation to avoid getting hit. Consider projectiles and melee.
+
+- Upgrade system
+Version A: Get XP on defeat enemies. Level up with enough XP. Choose where to apply skill points for mask subsystems (movement, attack, special, etc). Movement upgrade could be player moving faster by getting an extra move between enemies, or every 2 moves etc. Attack upgrade could increase speed, volume etc. UI could be displayed in righthand window, verticaly divided, to keep 1 screen at time (no scroll) play. 
+
+- UI
+Righthand vertical divided. Current level, current mask, inventory of other masks, current mask's actions, mask's actions' levels. Select with right stick which then "takes over" action buttons so player can select masks, read detail (if needed, might be fine to display all information all the time). Could also contain file / options menu so don't have to deal with a separate pause menu.
+
+- Simultaneous movement
+Players and everything else moves simultaneously. This means handling crossing collisions, divided up into a grid.
+
+- Masks
+Masks will comprise a users action set. Movement, attack and special actions (TBD) are included. Mask actions can be leveled up, and information about their effects displayed in the UI. Some mask are worn by legendary / notorius bearers, and will be named as such. Masks will comprise of procedurally generated combinations of actions. There should be room for some of these combos to be rediculous, but never giving the player this as a default mask.
+
+- Mask boss lairs
+These will be accessed, usually by going down or up or into a building. Buildings should be continuous extensions of main map but interor hidden until inside. A general sight implementation could work, and might benefit the game as a whole.
+
+- World
+
+- Final boss
