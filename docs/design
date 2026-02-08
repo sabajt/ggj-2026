@@ -21,7 +21,7 @@ Righthand vertical divided. Current level, current mask, inventory of other mask
 Players and everything else moves simultaneously. This means handling crossing collisions, divided up into a grid.
 
 - Masks
-Masks will comprise a users action set. Movement, attack and special actions (TBD) are included. Mask actions can be leveled up, and information about their effects displayed in the UI. Some mask are worn by legendary / notorius bearers, and will be named as such. Masks will comprise of procedurally generated combinations of actions. There should be room for some of these combos to be rediculous, but never giving the player this as a default mask.
+Masks will comprise a users action set. Movement, attack and special actions (TBD, perhaps unlocked with upgrades but which one still proc gen) are included. Mask actions can be leveled up, and information about their effects displayed in the UI. Some mask are worn by legendary / notorius bearers, and will be named as such. Masks will comprise of procedurally generated combinations of actions. There should be room for some of these combos to be rediculous, but never giving the player this as a default mask. 
 
 - Mask boss lairs
 These will be accessed, usually by going down or up or into a building. Buildings should be continuous extensions of main map but interor hidden until inside. A general sight implementation could work, and might benefit the game as a whole.

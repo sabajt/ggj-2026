@@ -22,17 +22,23 @@ player: Wizard
 
 handle_wizard_move :: proc(dir: Direction)
 {
-    wizard_direction_request = dir
+    if !is_stepping() {
+        wizard_direction_request = dir
+    }
 }
 
 handle_wizard_wait :: proc()
 {
-    wizard_wait_request = true
+    if !is_stepping() {
+        wizard_wait_request = true
+    }
 }
 
 handle_wizard_spell :: proc(spell: Spell)
 {
-    wizard_spell_request = spell
+    if !is_stepping() {
+        wizard_spell_request = spell
+    }
 }
 
 step_game :: proc()
