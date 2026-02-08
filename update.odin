@@ -117,11 +117,6 @@ update :: proc()
 {
     update_resolutions()
 
-    // initiate stepping state: no input processed 
-    // calculate next step for all objects: moves, attacks etc
-    // execute the step animated over time and check any collisions (try actual collision boxes?)
-    // arrive at the next state and restore input 
-
     // player initiate step with movement
     if dir, ok := wizard_direction_request.?; ok { 
         wizard_direction_request = nil
@@ -133,17 +128,17 @@ update :: proc()
     }
 
     if is_stepping {
-
+        // add any world step actions
         if action_step_t == 0 {
-            // add world step actions
-            // step_enemies
             coord := get_enemy_player_path_next_coord()
             add_enemy_move_action(coord)
         }
 
+        // animate step
         action_step_t += 1
         update_actions()
 
+        // finish step
         if action_step_t == ACTION_DUR {
             action_step_t = 0
             is_stepping = false
