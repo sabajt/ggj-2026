@@ -5,14 +5,14 @@ import sdl "vendor:sdl3"
 import "core:fmt"
 import "core:math"
 
+ACTION_DUR :: int(7)
+
 flash_on := true
 
 // actions
 
 Action :: struct {
     i: int,
-    t: int,
-    dur: int,
     update: proc(action: ^Action),
     data: Action_Data
 }
@@ -29,18 +29,27 @@ add_player_move_action :: proc(dest: [2]int)
 {
     action := Action {
         i = action_i,
-        t = 0,
-        dur = 8,
-        update = action_update_move,
+        update = action_update_player_move,
         data = { start_cell = player.cell, end_cell = dest}
     }
     actions[action_i] = action
+    action_i += 1
 }
 
-action_update_move :: proc(action: ^Action) {
-	val := f32(action.t) / f32(action.dur)
-    action.t += 1
-    if action.t == action.dur {
+add_enemy_move_action :: proc(dest: [2]int)
+{
+    action := Action {
+        i = action_i,
+        update = action_update_enemy_move,
+        data = { start_cell = enemy.cell, end_cell = dest}
+    }
+    actions[action_i] = action
+    action_i += 1
+}
+
+action_update_player_move :: proc(action: ^Action) 
+{
+    if action_step_t == ACTION_DUR {
         delete_key(&actions, action.i)
         sprite := &sprites[player.sprite]
         player.cell = action.data.end_cell
@@ -48,10 +57,34 @@ action_update_move :: proc(action: ^Action) {
         snap_sprite_to_latest_frame(sprite)
     } else {
         sprite := &sprites[player.sprite]
-        pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), val)
+        t := f32(action_step_t) / f32(ACTION_DUR)
+        pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
         update_sprite(sprite, pos)
     }
 }
+
+action_update_enemy_move :: proc(action: ^Action) 
+{
+    if action_step_t == ACTION_DUR {
+        delete_key(&actions, action.i)
+        sprite := &sprites[enemy.sprite]
+        enemy.cell = action.data.end_cell
+        update_sprite(sprite, cell_pos(enemy.cell))
+        snap_sprite_to_latest_frame(sprite)
+    } else {
+        sprite := &sprites[enemy.sprite]
+        t := f32(action_step_t) / f32(ACTION_DUR)
+        pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
+        update_sprite(sprite, pos)
+    }
+}
+
+        // enemy_sprite := &sprites[enemy.sprite]
+        // enemy.cell = {int(next_move.x), int(next_move.y)}
+        // update_sprite(enemy_sprite, cell_pos(enemy.cell))
+        // snap_sprite_to_latest_frame(enemy_sprite)
+
+
 
 update_actions :: proc()
 {
@@ -88,21 +121,37 @@ update :: proc()
     // execute the step animated over time and check any collisions (try actual collision boxes?)
     // arrive at the next state and restore input 
 
+    // player initiate step with movement
     if dir, ok := wizard_direction_request.?; ok { 
         wizard_direction_request = nil
 
         dest_cell := cell_move(player.cell, dir)
         add_player_move_action(dest_cell)
+
+        is_stepping = true
     }
 
-    if is_stepping() {
+    if is_stepping {
+
+        if action_step_t == 0 {
+            // add world step actions
+            // step_enemies
+            coord := get_enemy_player_path_next_coord()
+            add_enemy_move_action(coord)
+        }
+
+        action_step_t += 1
         update_actions()
+
+        if action_step_t == ACTION_DUR {
+            action_step_t = 0
+            is_stepping = false
+        }
     }
 }
 
-is_stepping :: proc() -> bool {
-    return len(actions) > 0
-}
+action_step_t: int = 0
+is_stepping: bool = false
 
 old_update :: proc() 
 {

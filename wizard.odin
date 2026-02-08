@@ -22,21 +22,21 @@ player: Wizard
 
 handle_wizard_move :: proc(dir: Direction)
 {
-    if !is_stepping() {
+    if !is_stepping {
         wizard_direction_request = dir
     }
 }
 
 handle_wizard_wait :: proc()
 {
-    if !is_stepping() {
+    if !is_stepping {
         wizard_wait_request = true
     }
 }
 
 handle_wizard_spell :: proc(spell: Spell)
 {
-    if !is_stepping() {
+    if !is_stepping {
         wizard_spell_request = spell
     }
 }
@@ -98,7 +98,7 @@ step_enemies :: proc()
     if enemy.t % 3 == 0 {
         enemy_cast_spell()
     } else {
-        move_enemy_to_player()
+        // move_enemy_to_player()
     }
     enemy.t += 1
 }
@@ -108,7 +108,7 @@ enemy_cast_spell :: proc()
     create_orb_spell(enemy.cell)
 }
 
-move_enemy_to_player :: proc()
+get_enemy_player_path_next_coord :: proc() -> [2]int
 {
 	astar: AStar_Grid
 	astar_grid_init(&astar)
@@ -142,11 +142,10 @@ move_enemy_to_player :: proc()
 
 	if ok && len(path) > 0 {
         next_move := path[0]
-        enemy_sprite := &sprites[enemy.sprite]
-        enemy.cell = {int(next_move.x), int(next_move.y)}
-        update_sprite(enemy_sprite, cell_pos(enemy.cell))
-        snap_sprite_to_latest_frame(enemy_sprite)
+        return {int(next_move.x), int(next_move.y)}
 	}
+    fmt.println("warning: could not find astar path from %v to %v", sp, ep)
+    return {0, 0}
 }
 
 check_hits :: proc()
