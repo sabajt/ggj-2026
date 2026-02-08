@@ -8,6 +8,10 @@ import "core:math"
 ACTION_DUR :: int(7)
 
 flash_on := true
+actions := make(map[int]Action)
+action_i := 0
+action_step_t: int = 0
+is_stepping: bool = false
 
 // actions
 
@@ -21,9 +25,6 @@ Action_Data :: struct {
     start_cell: [2]int,
     end_cell: [2]int
 }
-
-actions := make(map[int]Action)
-action_i := 0
 
 add_player_move_action :: proc(dest: [2]int)
 {
@@ -95,13 +96,13 @@ update_actions :: proc()
 
 // resolution
 
-get_resolution :: proc () -> [2]f32 {
+get_resolution :: proc () -> [2]f32 
+{
 	s : [2]i32
 	ok := sdl.GetWindowSize(window, &s.x, &s.y)
 	assert(ok)
 	return [2]f32 { f32(s.x), f32(s.y) }
 }
-
 
 update_resolutions :: proc()
 {
@@ -150,8 +151,12 @@ update :: proc()
     }
 }
 
-action_step_t: int = 0
-is_stepping: bool = false
+
+
+
+
+
+
 
 old_update :: proc() 
 {
