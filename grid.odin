@@ -1,8 +1,21 @@
 package main
 
+import "core:math"
+
 cell_pos :: proc(cell: [2]int) -> [2]f32
 {
-	return { f32(cell.x) * GRID_PADDING, f32(cell.y) * GRID_PADDING } 
+	return { 
+        f32(cell.x) * GRID_PADDING, 
+        f32(cell.y) * GRID_PADDING 
+    } 
+}
+
+pos_to_cell :: proc(pos: [2]f32) -> [2]int
+{
+    return {
+        int(math.floor(pos.x / GRID_PADDING)),
+        int(math.floor(pos.y / GRID_PADDING))
+    }
 }
 
 cell_move :: proc(cell: [2]int, dir: Direction) -> [2]int

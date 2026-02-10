@@ -7,7 +7,7 @@ Projectile :: struct {
     t: int,
     dir: Direction,
     spr: int,
-    cell: [2]int,
+    pos: [2]f32,
     dur: int
 }
 
@@ -51,12 +51,13 @@ create_spell :: proc(spell: Spell)
 
 add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32) 
 {
-    spr := add_sprite("fire.png", cell_pos(cell), col = col, anchor = .bottom_left)
+    pos := cell_pos(cell)
+    spr := add_sprite("fire.png", pos, col = col, anchor = .bottom_left)
     fire := Projectile {
         t = dur,
         dir = dir,
         spr = spr,
-        cell = cell,
+        pos = pos,
         dur = dur
     }
     fires[spr] = fire
@@ -66,12 +67,13 @@ add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32)
 // track position in model, not cell
 add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20) -> int
 {
-    spr := add_sprite("orb.png", cell_pos(cell), col = enemy_col, anchor = .bottom_left)
+    pos := cell_pos(cell)
+    spr := add_sprite("orb.png", pos, col = enemy_col, anchor = .bottom_left)
     orb := Projectile {
         t = dur,
         dir = dir,
         spr = spr,
-        cell = cell,
+        pos = pos,
         dur = dur
     }
     orbs[spr] = orb
@@ -85,18 +87,18 @@ step_spells :: proc()
 
 step_fire :: proc()
 {
-    for key, &fire in fires {
-        fire.t -= 1
-        if fire.t == 0 {
-            delete_key(&sprites, key)
-            delete_key(&fires, key)
-        } else {
-            fire.cell = cell_move(fire.cell, fire.dir)
-            sprite := &sprites[key]
-            col := sprite.col
-            col.a = f32(fire.t + 1) / f32(fire.dur)
-            update_sprite(sprite, cell_pos(fire.cell), col = col)
-            snap_sprite_to_latest_frame(sprite)
-        }
-    }
+    // for key, &fire in fires {
+    //     fire.t -= 1
+    //     if fire.t == 0 {
+    //         delete_key(&sprites, key)
+    //         delete_key(&fires, key)
+    //     } else {
+    //         fire.cell = cell_move(fire.cell, fire.dir)
+    //         sprite := &sprites[key]
+    //         col := sprite.col
+    //         col.a = f32(fire.t + 1) / f32(fire.dur)
+    //         update_sprite(sprite, cell_pos(fire.cell), col = col)
+    //         snap_sprite_to_latest_frame(sprite)
+    //     }
+    // }
 }

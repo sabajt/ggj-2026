@@ -97,7 +97,7 @@ action_update_orb :: proc(action: ^Action)
     if action_step_t == ACTION_DUR {
         delete_key(&actions, action.i)
 
-        orb.cell = action.data.end_cell
+        orb.pos = cell_pos(action.data.end_cell)
         update_sprite(sprite, cell_pos(action.data.end_cell))
         snap_sprite_to_latest_frame(sprite)
 
@@ -107,7 +107,6 @@ action_update_orb :: proc(action: ^Action)
             delete_key(&orbs, obj_id)
         } 
     } else {
-        sprite := &sprites[obj_id]
         t := f32(action_step_t) / f32(ACTION_DUR)
         pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
 
@@ -116,6 +115,7 @@ action_update_orb :: proc(action: ^Action)
         col_alpha_end :=  f32(orb.t - 1) / f32(orb.dur)
         col.a = math.lerp(col_alpha_start, col_alpha_end, t)
 
+        orb.pos = pos
         update_sprite(sprite, pos, col = col)
     }
 }
@@ -194,14 +194,15 @@ step_enemies :: proc()
 step_orbs :: proc()
 {
     for k, orb in orbs {
-        // adjacent to caster
-        dest := cell_move(orb.cell, orb.dir)
+        // move outward
+        cur := pos_to_cell(orb.pos)
+        dest := cell_move(cur, orb.dir)
 
         action := Action {
             i = action_i,
             update = action_update_orb,
             data = { 
-                start_cell = orb.cell, 
+                start_cell = cur, 
                 end_cell = dest,
                 obj_id = orb.spr
             }
