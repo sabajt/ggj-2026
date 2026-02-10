@@ -22,8 +22,9 @@ Action :: struct {
 }
 
 Action_Data :: struct {
+    obj_id: int,
     start_cell: [2]int,
-    end_cell: [2]int
+    end_cell: [2]int,
 }
 
 add_player_move_action :: proc(dest: [2]int)
@@ -46,6 +47,13 @@ add_enemy_move_action :: proc(dest: [2]int)
     }
     actions[action_i] = action
     action_i += 1
+}
+
+add_enemy_cast_spell_action :: proc(cast_cell: [2]int)
+{
+    for dir in DIRECTIONS {
+        add_orb(cast_cell, dir)
+    }
 }
 
 action_update_player_move :: proc(action: ^Action) 
@@ -80,12 +88,37 @@ action_update_enemy_move :: proc(action: ^Action)
     }
 }
 
-        // enemy_sprite := &sprites[enemy.sprite]
-        // enemy.cell = {int(next_move.x), int(next_move.y)}
-        // update_sprite(enemy_sprite, cell_pos(enemy.cell))
-        // snap_sprite_to_latest_frame(enemy_sprite)
+action_update_orb :: proc(action: ^Action) 
+{
+    obj_id := action.data.obj_id
+    sprite := &sprites[obj_id]
+    orb := &orbs[obj_id]
 
+    if action_step_t == ACTION_DUR {
+        delete_key(&actions, action.i)
 
+        orb.cell = action.data.end_cell
+        update_sprite(sprite, cell_pos(action.data.end_cell))
+        snap_sprite_to_latest_frame(sprite)
+
+        orb.t -= 1
+        if orb.t == 0 {
+            delete_key(&sprites, obj_id)
+            delete_key(&orbs, obj_id)
+        } 
+    } else {
+        sprite := &sprites[obj_id]
+        t := f32(action_step_t) / f32(ACTION_DUR)
+        pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
+
+        col := sprite.col
+        col_alpha_start := f32(orb.t) / f32(orb.dur)
+        col_alpha_end :=  f32(orb.t - 1) / f32(orb.dur)
+        col.a = math.lerp(col_alpha_start, col_alpha_end, t)
+
+        update_sprite(sprite, pos, col = col)
+    }
+}
 
 update_actions :: proc()
 {
@@ -130,11 +163,11 @@ update :: proc()
     if is_stepping {
         // add any world step actions
         if action_step_t == 0 {
-            coord := get_enemy_player_path_next_coord()
-            add_enemy_move_action(coord)
+            step_enemies()
+            step_orbs()
         }
 
-        // animate step
+        // update / animate step: steps currently remove themselves when finished
         action_step_t += 1
         update_actions()
 
@@ -146,12 +179,37 @@ update :: proc()
     }
 }
 
+step_enemies :: proc()
+{
+    if enemy.t % 3 == 0 {
+        // enemy_cast_spell()
+        add_enemy_cast_spell_action(enemy.cell)
+    } else {
+        coord := get_enemy_player_path_next_coord()
+        add_enemy_move_action(coord)
+    }
+    enemy.t += 1
+}
 
+step_orbs :: proc()
+{
+    for k, orb in orbs {
+        // adjacent to caster
+        dest := cell_move(orb.cell, orb.dir)
 
-
-
-
-
+        action := Action {
+            i = action_i,
+            update = action_update_orb,
+            data = { 
+                start_cell = orb.cell, 
+                end_cell = dest,
+                obj_id = orb.spr
+            }
+        }
+        actions[action_i] = action
+        action_i += 1
+    }
+}
 
 old_update :: proc() 
 {

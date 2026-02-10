@@ -93,21 +93,6 @@ add_enemy :: proc(cell: [2]int)
 	}
 }
 
-step_enemies :: proc()
-{
-    if enemy.t % 3 == 0 {
-        enemy_cast_spell()
-    } else {
-        // move_enemy_to_player()
-    }
-    enemy.t += 1
-}
-
-enemy_cast_spell :: proc()
-{
-    create_orb_spell(enemy.cell)
-}
-
 get_enemy_player_path_next_coord :: proc() -> [2]int
 {
 	astar: AStar_Grid

@@ -1,6 +1,7 @@
 package main
 
 import "core:math/rand"
+import "core:fmt"
 
 Projectile :: struct {
     t: int,
@@ -19,7 +20,7 @@ create_spell :: proc(spell: Spell)
         case .fire_tree:
             create_fire_tree_spell()
         case .orb:
-            create_orb_spell(player.cell)
+            fmt.println("unhandled spell: orb")
     }
 }
 
@@ -61,16 +62,9 @@ add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32)
     fires[spr] = fire
 }
 
-create_orb_spell :: proc(cast_cell: [2]int) 
-{    
-    for dir in DIRECTIONS {
-        // adjacent to player
-        cell := cell_move(cast_cell, dir)
-        add_orb(cell, dir)
-    }
-}
-
-add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20) 
+// TODO: calculate cell from position
+// track position in model, not cell
+add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20) -> int
 {
     spr := add_sprite("orb.png", cell_pos(cell), col = enemy_col, anchor = .bottom_left)
     orb := Projectile {
@@ -81,12 +75,12 @@ add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20)
         dur = dur
     }
     orbs[spr] = orb
+    return spr
 }
 
 step_spells :: proc()
 {
     step_fire()
-    step_orb()
 }
 
 step_fire :: proc()
@@ -102,24 +96,6 @@ step_fire :: proc()
             col := sprite.col
             col.a = f32(fire.t + 1) / f32(fire.dur)
             update_sprite(sprite, cell_pos(fire.cell), col = col)
-            snap_sprite_to_latest_frame(sprite)
-        }
-    }
-}
-
-step_orb :: proc()
-{
-    for key, &orb in orbs {
-        orb.t -= 1
-        if orb.t == 0 {
-            delete_key(&sprites, key)
-            delete_key(&orbs, key)
-        } else {
-            orb.cell = cell_move(orb.cell, orb.dir)
-            sprite := &sprites[key]
-            col := sprite.col
-            col.a = f32(orb.t + 1) / f32(orb.dur)
-            update_sprite(sprite, cell_pos(orb.cell), col = col)
             snap_sprite_to_latest_frame(sprite)
         }
     }
