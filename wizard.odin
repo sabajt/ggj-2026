@@ -5,7 +5,7 @@ import "core:math/rand"
 
 Wizard :: struct {
     sprite: int,
-    cell: [2]int,
+    pos: [2]f32,
     t: int
 }
 
@@ -89,7 +89,7 @@ add_enemy :: proc(cell: [2]int)
 	i := add_sprite("mask_2.png", pos = cell_pos(cell), col = enemy_col, anchor = .bottom_left)
 	enemy = Wizard {
 		sprite = i,
-		cell = cell
+		pos = cell_pos(cell)
 	}
 }
 
@@ -120,8 +120,8 @@ get_enemy_player_path_next_coord :: proc() -> [2]int
 	//
 	// NOTE: By default, `get_path` allocates memory using `context.allocator`. You can pass your own allocator as an argument to change this.
 	// This allocator is only used for the output slice, and not for anything internal to the pathfinding algorithm.
-    sp := enemy.cell
-    ep := player.cell
+    sp := pos_to_cell(enemy.pos)
+    ep := pos_to_cell(player.pos)
 	path, ok := astar_get_path(&astar, {i32(sp.x), i32(sp.y)}, {i32(ep.x), i32(ep.y)})
     defer { delete(path) }
 

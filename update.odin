@@ -27,12 +27,15 @@ Action_Data :: struct {
     end_cell: [2]int,
 }
 
-add_player_move_action :: proc(dest: [2]int)
+add_player_move_action :: proc(dir: Direction)
 {
+    start_cell := pos_to_cell(player.pos)
+    end_cell := cell_move(start_cell, dir)
+
     action := Action {
         i = action_i,
         update = action_update_player_move,
-        data = { start_cell = player.cell, end_cell = dest}
+        data = { start_cell = start_cell, end_cell = end_cell}
     }
     actions[action_i] = action
     action_i += 1
@@ -43,16 +46,17 @@ add_enemy_move_action :: proc(dest: [2]int)
     action := Action {
         i = action_i,
         update = action_update_enemy_move,
-        data = { start_cell = enemy.cell, end_cell = dest}
+        data = { start_cell = pos_to_cell(enemy.pos), end_cell = dest}
     }
     actions[action_i] = action
     action_i += 1
 }
 
-add_enemy_cast_spell_action :: proc(cast_cell: [2]int)
+add_enemy_cast_spell_action :: proc()
 {
+    cell := pos_to_cell(enemy.pos)
     for dir in DIRECTIONS {
-        add_orb(cast_cell, dir)
+        add_orb(cell, dir)
     }
 }
 
@@ -61,14 +65,19 @@ action_update_player_move :: proc(action: ^Action)
     if action_step_t == ACTION_DUR {
         delete_key(&actions, action.i)
         sprite := &sprites[player.sprite]
-        player.cell = action.data.end_cell
-        update_sprite(sprite, cell_pos(player.cell))
+        // TODO: common structure that binds update_sprite to a game obj pos?
+        player.pos = cell_pos(action.data.end_cell)
+        update_sprite(sprite, player.pos)
+        /////////////////////////////////////////////////////////////////////
         snap_sprite_to_latest_frame(sprite)
+        
     } else {
         sprite := &sprites[player.sprite]
         t := f32(action_step_t) / f32(ACTION_DUR)
-        pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
-        update_sprite(sprite, pos)
+        // TODO: common structure that binds update_sprite to a game obj pos?
+        player.pos = math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
+        update_sprite(sprite, player.pos)
+        /////////////////////////////////////////////////////////////////////
     }
 }
 
@@ -77,14 +86,18 @@ action_update_enemy_move :: proc(action: ^Action)
     if action_step_t == ACTION_DUR {
         delete_key(&actions, action.i)
         sprite := &sprites[enemy.sprite]
-        enemy.cell = action.data.end_cell
-        update_sprite(sprite, cell_pos(enemy.cell))
+        // TODO: common structure that binds update_sprite to a game obj pos?
+        enemy.pos = cell_pos(action.data.end_cell)
+        update_sprite(sprite, enemy.pos)
+        /////////////////////////////////////////////////////////////////////
         snap_sprite_to_latest_frame(sprite)
     } else {
         sprite := &sprites[enemy.sprite]
         t := f32(action_step_t) / f32(ACTION_DUR)
-        pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
-        update_sprite(sprite, pos)
+        // TODO: common structure that binds update_sprite to a game obj pos?
+        enemy.pos = math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
+        update_sprite(sprite, enemy.pos)
+        /////////////////////////////////////////////////////////////////////
     }
 }
 
@@ -154,8 +167,7 @@ update :: proc()
     if dir, ok := wizard_direction_request.?; ok { 
         wizard_direction_request = nil
 
-        dest_cell := cell_move(player.cell, dir)
-        add_player_move_action(dest_cell)
+        add_player_move_action(dir)
 
         is_stepping = true
     }
@@ -183,7 +195,7 @@ step_enemies :: proc()
 {
     if enemy.t % 3 == 0 {
         // enemy_cast_spell()
-        add_enemy_cast_spell_action(enemy.cell)
+        add_enemy_cast_spell_action()
     } else {
         coord := get_enemy_player_path_next_coord()
         add_enemy_move_action(coord)
@@ -212,48 +224,48 @@ step_orbs :: proc()
     }
 }
 
-old_update :: proc() 
-{
-    update_resolutions()
+// old_update :: proc() 
+// {
+//     update_resolutions()
 
-    // update player move request
-    if dir, ok := wizard_direction_request.?; ok { 
-        player.cell = cell_move(player.cell, dir)
-        spr := &sprites[player.sprite]
-        update_sprite(spr, cell_pos(player.cell))
-        snap_sprite_to_latest_frame(spr)
+//     // update player move request
+//     if dir, ok := wizard_direction_request.?; ok { 
+//         player.cell = cell_move(player.cell, dir)
+//         spr := &sprites[player.sprite]
+//         update_sprite(spr, cell_pos(player.cell))
+//         snap_sprite_to_latest_frame(spr)
 
-        step_game()
-        wizard_direction_request = nil
-    }
+//         step_game()
+//         wizard_direction_request = nil
+//     }
 
-    if wizard_wait_request { 
-        step_game()
-        wizard_wait_request = false
-    }
+//     if wizard_wait_request { 
+//         step_game()
+//         wizard_wait_request = false
+//     }
 
-    // update player spell request
+//     // update player spell request
 
-    if spell, ok := wizard_spell_request.?; ok { 
-        create_spell(spell)
-        step_game()
+//     if spell, ok := wizard_spell_request.?; ok { 
+//         create_spell(spell)
+//         step_game()
 
-        wizard_spell_request = nil
-    }
+//         wizard_spell_request = nil
+//     }
 
-    // animate enemy and player
+//     // animate enemy and player
 
-    enemy_sprite := &sprites[enemy.sprite]
-    enemy_sprite.col.a = flash_on ? 1 : 0.2
+//     enemy_sprite := &sprites[enemy.sprite]
+//     enemy_sprite.col.a = flash_on ? 1 : 0.2
 
-    player_sprite := &sprites[player.sprite]
-    player_sprite.col.a = flash_on ? 1 : 0.2
+//     player_sprite := &sprites[player.sprite]
+//     player_sprite.col.a = flash_on ? 1 : 0.2
 
-    // update step time and common step vars
+//     // update step time and common step vars
 
-    if game_step_time % 8 == 0 {
-        flash_on = !flash_on
-    }
-    game_step_time += 1
-}
+//     if game_step_time % 8 == 0 {
+//         flash_on = !flash_on
+//     }
+//     game_step_time += 1
+// }
 

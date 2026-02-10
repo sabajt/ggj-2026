@@ -26,27 +26,27 @@ create_spell :: proc(spell: Spell)
 
 @(private) create_fire_tree_spell :: proc() 
 {    
-    for dir in DIRECTIONS {
-        // adjacent to player
-        cell := cell_move(player.cell, dir)
-        add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
+    // for dir in DIRECTIONS {
+    //     // adjacent to player
+    //     cell := cell_move(player.cell, dir)
+    //     add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
 
-        // move 4 direction out
-        for i in 0 ..< 8 {
-            cell = cell_move(cell, dir)
-            add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
+    //     // move 4 direction out
+    //     for i in 0 ..< 8 {
+    //         cell = cell_move(cell, dir)
+    //         add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
 
-            // 1 / 3 chance to have a branch left or right
-            if rand.int_max(3) == 0 {
-                branch_dir := rand.int_max(2) == 0 ? turn_left(dir) : turn_right(dir)
-                branch_cell := cell
-                for i in 0 ..< (3 + rand.int_max(4)) {
-                    branch_cell = cell_move(branch_cell, branch_dir)
-                    add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = COL_LEMON_LIME)
-                }
-            }
-        }
-    }
+    //         // 1 / 3 chance to have a branch left or right
+    //         if rand.int_max(3) == 0 {
+    //             branch_dir := rand.int_max(2) == 0 ? turn_left(dir) : turn_right(dir)
+    //             branch_cell := cell
+    //             for i in 0 ..< (3 + rand.int_max(4)) {
+    //                 branch_cell = cell_move(branch_cell, branch_dir)
+    //                 add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = COL_LEMON_LIME)
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32) 
