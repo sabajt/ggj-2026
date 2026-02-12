@@ -133,8 +133,8 @@ get_enemy_player_path_next_coord :: proc() -> [2]int
     return {0, 0}
 }
 
-check_hits :: proc()
-{
+// check_hits_old :: proc()
+// {
     // // check for enemies hitting player projectile
     // for k, fire in fires {
     //     if enemy.cell == fire.cell {
@@ -159,5 +159,5 @@ check_hits :: proc()
     //     reset_game()
     //     return
     // }
-}
+// }
 

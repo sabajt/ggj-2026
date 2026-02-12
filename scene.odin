@@ -25,6 +25,7 @@ reset_game :: proc()
 	clear(&fires)
 	clear(&orbs)
 	clear(&sprites)
+	clear(&actions)
 
 	// add player
 	cell := [2]int { 

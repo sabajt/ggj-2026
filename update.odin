@@ -65,19 +65,15 @@ action_update_player_move :: proc(action: ^Action)
     if action_step_t == ACTION_DUR {
         delete_key(&actions, action.i)
         sprite := &sprites[player.sprite]
-        // TODO: common structure that binds update_sprite to a game obj pos?
         player.pos = cell_pos(action.data.end_cell)
         update_sprite(sprite, player.pos)
-        /////////////////////////////////////////////////////////////////////
         snap_sprite_to_latest_frame(sprite)
         
     } else {
         sprite := &sprites[player.sprite]
         t := f32(action_step_t) / f32(ACTION_DUR)
-        // TODO: common structure that binds update_sprite to a game obj pos?
         player.pos = math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
         update_sprite(sprite, player.pos)
-        /////////////////////////////////////////////////////////////////////
     }
 }
 
@@ -86,18 +82,14 @@ action_update_enemy_move :: proc(action: ^Action)
     if action_step_t == ACTION_DUR {
         delete_key(&actions, action.i)
         sprite := &sprites[enemy.sprite]
-        // TODO: common structure that binds update_sprite to a game obj pos?
         enemy.pos = cell_pos(action.data.end_cell)
         update_sprite(sprite, enemy.pos)
-        /////////////////////////////////////////////////////////////////////
         snap_sprite_to_latest_frame(sprite)
     } else {
         sprite := &sprites[enemy.sprite]
         t := f32(action_step_t) / f32(ACTION_DUR)
-        // TODO: common structure that binds update_sprite to a game obj pos?
         enemy.pos = math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
         update_sprite(sprite, enemy.pos)
-        /////////////////////////////////////////////////////////////////////
     }
 }
 
@@ -188,6 +180,8 @@ update :: proc()
             action_step_t = 0
             is_stepping = false
         }
+
+        check_hits()
     }
 }
 
@@ -221,6 +215,23 @@ step_orbs :: proc()
         }
         actions[action_i] = action
         action_i += 1
+    }
+}
+
+// DOING: checks hit but crashes on reset (orb)
+check_hits :: proc()
+{
+    // reset if orbs hits player
+    for k, orb in orbs {
+        if grid_item_collide(orb.pos, player.pos) {
+            reset_game()
+            return
+        }
+    }
+    // reset if enemy hits player
+    if grid_item_collide(enemy.pos, player.pos) {
+        reset_game()
+        return
     }
 }
 

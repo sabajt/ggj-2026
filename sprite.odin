@@ -20,6 +20,8 @@ Sprite :: struct {
     anchor: Anchor
 }
 
+// TODO: think about returning sprite itelf. easier for rest of code?
+// game objs can attach sprite and use tf.cur.pos? 
 add_sprite :: proc(name: string, pos: [2]f32 = 0, rot: f32 = 0, scale: [2]f32 = 1, col: [4]f32 = 1, anchor: Anchor = .center) -> int
 {
     spr := Sprite {name, tf(pos, rot, scale), col, anchor}
@@ -38,7 +40,7 @@ update_sprite :: proc(
     col:  Maybe([4]f32) = nil, 
     anchor:  Maybe(Anchor) = nil)
 {
-    snap_sprite_to_latest_frame(spr)
+    snap_sprite_to_latest_frame(spr) // TODO: This should be done somewhere else?
 
     if val, ok := pos.?; ok { spr.tf.cur.pos = val }
     if val, ok := rot.?; ok { spr.tf.cur.rot = val }

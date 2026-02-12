@@ -269,6 +269,7 @@ render :: proc(dt: f32)
 	)
 
 	// draw batched shapes: players
+	// TODO: remove or comment out as example since not using 
 
 	players_len := len(batch_shape_inputs) - last_sdf_input
 

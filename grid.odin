@@ -33,3 +33,10 @@ cell_move :: proc(cell: [2]int, dir: Direction) -> [2]int
     }
     return result
 }
+
+grid_item_collide :: proc(p0: [2]f32, p1: [2]f32) -> bool
+{
+    rad := GRID_PADDING / 2.0
+    return collide(p0, rad, p1, rad)
+}
+
