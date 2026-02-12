@@ -52,7 +52,7 @@ create_spell :: proc(spell: Spell)
 add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32) 
 {
     pos := cell_pos(cell)
-    spr := add_sprite("fire.png", pos, col = col, anchor = .bottom_left)
+    spr := add_sprite("fire_0.png", pos, col = col, anchor = .bottom_left)
     fire := Projectile {
         t = dur,
         dir = dir,
@@ -83,22 +83,4 @@ add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20) -> int
 step_spells :: proc()
 {
     step_fire()
-}
-
-step_fire :: proc()
-{
-    // for key, &fire in fires {
-    //     fire.t -= 1
-    //     if fire.t == 0 {
-    //         delete_key(&sprites, key)
-    //         delete_key(&fires, key)
-    //     } else {
-    //         fire.cell = cell_move(fire.cell, fire.dir)
-    //         sprite := &sprites[key]
-    //         col := sprite.col
-    //         col.a = f32(fire.t + 1) / f32(fire.dur)
-    //         update_sprite(sprite, cell_pos(fire.cell), col = col)
-    //         snap_sprite_to_latest_frame(sprite)
-    //     }
-    // }
 }

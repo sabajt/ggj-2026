@@ -15,7 +15,18 @@
 			"UntrimmedHeight": 16
 		},
 		{
-			"Name": "fire.png",
+			"Name": "fire_0.png",
+			"X": 48,
+			"Y": 16,
+			"W": 16,
+			"H": 16,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 16,
+			"UntrimmedHeight": 16
+		},
+		{
+			"Name": "fire_1.png",
 			"X": 32,
 			"Y": 16,
 			"W": 16,

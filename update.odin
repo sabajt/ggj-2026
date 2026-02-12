@@ -4,6 +4,7 @@ package main
 import sdl "vendor:sdl3"
 import "core:fmt"
 import "core:math"
+import "core:math/rand"
 
 ACTION_DUR :: int(7)
 
@@ -55,11 +56,35 @@ add_enemy_move_action :: proc(dest: [2]int)
     action_i += 1
 }
 
-add_enemy_cast_spell_action :: proc()
+cast_orb_spell :: proc(cell: [2]int)
 {
-    cell := pos_to_cell(enemy.pos)
     for dir in DIRECTIONS {
         add_orb(cell, dir)
+    }
+}
+
+cast_fire_spell :: proc(cell: [2]int)
+{
+    for dir in DIRECTIONS {
+        // adjacent to player
+        cell := cell_move(cell, dir)
+        add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
+
+        // move 4 direction out
+        for i in 0 ..< 8 {
+            cell = cell_move(cell, dir)
+            add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
+
+            // 1 / 3 chance to have a branch left or right
+            if rand.int_max(3) == 0 {
+                branch_dir := rand.int_max(2) == 0 ? turn_left(dir) : turn_right(dir)
+                branch_cell := cell
+                for i in 0 ..< (3 + rand.int_max(4)) {
+                    branch_cell = cell_move(branch_cell, branch_dir)
+                    add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = COL_LEMON_LIME)
+                }
+            }
+        }
     }
 }
 
@@ -185,9 +210,14 @@ update :: proc()
     // player initiate step with movement
     if dir, ok := wizard_direction_request.?; ok { 
         wizard_direction_request = nil
-
         add_player_move_action(dir)
+        is_stepping = true
+    }
 
+    // player initiate step with spell cast
+    if spell, ok := wizard_spell_request.?; ok {         
+        wizard_spell_request = nil
+        cast_fire_spell(pos_to_cell(player.pos))
         is_stepping = true
     }
 
@@ -196,6 +226,7 @@ update :: proc()
         if action_step_t == 0 {
             step_enemies()
             step_orbs()
+            step_fire()
         }
 
         // update / animate step: steps currently remove themselves when finished
@@ -215,11 +246,11 @@ update :: proc()
 step_enemies :: proc()
 {
     if enemy.t % 3 == 0 {
-        // enemy_cast_spell()
-        add_enemy_cast_spell_action()
+        cell := pos_to_cell(enemy.pos)
+        cast_orb_spell(cell)
     } else {
-        coord := get_enemy_player_path_next_coord()
-        add_enemy_move_action(coord)
+        cell := get_enemy_player_path_next_coord()
+        add_enemy_move_action(cell)
     }
     enemy.t += 1
 }
@@ -242,6 +273,24 @@ step_orbs :: proc()
         }
         actions[action_i] = action
         action_i += 1
+    }
+}
+
+step_fire :: proc()
+{
+    for key, &fire in fires {
+        fire.t -= 1
+        if fire.t == 0 {
+            delete_key(&sprites, key)
+            delete_key(&fires, key)
+        } else {
+            // fire.cell = cell_move(fire.cell, fire.dir)
+            sprite := &sprites[key]
+            col := sprite.col
+            col.a = f32(fire.t + 1) / f32(fire.dur)
+            update_sprite(sprite, col = col)
+            snap_sprite_to_latest_frame(sprite)
+        }
     }
 }
 
