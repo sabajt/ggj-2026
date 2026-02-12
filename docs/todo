@@ -1,6 +1,3 @@
-
-- step system: move & projectiles have discrete start & end cells, lerping smoothly between steps.
-- step system: hitbox based realtime collision instead of discrete states 
 - mask action: dash movement -> move multiple squares in a line
 - mask action: fly power (winged) -> enable a number of steps (moving or still) without most collisions
 - mask action: invisiblity -> enable number of steps without enemy viz
@@ -29,6 +26,8 @@ bugs
 
 done
 
+x step system: move & projectiles have discrete start & end cells, lerping smoothly between steps.
+x step system: hitbox based realtime collision instead of discrete states 
 x get minimum engine working
 x sprites on grid
 x move player sprite
