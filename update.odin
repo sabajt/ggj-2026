@@ -12,6 +12,9 @@ actions := make(map[int]Action)
 action_i := 0
 action_step_t: int = 0
 is_stepping: bool = false
+is_game_over: bool = false
+game_over_delay: int = GAME_OVER_DELAY_DUR
+killed_by: ^Sprite 
 
 // actions
 
@@ -155,6 +158,30 @@ update :: proc()
 {
     update_resolutions()
 
+    defer {
+        // update step time and common step vars
+        game_step_time += 1
+
+        if game_step_time % 5 == 0 {
+            flash_on = !flash_on
+        }
+    }
+
+    if is_game_over {
+        game_over_delay -= 1
+        if game_over_delay == 0 {
+            reset_game()
+        } else {
+            // animate enemy and player
+            // enemy_sprite := &sprites[enemy.sprite]
+            killed_by.col.a = flash_on ? 1 : 0.2
+
+            player_sprite := &sprites[player.sprite]
+            player_sprite.col.a = flash_on ? 1 : 0.2
+        }
+        return
+    }
+
     // player initiate step with movement
     if dir, ok := wizard_direction_request.?; ok { 
         wizard_direction_request = nil
@@ -218,19 +245,22 @@ step_orbs :: proc()
     }
 }
 
-// DOING: checks hit but crashes on reset (orb)
 check_hits :: proc()
 {
     // reset if orbs hits player
     for k, orb in orbs {
         if grid_item_collide(orb.pos, player.pos) {
-            reset_game()
+            snap_all_sprites_to_latest_frame()
+            is_game_over = true
+            killed_by = &sprites[orb.spr]
             return
         }
     }
     // reset if enemy hits player
     if grid_item_collide(enemy.pos, player.pos) {
-        reset_game()
+        snap_all_sprites_to_latest_frame()
+        is_game_over = true
+        killed_by = &sprites[enemy.sprite]
         return
     }
 }

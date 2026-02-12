@@ -13,6 +13,7 @@ Game_State :: enum {
 GAME_GRID_SIZE_X :: 40
 GAME_GRID_SIZE_Y :: 22
 WIZARD_PAD :: 5
+GAME_OVER_DELAY_DUR :: 90
 
 enter_main :: proc()
 {
@@ -22,6 +23,10 @@ enter_main :: proc()
 
 reset_game :: proc()
 {
+	is_game_over = false
+	game_over_delay = GAME_OVER_DELAY_DUR
+	killed_by = nil
+
 	clear(&fires)
 	clear(&orbs)
 	clear(&sprites)
@@ -40,16 +45,4 @@ reset_game :: proc()
 	add_enemy({GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y})
 }
 
-
-
-
-
-	// for x in 0 ..< grid_size_x {
-	// 	for y in 0 ..< grid_size_y {
-	// 		if rand.int_max(wizard_pad) >= 4 {
-	// 			spr_i := add_sprite("fire.png", pos = cell_pos({x, y}), anchor = .bottom_left)
-	// 			spr := &sprites[spr_i]
-	// 		}
-	// 	}
-	// }
 

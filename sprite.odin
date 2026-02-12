@@ -54,6 +54,13 @@ snap_sprite_to_latest_frame :: proc(spr: ^Sprite)
     spr.tf.last = spr.tf.cur
 }
 
+snap_all_sprites_to_latest_frame :: proc()
+{
+    for k, &spr in sprites {
+        snap_sprite_to_latest_frame(&spr)
+    }
+}
+
 spr_size :: proc(spr: Sprite) -> [2]f32
 {
     img := sprite_atlas_map[spr.name]
