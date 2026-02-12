@@ -16,6 +16,7 @@ is_stepping: bool = false
 is_game_over: bool = false
 game_over_delay: int = GAME_OVER_DELAY_DUR
 killed_by: ^Sprite 
+enemy_hit: int // last enemy hit (will need to refactor for many)
 
 // actions
 
@@ -53,6 +54,7 @@ add_enemy_move_action :: proc(dest: [2]int)
         data = { start_cell = pos_to_cell(enemy.pos), end_cell = dest}
     }
     actions[action_i] = action
+    enemy.action_i = action_i
     action_i += 1
 }
 
@@ -222,6 +224,9 @@ update :: proc()
     }
 
     if is_stepping {
+        // check for hits before adding actions, otherwise killed enemy might add action
+        check_hits()
+
         // add any world step actions
         if action_step_t == 0 {
             step_enemies()
@@ -238,8 +243,12 @@ update :: proc()
             action_step_t = 0
             is_stepping = false
         }
+    }
 
-        check_hits()
+    if is_game_over {
+        if game_over_delay == GAME_OVER_DELAY_DUR {
+            snap_all_sprites_to_latest_frame()
+        }
     }
 }
 
@@ -294,12 +303,42 @@ step_fire :: proc()
     }
 }
 
+find_empty_spawn_cell :: proc() -> [2]int
+{
+    x := WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_X - WIZARD_PAD)
+    y := WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_Y - WIZARD_PAD)
+    cell := [2]int{x, y}
+
+    if cell == pos_to_cell(player.pos) {
+        find_empty_spawn_cell()
+    }
+    for k, fire in fires {
+        if pos_to_cell(fire.pos) == cell {
+            return find_empty_spawn_cell()
+        }
+    }
+    return cell
+}
+
 check_hits :: proc()
 {
+    for k, fire in fires {
+        if grid_item_collide(fire.pos, enemy.pos) {
+            // TODO: add flashing hit indicator
+
+            // remove enemy
+            delete_key(&sprites, enemy.sprite)
+            delete_key(&actions, enemy.action_i)
+
+            // next enemy
+            cell := find_empty_spawn_cell()
+            add_enemy(cell)
+        }
+    }
+
     // reset if orbs hits player
     for k, orb in orbs {
         if grid_item_collide(orb.pos, player.pos) {
-            snap_all_sprites_to_latest_frame()
             is_game_over = true
             killed_by = &sprites[orb.spr]
             return
@@ -307,7 +346,6 @@ check_hits :: proc()
     }
     // reset if enemy hits player
     if grid_item_collide(enemy.pos, player.pos) {
-        snap_all_sprites_to_latest_frame()
         is_game_over = true
         killed_by = &sprites[enemy.sprite]
         return

@@ -13,7 +13,7 @@ GRID_PADDING : f32 : 16
 
 // resolution := [2]f32 {640, 360} 
 // resolution := [2]f32 {960, 540} 
-resolution := 3 * INTERNAL_RES 
+resolution := 2 * INTERNAL_RES 
 letterbox_resolution: [2]f32
 
 // frame timing

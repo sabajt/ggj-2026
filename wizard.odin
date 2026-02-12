@@ -6,7 +6,8 @@ import "core:math/rand"
 Wizard :: struct {
     sprite: int,
     pos: [2]f32,
-    t: int
+    t: int,
+    action_i: int 
 }
 
 Spell :: enum {
@@ -81,6 +82,7 @@ turn_right :: proc(facing: Direction) -> Direction {
 enemy: Wizard
 enemy_col: [4]f32
 
+// TODO: multiple enemies, right now just replace single
 add_enemy :: proc(cell: [2]int)
 {
     col_i := rand.int_max(8)
