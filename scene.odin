@@ -19,6 +19,10 @@ enter_main :: proc()
 {
 	game_state = .main
 	reset_game()
+
+	id := add_text_item("Testing some text")
+	text_item := &text_items[id]
+	text_item.pos = {resolution.x - 460, resolution.y - 100}
 }
 
 reset_game :: proc()

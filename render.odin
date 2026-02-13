@@ -64,7 +64,7 @@ render :: proc(dt: f32)
 
 @(private) render_to_swapchain :: proc(command_buffer: ^sdl.GPUCommandBuffer, target_texture: ^sdl.GPUTexture, target_sampler: ^sdl.GPUSampler, swapchain_texture: ^sdl.GPUTexture) 
 {	
-	// TODO: figure out why sprites aren't scaling when samples to swapchain (should blit?)
+	// TODO: sprite scaling issue: deformed if not clean multiple
 
 	color_target := sdl.GPUColorTargetInfo {
 		texture = swapchain_texture,

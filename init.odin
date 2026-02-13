@@ -106,21 +106,13 @@ init_transfer_mem :: proc()
 	ok := ttf.Init()
 	assert(ok)
 
-	// open font based on window size 
-
-	responsive_font_size := resolution.y / 20
-
-	font_sfns_mono = ttf.OpenFont("fonts/SFNSMono.ttf", responsive_font_size) // was 70
+	font_sfns_mono = ttf.OpenFont("fonts/monogram.ttf", 32)
 	if font_sfns_mono == nil {
 		fmt.println("ERROR: Couldn't open font")
 	}
 
-	font_sfns_mono_2 = ttf.OpenFont("fonts/SFNSMono.ttf", 20)
-	if font_sfns_mono_2 == nil {
-		fmt.println("ERROR: Couldn't open font")
-	}
-
 	text_engine = ttf.CreateGPUTextEngine(gpu)
+	ttf.SetFontHinting(font_sfns_mono, ttf.Hinting.LIGHT_SUBPIXEL)
 
 	// text vertex and index buffers
 
