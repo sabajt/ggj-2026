@@ -431,7 +431,7 @@ render :: proc(dt: f32)
 		length = size_of(grid_mvp_ubo)
 	)
 
-	horizontal_instances := sdl.Uint32(math.ceil(res.y / grid_padding))
+	horizontal_instances := sdl.Uint32(math.ceil(res.y / grid_padding)) - u32(UI_GRID_PADDING_TOP)
 
 	sdl.DrawGPUPrimitives(
 		render_pass, 

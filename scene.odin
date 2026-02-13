@@ -10,8 +10,8 @@ Game_State :: enum {
 	main
 }
 
-GAME_GRID_SIZE_X :: 40
-GAME_GRID_SIZE_Y :: 22
+GAME_GRID_SIZE_X :: 30
+GAME_GRID_SIZE_Y :: 21
 WIZARD_PAD :: 5
 GAME_OVER_DELAY_DUR :: 90
 
