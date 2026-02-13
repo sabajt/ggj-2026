@@ -164,7 +164,7 @@ pack_radius_particles :: proc(dt: f32, cam: [2]f32)
 		}
 	}
 }
-
+// TODO: same as above except p.mode == or != .Circles
 pack_radius_particles_sdf :: proc(dt: f32, cam: [2]f32) 
 {
 	for arr in radius_effects {

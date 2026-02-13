@@ -8,9 +8,10 @@ import "core:mem"
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
+Z_ORDER_MAX :: int(3)
+
 text_index_offset := 0
 text_vertex_offset := 0
-
 camera := create_camera() 
 
 Camera :: struct {
@@ -129,7 +130,7 @@ render :: proc(dt: f32)
 	clear_batch_shape()
 	clear_text()
 
-	// pack cpu to render models
+	// pack cpu to render models ... DOING: select only current z order
 	pack(dt, camera_blend_pos) // use real dt so paused state can have animations (though it doesn't currently!)
 
 	// copy and transfer memory to gpu
@@ -151,22 +152,43 @@ render :: proc(dt: f32)
 			render_grid(command_buffer, render_pass, camera_blend_pos, proj_mat, letterbox_resolution)		
 	}
 
-	if len(batch_shape_inputs) > 0 {
-		render_batched_shapes(render_pass, command_buffer, camera_blend_pos, proj_mat, letterbox_resolution)
-	}
-	if len(sprites) > 0 {
-		render_sprites(render_pass, command_buffer, camera_blend_pos, proj_mat)
-	}
-	if needs_text_render {
-		needs_text_render = false
-		render_text(render_pass, command_buffer, proj_mat)
+	for i in 0 ..< Z_ORDER_MAX {
+		// all these render fx need z index so they can read offsets correctly
+		if len(batch_shape_inputs) > 0 {
+			render_batched_shapes(render_pass, command_buffer, camera_blend_pos, proj_mat, letterbox_resolution)
+		}
+		if len(sprites) > 0 {
+			render_sprites(render_pass, command_buffer, camera_blend_pos, proj_mat, z = i)
+		}
+		if needs_text_render {
+			needs_text_render = false
+			render_text(render_pass, command_buffer, proj_mat)
+		}
 	}
 
 	sdl.EndGPURenderPass(render_pass)
 }
 
-@(private) render_sprites :: proc(render_pass: ^sdl.GPURenderPass, command_buffer: ^sdl.GPUCommandBuffer,  camera_blend_pos: [2]f32, proj_mat: matrix[4, 4]f32)
+@(private) render_sprites :: proc(render_pass: ^sdl.GPURenderPass, command_buffer: ^sdl.GPUCommandBuffer,  camera_blend_pos: [2]f32, proj_mat: matrix[4, 4]f32, z: int)
 {
+	// z order
+	current_batch_len: int 
+	current_batch_start: int
+	if z == 0 {
+		current_batch_len = sprite_end_0 - sprite_start_0
+		current_batch_start = sprite_start_0
+	} else if z == 1 {
+		current_batch_len = sprite_end_1 - sprite_start_1
+		current_batch_start = sprite_start_1
+	} else if z == 2 {
+		current_batch_len = sprite_end_2 - sprite_start_2
+		current_batch_start = sprite_start_2
+	}
+	// TODO: figure out something better
+	if current_batch_len == 0 {
+		return
+	}
+
 	camera_mat := camera_mat_from_blend_pos(camera_blend_pos)
 
 	sdl.BindGPUGraphicsPipeline(render_pass, pipeline_sprite)
@@ -194,94 +216,117 @@ render :: proc(dt: f32)
 		data = &view_projection, 
 		length = size_of(view_projection)
 	)
+
 	sdl.DrawGPUPrimitives(
 		render_pass, 
-		u32(len(sprites)) * 6,
+		u32(current_batch_len) * 6,
 		num_instances = 1, 
-		first_vertex = 0, 
+		first_vertex = u32(current_batch_start * 6), // TODO: z order
 		first_instance = 0
 	)
 }
 
-@(private) render_batched_shapes :: proc(render_pass: ^sdl.GPURenderPass, command_buffer: ^sdl.GPUCommandBuffer,  camera_blend_pos: [2]f32, proj_mat: matrix[4, 4]f32, res: [2]f32)
+// DOING: z ordering - these funcs are the one to run per z order
+// TODO: separate into solids and sdfs
+@(private) render_batched_shapes :: proc(render_pass: ^sdl.GPURenderPass, command_buffer: ^sdl.GPUCommandBuffer,  camera_blend_pos: [2]f32, proj_mat: matrix[4, 4]f32, res: [2]f32, z: int)
 {
+		// z order
+	solid_len: int 
+	solid_start: int
+	sdf_len: int 
+	sdf_start: int
+	if z == 0 {
+		solid_len = solid_input_end_0 - solid_input_start_0
+		solid_start = solid_input_start_0
+	} else if z == 1 {
+		solid_len = solid_input_end_1 - solid_input_start_1
+		solid_start = solid_input_start_1
+	} else if z == 2 {
+		solid_len = solid_input_end_2 - solid_input_start_2
+		solid_start = solid_input_start_2
+	}
+
 	camera_mat := camera_mat_from_blend_pos(camera_blend_pos)
 
-	// draw batched shapes: fill
+	if solid_len > 0 {
+		// draw batched shapes: fill
 
-	sdl.BindGPUGraphicsPipeline(render_pass, pipeline_fill)
+		sdl.BindGPUGraphicsPipeline(render_pass, pipeline_fill)
 
-	sdl.BindGPUVertexBuffers(
-		render_pass, 
-		first_slot = 0, 
-		bindings = &(sdl.GPUBufferBinding { buffer = batch_shape_inputs_vertex_buffer }), 
-		num_bindings = 1
-	)
+		sdl.BindGPUVertexBuffers(
+			render_pass, 
+			first_slot = 0, 
+			bindings = &(sdl.GPUBufferBinding { buffer = batch_shape_inputs_vertex_buffer }), 
+			num_bindings = 1
+		)
 
-	// TODO: figure out how to do in 1 call (how to build multi pointer?)
-	sdl.BindGPUVertexStorageBuffers(
-		render_pass,
-		first_slot = 0,
-		storage_buffers = &batch_shape_vertex_storage_buffer,
-		num_bindings = 1
-	)
-	sdl.BindGPUVertexStorageBuffers(
-		render_pass,
-		first_slot = 1,
-		storage_buffers = &batch_shape_models_storage_buffer,
-		num_bindings = 1
-	)
+		// TODO: figure out how to do in 1 call (how to build multi pointer?)
+		sdl.BindGPUVertexStorageBuffers(
+			render_pass,
+			first_slot = 0,
+			storage_buffers = &batch_shape_vertex_storage_buffer,
+			num_bindings = 1
+		)
+		sdl.BindGPUVertexStorageBuffers(
+			render_pass,
+			first_slot = 1,
+			storage_buffers = &batch_shape_models_storage_buffer,
+			num_bindings = 1
+		)
 
-	view_projection := proj_mat * camera_mat
-	sdl.PushGPUVertexUniformData(
-		command_buffer, 
-		slot_index = 0, 
-		data = &view_projection, 
-		length = size_of(view_projection)
-	)
+		view_projection := proj_mat * camera_mat
+		sdl.PushGPUVertexUniformData(
+			command_buffer, 
+			slot_index = 0, 
+			data = &view_projection, 
+			length = size_of(view_projection)
+		)
 
-	res_ubo := Res_Ubo { res_cam = {res.x, res.y, camera_blend_pos.x, camera_blend_pos.y } }
-	sdl.PushGPUFragmentUniformData(command_buffer, 0, &res_ubo, size_of(res_ubo))
+		res_ubo := Res_Ubo { res_cam = {res.x, res.y, camera_blend_pos.x, camera_blend_pos.y } }
+		sdl.PushGPUFragmentUniformData(command_buffer, 0, &res_ubo, size_of(res_ubo))
 
-	sdl.DrawGPUPrimitives(
-		render_pass, 
-		num_vertices = u32(first_sdf_input),
-		num_instances = 1, 
-		first_vertex = 0, 
-		first_instance = 0
-	)
+		sdl.DrawGPUPrimitives(
+			render_pass, 
+			num_vertices = u32(first_sdf_input), //DOING: z ordering
+			num_instances = 1, 
+			first_vertex = 0, // DOING: z ordering
+			first_instance = 0
+		)
+	}
 
-	// draw batched shapes: sdf circles
+	if sdf_len > 0 {
+		// draw batched shapes: sdf circles
 
-	sdf_particles_len := last_sdf_input - first_sdf_input
+		sdf_particles_len := last_sdf_input - first_sdf_input
 
-	sdl.BindGPUGraphicsPipeline(render_pass, pipeline_sdf)
+		sdl.BindGPUGraphicsPipeline(render_pass, pipeline_sdf)
 
-	res_ubo = Res_Ubo { res_cam = {res.x, res.y, camera_blend_pos.x, camera_blend_pos.y } }
-	sdl.PushGPUFragmentUniformData(command_buffer, 0, &res_ubo, size_of(res_ubo))
+		res_ubo := Res_Ubo { res_cam = {res.x, res.y, camera_blend_pos.x, camera_blend_pos.y } }
+		sdl.PushGPUFragmentUniformData(command_buffer, 0, &res_ubo, size_of(res_ubo))
 
-	sdl.DrawGPUPrimitives(
-		render_pass, 
-		num_vertices = u32(sdf_particles_len),
-		num_instances = 1, 
-		first_vertex = u32(first_sdf_input), 
-		first_instance = 0
-	)
+		sdl.DrawGPUPrimitives(
+			render_pass, 
+			num_vertices = u32(sdf_particles_len), // DOING: z ordering
+			num_instances = 1, 
+			first_vertex = u32(first_sdf_input),  // DOING: z ordering
+			first_instance = 0
+		)
+	}
 
-	// draw batched shapes: players
-	// TODO: remove or comment out as example since not using 
+	// // draw batched shapes: players
+	// // TODO: remove or comment out as example since not using 
 
-	players_len := len(batch_shape_inputs) - last_sdf_input
+	// players_len := len(batch_shape_inputs) - last_sdf_input
 
-	sdl.BindGPUGraphicsPipeline(render_pass, pipeline_fill)
+	// sdl.BindGPUGraphicsPipeline(render_pass, pipeline_fill)
 
-	sdl.DrawGPUPrimitives(
-		render_pass, 
-		num_vertices = u32(players_len),
-		num_instances = 1, 
-		first_vertex = u32(last_sdf_input), 
-		first_instance = 0
-	)
+	// sdl.DrawGPUPrimitives(
+	// 	render_pass, 
+	// 	num_vertices = u32(players_len),
+	// 	num_instances = 1, 
+	// 	first_vertex = u32(last_sdf_input), 
+	// 	first_instance = 0
+	// )
 }
 
 
@@ -447,6 +492,8 @@ needs_text_render: bool = false
 {
 	// copy data into transfer buffer
 
+	// TODO: dont need dt anymore (sprite pack)
+
 	inputs_sz := len(batch_shape_inputs) * size_of(Batch_Shape_Input)
 	verts_sz := len(batch_shape_verts) * size_of(Batch_Shape_Vertex)
 	models_sz := len(batch_shape_models) * size_of(Batch_Shape_Model)
@@ -507,10 +554,11 @@ needs_text_render: bool = false
 		)
 	}
 	if len(sprites) > 0 {
-		gpu_sprites: [dynamic]GPU_Sprite
-		for i, spr in sprites {
-			append(&gpu_sprites, create_gpu_sprite(spr, dt))
-		}
+		/// KDFJSKLJDFSJKLDSF
+		// gpu_sprites: [dynamic]GPU_Sprite
+		// for i, spr in sprites {
+		// 	append(&gpu_sprites, create_gpu_sprite(spr, dt)) // DOING: select from order to append
+		// }
 
 		mem_loc := batch_shape_inputs_byte_size + batch_shape_verts_byte_size + batch_shape_models_byte_size + text_vert_buf_byte_size + text_index_buf_byte_size
 		mem.copy(
@@ -612,4 +660,6 @@ needs_text_render: bool = false
 
 	sdl.EndGPUCopyPass(copy_pass)
 }
+
+
 

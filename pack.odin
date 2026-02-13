@@ -6,6 +6,29 @@ import "core:math"
 vert_ref_quad := 0 // len 6 
 vert_ref_tri := 0 // len 3
 
+solid_input_start_0: int
+solid_input_end_0: int
+solid_input_start_1: int
+solid_input_end_1: int
+solid_input_start_2: int
+solid_input_end_2: int
+
+sdf_input_start_0: int
+sdf_input_end_0: int
+sdf_input_start_1: int
+sdf_input_end_1: int
+sdf_input_start_2: int
+sdf_input_end_2: int
+
+sprite_start_0: int
+sprite_end_0: int
+sprite_start_1: int
+sprite_end_1: int
+sprite_start_2: int
+sprite_end_2: int
+
+gpu_sprites := make([dynamic]GPU_Sprite)
+
 RenderPackData :: struct {
 	rad: f32,
 	pos: [2]f32,
@@ -33,22 +56,76 @@ pack :: proc(dt: f32, cam: [2]f32)
 {
 	sim_dt := get_sim_dt(dt)
 
-	pack_shared_verts()
+	for i in 0 ..< Z_ORDER_MAX {
+		// Need to create checkpoints (first_sdf etc) as going thru z index that render will use to draw 
 
-	pack_radius_particles(sim_dt, cam)
+		if i == 0 {
+			pack_shared_verts()
+		}
 
-	//////////////////////////////////////////////////
-	// WARNING: packing wish sdf is coupled to render order.
-	// TODO: decouple this
-	pack_sdf(sim_dt, cam)
-	//////////////////////////////////////////////////
+		pack_radius_particles(sim_dt, cam)
+		pack_sdf(sim_dt, cam)
+		pack_shapes(sim_dt, cam, z = i)
+		pack_sprites(sim_dt, z = i)
 
-	switch game_state {
-	case .main:
-		// state specific packing
+		switch game_state {
+		case .main:
+			// state specific packing
+		}
+
+		// pack_rect({resolution.x / 2, resolution.y}, {resolution.x, 143}, {0,0,0,1})
+		pack_text_ttf()
+	}
+}
+
+pack_shapes :: proc(dt: f32, cam: [2]f32, z: int)
+{
+	if z == 0 {
+		solid_input_start_0 = len(batch_shape_inputs)
+	} else if z == 1 {
+		solid_input_start_1 = len(batch_shape_inputs)
+	} else if z == 2 {
+		solid_input_start_2 = len(batch_shape_inputs)
+	}
+	defer {
+		if z == 0 {
+			solid_input_end_0 = len(batch_shape_inputs)
+		} else if z == 1 {
+			solid_input_end_1 = len(batch_shape_inputs)
+		} else if z == 2 {
+			solid_input_end_2 = len(batch_shape_inputs)
+		}
 	}
 
-	pack_text_ttf()
+	// pack the shapes
+}
+
+pack_sprites :: proc(dt: f32, z: int)
+{
+	if z == 0 {
+		sprite_start_0 = len(sprites)
+	} else if z == 1 {
+		sprite_start_1 = len(sprites)
+	} else if z == 2 {
+		sprite_start_2 = len(sprites)
+	}
+	defer {
+		if z == 0 {
+			sprite_end_0 = len(sprites)
+		} else if z == 1 {
+			sprite_end_1 = len(sprites)
+		} else if z == 2 {
+			sprite_end_2 = len(sprites)
+		}
+	}
+
+	if len(sprites) > 0 {
+		for i, spr in sprites {
+			if spr.z == z {
+				append(&gpu_sprites, create_gpu_sprite(spr, dt)) 
+			}
+		}
+	}
 }
 
 pack_shared_verts :: proc()
@@ -146,6 +223,7 @@ pack_render_data_sdf :: proc(data: RenderPackData, dt: f32, cam: [2]f32)
 }
 
 // pack a shape based on existing vert ref
+// DOING: could give a z index (or z enum?) referencing different models and inputs
 pack_batch_shape_vert_ref :: proc (vert_index: int, count: int, model: Batch_Shape_Model)
 {
 	model_index := uint(len(batch_shape_models))
@@ -221,5 +299,18 @@ pack_batch_shape_arr :: proc(
 	}
 }
 
+pack_rect :: proc(position: [2]f32, size: [2]f32, color: [4]f32)
+{
+	pack_batch_shape_vert_ref(
+		vert_ref_quad, 
+		count = 6, 
+		model = Batch_Shape_Model {
+			position = {position.x, position.y, 1},
+			rotation = 0, // + math.PI/2
+			scale = size,
+			color = color
+		}
+	)
+}
 
 

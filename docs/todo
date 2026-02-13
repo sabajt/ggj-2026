@@ -1,10 +1,10 @@
+- UI: mask UI boxes
 - mask action: dash movement -> move multiple squares in a line
 - mask action: fly power (winged) -> enable a number of steps (moving or still) without most collisions
 - mask action: invisiblity -> enable number of steps without enemy viz
 - mask action: slide movement -> move until hitting an object
 - mask action: teleport movement -> random teleport movement, levelled up into directional (with small random vars)
 - most move actions can be upgraded to faster speed (multiple movement per game step implemented simulation slowdowns.)
-- UI: right side box
 - UI: current mask and its stats
 - UI -> equip mask as action
 - move between screens
@@ -26,6 +26,7 @@ bugs
 
 done
 
+x UI: right side box
 x step system: move & projectiles have discrete start & end cells, lerping smoothly between steps.
 x step system: hitbox based realtime collision instead of discrete states 
 x get minimum engine working

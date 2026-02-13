@@ -17,14 +17,15 @@ Sprite :: struct {
     name: string,
     tf: Blendable_Transform,
     col: [4]f32,
-    anchor: Anchor
+    anchor: Anchor,
+    z: int
 }
 
 // TODO: think about returning sprite itelf. easier for rest of code?
 // game objs can attach sprite and use tf.cur.pos? 
-add_sprite :: proc(name: string, pos: [2]f32 = 0, rot: f32 = 0, scale: [2]f32 = 1, col: [4]f32 = 1, anchor: Anchor = .center) -> int
+add_sprite :: proc(name: string, pos: [2]f32 = 0, rot: f32 = 0, scale: [2]f32 = 1, col: [4]f32 = 1, anchor: Anchor = .center, z: int = 0) -> int
 {
-    spr := Sprite {name, tf(pos, rot, scale), col, anchor}
+    spr := Sprite {name, tf(pos, rot, scale), col, anchor, z}
     sprites[sprite_index] = spr
     last_index := sprite_index    
     sprite_index += 1
