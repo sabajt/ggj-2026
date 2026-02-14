@@ -28,6 +28,7 @@ sprite_start_2: int
 sprite_end_2: int
 
 gpu_sprites := make([dynamic]GPU_Sprite)
+rectangles := make([dynamic]Rectangle)
 
 RenderPackData :: struct {
 	rad: f32,
@@ -36,6 +37,18 @@ RenderPackData :: struct {
 	thic: f32,
 	fade: f32,
 	col: [4]f32
+}
+
+Rectangle :: struct {
+	position: [2]f32,
+	size: [2]f32,
+	color: [4]f32,
+	z: int
+}
+
+add_rectangle :: proc(rect: Rectangle)
+{
+	append(&rectangles, rect)
 }
 
 get_sim_dt :: proc(dt: f32) -> f32
@@ -63,8 +76,8 @@ pack :: proc(dt: f32, cam: [2]f32)
 			pack_shared_verts()
 		}
 
-		pack_radius_particles(sim_dt, cam)
-		pack_sdf(sim_dt, cam)
+		// pack_radius_particles(sim_dt, cam)
+		// pack_sdf(sim_dt, cam)
 		pack_shapes(sim_dt, cam, z = i)
 		pack_sprites(sim_dt, z = i)
 
@@ -73,7 +86,6 @@ pack :: proc(dt: f32, cam: [2]f32)
 			// state specific packing
 		}
 
-		// pack_rect({resolution.x / 2, resolution.y}, {resolution.x, 143}, {0,0,0,1})
 		pack_text_ttf()
 	}
 }
@@ -98,24 +110,32 @@ pack_shapes :: proc(dt: f32, cam: [2]f32, z: int)
 	}
 
 	// pack the shapes
+
+	if len(rectangles) > 0 {
+		for rect in rectangles {
+			if rect.z == z {
+				pack_rect(rect)
+			}
+		}
+	}
 }
 
 pack_sprites :: proc(dt: f32, z: int)
 {
 	if z == 0 {
-		sprite_start_0 = len(sprites)
+		sprite_start_0 = len(gpu_sprites)
 	} else if z == 1 {
-		sprite_start_1 = len(sprites)
+		sprite_start_1 = len(gpu_sprites)
 	} else if z == 2 {
-		sprite_start_2 = len(sprites)
+		sprite_start_2 = len(gpu_sprites)
 	}
 	defer {
 		if z == 0 {
-			sprite_end_0 = len(sprites)
+			sprite_end_0 = len(gpu_sprites)
 		} else if z == 1 {
-			sprite_end_1 = len(sprites)
+			sprite_end_1 = len(gpu_sprites)
 		} else if z == 2 {
-			sprite_end_2 = len(sprites)
+			sprite_end_2 = len(gpu_sprites)
 		}
 	}
 
@@ -299,16 +319,18 @@ pack_batch_shape_arr :: proc(
 	}
 }
 
-pack_rect :: proc(position: [2]f32, size: [2]f32, color: [4]f32)
+pack_rect :: proc(rect: Rectangle)
 {
+	// TODO: will need to blend
+
 	pack_batch_shape_vert_ref(
-		vert_ref_quad, 
+		vert_ref_quad,  
 		count = 6, 
 		model = Batch_Shape_Model {
-			position = {position.x, position.y, 1},
+			position = {rect.position.x, rect.position.y, 1},
 			rotation = 0, // + math.PI/2
-			scale = size,
-			color = color
+			scale = rect.size,
+			color = rect.color
 		}
 	)
 }

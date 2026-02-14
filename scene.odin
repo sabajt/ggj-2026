@@ -23,6 +23,27 @@ enter_main :: proc()
 	id := add_text_item("Testing some text")
 	text_item := &text_items[id]
 	text_item.pos = {resolution.x - 460, resolution.y - 100}
+
+	add_rectangle({
+		position = {resolution.x / 2, resolution.y - 200},
+		size = {resolution.x, 143},
+		color = {0,0,1,1},
+		z = 0
+	})
+
+	add_rectangle({
+		position = {resolution.x / 2, resolution.y - 100},
+		size = {resolution.x/2, 143},
+		color = {1,0,0,1},
+		z = 1
+	})
+
+	add_rectangle({
+		position = {resolution.x / 2, resolution.y - 50},
+		size = {200, 143},
+		color = {1,1,0,1},
+		z = 2
+	})
 }
 
 reset_game :: proc()

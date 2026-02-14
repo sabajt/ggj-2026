@@ -13,6 +13,7 @@ Z_ORDER_MAX :: int(3)
 text_index_offset := 0
 text_vertex_offset := 0
 camera := create_camera() 
+needs_text_render: bool = false
 
 Camera :: struct {
 	pos: [2]f32,
@@ -32,6 +33,11 @@ clear_batch_shape :: proc()
 	clear(&batch_shape_inputs)
 	clear(&batch_shape_verts)
 	clear(&batch_shape_models)
+}
+
+clear_sprite :: proc()
+{
+	clear(&gpu_sprites)
 }
 
 render :: proc(dt: f32) 
@@ -129,12 +135,13 @@ render :: proc(dt: f32)
 	// clear cpu models
 	clear_batch_shape()
 	clear_text()
+	clear_sprite()
 
-	// pack cpu to render models ... DOING: select only current z order
+	// pack cpu to render models
 	pack(dt, camera_blend_pos) // use real dt so paused state can have animations (though it doesn't currently!)
 
 	// copy and transfer memory to gpu
-	copy_and_upload_mem(command_buffer, sim_dt)
+	copy_and_upload_mem(command_buffer)
 
 	// begin render pass
  
@@ -152,18 +159,14 @@ render :: proc(dt: f32)
 			render_grid(command_buffer, render_pass, camera_blend_pos, proj_mat, letterbox_resolution)		
 	}
 
+	// TODO: complete Z ordering with most rendering
 	for i in 0 ..< Z_ORDER_MAX {
-		// all these render fx need z index so they can read offsets correctly
-		if len(batch_shape_inputs) > 0 {
-			render_batched_shapes(render_pass, command_buffer, camera_blend_pos, proj_mat, letterbox_resolution)
-		}
-		if len(sprites) > 0 {
-			render_sprites(render_pass, command_buffer, camera_blend_pos, proj_mat, z = i)
-		}
-		if needs_text_render {
-			needs_text_render = false
-			render_text(render_pass, command_buffer, proj_mat)
-		}
+		render_batched_shapes(render_pass, command_buffer, camera_blend_pos, proj_mat, letterbox_resolution, z = i)
+		render_sprites(render_pass, command_buffer, camera_blend_pos, proj_mat, z = i)
+	}
+	if needs_text_render {
+		needs_text_render = false
+		render_text(render_pass, command_buffer, proj_mat)
 	}
 
 	sdl.EndGPURenderPass(render_pass)
@@ -221,16 +224,15 @@ render :: proc(dt: f32)
 		render_pass, 
 		u32(current_batch_len) * 6,
 		num_instances = 1, 
-		first_vertex = u32(current_batch_start * 6), // TODO: z order
+		first_vertex = u32(current_batch_start * 6),
 		first_instance = 0
 	)
 }
 
-// DOING: z ordering - these funcs are the one to run per z order
 // TODO: separate into solids and sdfs
 @(private) render_batched_shapes :: proc(render_pass: ^sdl.GPURenderPass, command_buffer: ^sdl.GPUCommandBuffer,  camera_blend_pos: [2]f32, proj_mat: matrix[4, 4]f32, res: [2]f32, z: int)
 {
-		// z order
+	// z order
 	solid_len: int 
 	solid_start: int
 	sdf_len: int 
@@ -287,9 +289,9 @@ render :: proc(dt: f32)
 
 		sdl.DrawGPUPrimitives(
 			render_pass, 
-			num_vertices = u32(first_sdf_input), //DOING: z ordering
+			num_vertices = u32(solid_len), 
 			num_instances = 1, 
-			first_vertex = 0, // DOING: z ordering
+			first_vertex = u32(solid_start),
 			first_instance = 0
 		)
 	}
@@ -306,30 +308,15 @@ render :: proc(dt: f32)
 
 		sdl.DrawGPUPrimitives(
 			render_pass, 
-			num_vertices = u32(sdf_particles_len), // DOING: z ordering
+			num_vertices = u32(sdf_particles_len), // TODO: z ordering
 			num_instances = 1, 
-			first_vertex = u32(first_sdf_input),  // DOING: z ordering
+			first_vertex = u32(first_sdf_input),  // TODO: z ordering
 			first_instance = 0
 		)
 	}
-
-	// // draw batched shapes: players
-	// // TODO: remove or comment out as example since not using 
-
-	// players_len := len(batch_shape_inputs) - last_sdf_input
-
-	// sdl.BindGPUGraphicsPipeline(render_pass, pipeline_fill)
-
-	// sdl.DrawGPUPrimitives(
-	// 	render_pass, 
-	// 	num_vertices = u32(players_len),
-	// 	num_instances = 1, 
-	// 	first_vertex = u32(last_sdf_input), 
-	// 	first_instance = 0
-	// )
 }
 
-
+// TODO: z order
 @(private) render_text :: proc(render_pass: ^sdl.GPURenderPass, command_buffer: ^sdl.GPUCommandBuffer, proj_mat: matrix[4, 4]f32)
 {
 	sdl.BindGPUGraphicsPipeline(render_pass, pipeline_text)
@@ -365,6 +352,7 @@ render :: proc(dt: f32)
 	}
 }
 
+// TODO: z order
 @(private) render_text_item :: proc(render_pass: ^sdl.GPURenderPass, item: ^TTF_Text_Item) 
 {
 	atlas_draw_seq := ttf.GetGPUTextDrawData(item.text)
@@ -431,7 +419,7 @@ render :: proc(dt: f32)
 	)
 
 	grid_x_left := math.ceil(camera_blend_pos.x / grid_padding) * grid_padding
-	grid_pos_mat := linalg.matrix4_translate_f32({grid_x_left, camera_blend_pos.y, 1}) // TODO: z?
+	grid_pos_mat := linalg.matrix4_translate_f32({grid_x_left, camera_blend_pos.y, 1})
 
 	grid_mvp := proj_mat * camera_mat * grid_pos_mat * grid_scale_mat
 	grid_mvp_ubo := Mvp_Ubo { mvp = grid_mvp }
@@ -465,7 +453,7 @@ render :: proc(dt: f32)
 	)
 
 	grid_y_bottom := math.ceil(camera_blend_pos.y / grid_padding) * grid_padding
-	grid_pos_mat = linalg.matrix4_translate_f32({camera_blend_pos.x, grid_y_bottom, 1}) // TODO: z?
+	grid_pos_mat = linalg.matrix4_translate_f32({camera_blend_pos.x, grid_y_bottom, 1})
 
 	grid_mvp = proj_mat * camera_mat * grid_pos_mat * grid_scale_mat
 	grid_mvp_ubo = Mvp_Ubo { mvp = grid_mvp }
@@ -487,12 +475,9 @@ render :: proc(dt: f32)
 	)
 }
 
-needs_text_render: bool = false
-@(private) copy_and_upload_mem :: proc (command_buffer: ^sdl.GPUCommandBuffer, dt: f32)
+@(private) copy_and_upload_mem :: proc (command_buffer: ^sdl.GPUCommandBuffer)
 {
 	// copy data into transfer buffer
-
-	// TODO: dont need dt anymore (sprite pack)
 
 	inputs_sz := len(batch_shape_inputs) * size_of(Batch_Shape_Input)
 	verts_sz := len(batch_shape_verts) * size_of(Batch_Shape_Vertex)
@@ -553,13 +538,7 @@ needs_text_render: bool = false
 			text_indices_sz
 		)
 	}
-	if len(sprites) > 0 {
-		/// KDFJSKLJDFSJKLDSF
-		// gpu_sprites: [dynamic]GPU_Sprite
-		// for i, spr in sprites {
-		// 	append(&gpu_sprites, create_gpu_sprite(spr, dt)) // DOING: select from order to append
-		// }
-
+	if len(gpu_sprites) > 0 {
 		mem_loc := batch_shape_inputs_byte_size + batch_shape_verts_byte_size + batch_shape_models_byte_size + text_vert_buf_byte_size + text_index_buf_byte_size
 		mem.copy(
 			transfer_memory[mem_loc:],

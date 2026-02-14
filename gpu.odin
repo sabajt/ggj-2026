@@ -160,6 +160,7 @@ batch_shape_models := [dynamic]Batch_Shape_Model {}
 batch_shape_models_byte_size := 20_000 * size_of(Batch_Shape_Model)
 batch_shape_models_storage_buffer : ^sdl.GPUBuffer
 
+
 first_sdf_input := int(0)
 last_sdf_input := int(0)
 
