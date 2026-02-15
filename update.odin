@@ -215,6 +215,11 @@ update :: proc()
         add_player_move_action(dir)
         is_stepping = true
     }
+    // player initiate step with wait
+    if wizard_wait_request {
+        wizard_wait_request = false
+        is_stepping = true
+    }
 
     // player initiate step with spell cast
     if spell, ok := wizard_spell_request.?; ok {         
