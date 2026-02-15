@@ -333,15 +333,16 @@ render :: proc(dt: f32)
 		index_element_size = ._32BIT
 	)
 
-	text_pos_mat := linalg.matrix4_translate_f32({0, 0, 0}) // TODO: z?	
-	text_mvp := proj_mat * text_pos_mat // Ignores camera
-	text_mvp_ubo := Mvp_Ubo { mvp = text_mvp }
-	sdl.PushGPUVertexUniformData(
-		command_buffer, 
-		slot_index = 0, 
-		data = &text_mvp_ubo, 
-		length = size_of(text_mvp_ubo)
-	)
+	// TODO: needed?
+	// text_pos_mat := linalg.matrix4_translate_f32({0, 0, 0}) // TODO: z?	
+	// text_mvp := proj_mat * text_pos_mat // Ignores camera
+	// text_mvp_ubo := Mvp_Ubo { mvp = text_mvp }
+	// sdl.PushGPUVertexUniformData(
+	// 	command_buffer, 
+	// 	slot_index = 0, 
+	// 	data = &text_mvp_ubo,  
+	// 	length = size_of(text_mvp_ubo)
+	// )
 
 	text_index_offset = 0
 	text_vertex_offset = 0
@@ -418,7 +419,8 @@ render :: proc(dt: f32)
 		length = size_of(grid_axis_ubo)
 	)
 
-	grid_x_left := math.ceil(camera_blend_pos.x / grid_padding) * grid_padding
+	// grid_x_left := math.ceil(camera_blend_pos.x / grid_padding) * grid_padding
+	grid_x_left := f32(0)
 	grid_pos_mat := linalg.matrix4_translate_f32({grid_x_left, camera_blend_pos.y, 1})
 
 	grid_mvp := proj_mat * camera_mat * grid_pos_mat * grid_scale_mat
@@ -430,7 +432,7 @@ render :: proc(dt: f32)
 		size_of(grid_mvp_ubo)
 	)
 
-	vertical_instances := sdl.Uint32(math.ceil(res.x / grid_padding)) - u32(UI_GRID_PADDING_WIDTH - 1)
+	vertical_instances := sdl.Uint32(math.ceil(res.x / grid_padding))
 
 	sdl.DrawGPUPrimitives(
 		render_pass, 
@@ -452,7 +454,8 @@ render :: proc(dt: f32)
 		length = size_of(grid_axis_ubo)
 	)
 
-	grid_y_bottom := math.ceil(camera_blend_pos.y / grid_padding) * grid_padding
+	// grid_y_bottom := math.ceil(camera_blend_pos.y / grid_padding) * grid_padding
+	grid_y_bottom := f32(0)
 	grid_pos_mat = linalg.matrix4_translate_f32({camera_blend_pos.x, grid_y_bottom, 1})
 
 	grid_mvp = proj_mat * camera_mat * grid_pos_mat * grid_scale_mat
@@ -464,7 +467,7 @@ render :: proc(dt: f32)
 		length = size_of(grid_mvp_ubo)
 	)
 
-	horizontal_instances := sdl.Uint32(math.ceil(res.y / grid_padding)) - u32(UI_GRID_PADDING_TOP)
+	horizontal_instances := sdl.Uint32(math.ceil(res.y / grid_padding))
 
 	sdl.DrawGPUPrimitives(
 		render_pass, 

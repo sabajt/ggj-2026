@@ -2,6 +2,8 @@ package main
 
 import "core:math"
 
+// GRID_OFFSET := [2]f32 {UI_DIVIDER_1, UI_DIVIDER_1}
+
 cell_pos :: proc(cell: [2]int) -> [2]f32
 {
 	return { 

@@ -4,6 +4,7 @@ import "core:fmt"
 import "core:math"
 
 vert_ref_quad := 0 // len 6 
+vert_ref_quad_bl := 0 // len 6
 vert_ref_tri := 0 // len 3
 
 solid_input_start_0: int
@@ -40,10 +41,10 @@ RenderPackData :: struct {
 }
 
 Rectangle :: struct {
-	position: [2]f32,
-	size: [2]f32,
+	tf: Blendable_Transform,
 	color: [4]f32,
-	z: int
+	anchor: Anchor,
+	z: int,
 }
 
 add_rectangle :: proc(rect: Rectangle)
@@ -114,7 +115,7 @@ pack_shapes :: proc(dt: f32, cam: [2]f32, z: int)
 	if len(rectangles) > 0 {
 		for rect in rectangles {
 			if rect.z == z {
-				pack_rect(rect)
+				pack_rect(rect, dt)
 			}
 		}
 	}
@@ -150,8 +151,7 @@ pack_sprites :: proc(dt: f32, z: int)
 
 pack_shared_verts :: proc()
 {
-	// quad
-
+	// quad: centered
 	verts := []Batch_Shape_Vertex {
 		{ position = {-0.5, -0.5}, color = {1, 1, 1, 1} },
 		{ position = {0.5, -0.5}, color = {1, 1, 1, 1} },
@@ -160,17 +160,25 @@ pack_shared_verts :: proc()
 		{ position = {0.5, 0.5}, color = {1, 1, 1, 1} },
 		{ position = {-0.5, 0.5}, color = {1, 1, 1, 1} }
 	}
-
 	vert_ref_quad = pack_vert_ref(verts[:])
 
-	// triangle
+	// quad: bottom left 
+	verts = []Batch_Shape_Vertex {
+		{ position = {0, 0}, color = {1, 1, 1, 1} },
+		{ position = {1, 0}, color = {1, 1, 1, 1} },
+		{ position = {1, 1}, color = {1, 1, 1, 1} },
+		{ position = {0, 0}, color = {1, 1, 1, 1} },
+		{ position = {1, 1}, color = {1, 1, 1, 1} },
+		{ position = {0, 1}, color = {1, 1, 1, 1} }
+	}
+	vert_ref_quad_bl = pack_vert_ref(verts[:])
 
+	// triangle: centered
 	verts = []Batch_Shape_Vertex {
 		{ position = {-0.5, -0.5}, color = {1, 1, 1, 1} },
 		{ position = {0.5, -0.5}, color = {1, 1, 1, 1} },
 		{ position = {0, 0.5}, color = {1, 1, 1, 1} },
 	}
-
 	vert_ref_tri = pack_vert_ref(verts[:])
 }
 
@@ -319,17 +327,25 @@ pack_batch_shape_arr :: proc(
 	}
 }
 
-pack_rect :: proc(rect: Rectangle)
+pack_rect :: proc(rect: Rectangle, dt: f32)
 {
-	// TODO: will need to blend
+	tf := blend_fit_res_letterbox(rect.tf, dt)
+
+	vert_ref: int
+	switch rect.anchor {
+		case .center:
+			vert_ref = vert_ref_quad
+		case .bottom_left:
+			vert_ref = vert_ref_quad_bl
+	}
 
 	pack_batch_shape_vert_ref(
-		vert_ref_quad,  
+		vert_ref,  
 		count = 6, 
 		model = Batch_Shape_Model {
-			position = {rect.position.x, rect.position.y, 1},
-			rotation = 0, // + math.PI/2
-			scale = rect.size,
+			position = {tf.pos.x, tf.pos.y, 1},
+			rotation = tf.rot, // + math.PI/2
+			scale = tf.scale,
 			color = rect.color
 		}
 	)

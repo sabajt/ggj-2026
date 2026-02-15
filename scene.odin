@@ -12,6 +12,7 @@ Game_State :: enum {
 
 GAME_GRID_SIZE_X :: 30
 GAME_GRID_SIZE_Y :: 21
+UI_DIVIDER_1 :: f32(1)
 WIZARD_PAD :: 5
 GAME_OVER_DELAY_DUR :: 90
 
@@ -20,30 +21,42 @@ enter_main :: proc()
 	game_state = .main
 	reset_game()
 
-	id := add_text_item("Testing some text")
-	text_item := &text_items[id]
-	text_item.pos = {resolution.x - 460, resolution.y - 100}
-
+	// top UI bar
+	grid_top := GRID_PADDING * GAME_GRID_SIZE_Y + 0.3
+	topbar_rect_height := INTERNAL_RES.y - grid_top
 	add_rectangle({
-		position = {resolution.x / 2, resolution.y - 200},
-		size = {resolution.x, 143},
-		color = {0,0,1,1},
-		z = 0
+		tf = tf({0, grid_top}, 0, {INTERNAL_RES.x, topbar_rect_height}),
+		color = {0,0,0,1},
+		anchor = .bottom_left,
+		z = 1
+	})
+	add_rectangle({
+		tf = tf({0, grid_top}, 0, {INTERNAL_RES.x, UI_DIVIDER_1}),
+		color = COL_GRAY_0,
+		anchor = .bottom_left,
+		z = 2
 	})
 
+	// right-side UI bar
+	grid_right := GRID_PADDING * GAME_GRID_SIZE_X
+	rightbar_rect_width := INTERNAL_RES.x - grid_right
 	add_rectangle({
-		position = {resolution.x / 2, resolution.y - 100},
-		size = {resolution.x/2, 143},
-		color = {1,0,0,1},
+		tf = tf({grid_right, 0}, 0, {rightbar_rect_width, INTERNAL_RES.y}),
+		color = {0,0,0,1},
+		anchor = .bottom_left,
+		z = 1
+	})
+	add_rectangle({
+		tf = tf({grid_right, 0}, 0, {UI_DIVIDER_1, grid_top}),
+		color = COL_GRAY_0,
+		anchor = .bottom_left,
 		z = 1
 	})
 
-	add_rectangle({
-		position = {resolution.x / 2, resolution.y - 50},
-		size = {200, 143},
-		color = {1,1,0,1},
-		z = 2
-	})
+	// right hand text
+	id := add_text_item("Testing some text")
+	text_item := &text_items[id]
+	text_item.pos = fit_res_vec2({grid_right + 6, grid_top - 4}, resolution)
 }
 
 reset_game :: proc()
