@@ -1,10 +1,12 @@
 package main
 
+import "core:math"
 import "core:math/rand"
 
 game_state : Game_State = .main
 menu_option_text_id_0: int
 menu_option_text_id_1: int
+player_dir_indicator_shape_i: int
 
 Game_State :: enum {
 	main
@@ -24,39 +26,64 @@ enter_main :: proc()
 	// top UI bar
 	grid_top := GRID_PADDING * GAME_GRID_SIZE_Y + 0.3
 	topbar_rect_height := INTERNAL_RES.y - grid_top
-	add_rectangle({
+	add_shape({
+		type = .Rectangle,
 		tf = tf({0, grid_top}, 0, {INTERNAL_RES.x, topbar_rect_height}),
 		color = {0,0,0,1},
 		anchor = .bottom_left,
-		z = 1
+		z = 1,
+		visible = true
 	})
-	add_rectangle({
+	add_shape({
+		type = .Rectangle,
 		tf = tf({0, grid_top}, 0, {INTERNAL_RES.x, UI_DIVIDER_1}),
 		color = COL_GRAY_0,
 		anchor = .bottom_left,
-		z = 2
-	})
+		z = 2,
+		visible = true
+	}) 
+
+	// ADDING VISIBLE
 
 	// right-side UI bar
 	grid_right := GRID_PADDING * GAME_GRID_SIZE_X
 	rightbar_rect_width := INTERNAL_RES.x - grid_right
-	add_rectangle({
+	add_shape({
+		type = .Rectangle,
 		tf = tf({grid_right, 0}, 0, {rightbar_rect_width, INTERNAL_RES.y}),
 		color = {0,0,0,1},
 		anchor = .bottom_left,
-		z = 1
+		z = 1,
+		visible = true
 	})
-	add_rectangle({
+	add_shape({
+		type = .Rectangle,
 		tf = tf({grid_right, 0}, 0, {UI_DIVIDER_1, grid_top}),
 		color = COL_GRAY_0,
 		anchor = .bottom_left,
-		z = 1
+		z = 1,
+		visible = true
 	})
 
 	// right hand text
 	id := add_text_item("Testing some text")
 	text_item := &text_items[id]
 	text_item.pos = fit_res_vec2({grid_right + 6, grid_top - 4}, resolution)
+
+	// testing dir arrow	
+	tri_pos := pvec(
+		ang = math.PI, 
+		radius = GRID_PADDING / 2.0 + 4, 
+		center = player.pos + GRID_PADDING / 2.0
+	)
+	player_dir_indicator_shape_i = add_shape({
+		type = .Triangle,
+		tf = tf(tri_pos, math.PI / 2.0, {5, 5}),
+		color = COL_GRAY_0,
+		anchor = .center,
+		z = 1,
+		visible = false
+	})
 }
 
 reset_game :: proc()

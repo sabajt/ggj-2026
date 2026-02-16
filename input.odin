@@ -1,10 +1,15 @@
 package main
 
 import "core:fmt"
+import "core:math/linalg"
+import "core:math"
 import sdl "vendor:sdl3"
 
 gamepad_1 : ^sdl.Gamepad
 gamepad_2 : ^sdl.Gamepad
+left_x_axis_val: f32
+left_y_axis_val: f32
+AXIS_CUTOFF : f32 = 0.3
 
 handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult 
 {
@@ -54,9 +59,68 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
 		    handle_gamepad_added(event.gdevice.which)
         case .GAMEPAD_REMOVED:
 		    handle_gamepad_removed(event.gdevice.which)
-
+        case .GAMEPAD_AXIS_MOTION:
+            axis := sdl.GamepadAxis(event.gaxis.axis)
+            #partial switch axis {
+            case .LEFTX, .LEFTY:
+                handle_rotate_left_axis(axis, event.gaxis.value)
+            }
     }
     return .CONTINUE
+}
+
+handle_rotate_left_axis :: proc(axis: sdl.GamepadAxis, value: sdl.Sint16) 
+{
+	axis_val := f32(value) / f32(max(sdl.Sint16))
+
+	if sdl.GamepadAxis(axis) == sdl.GamepadAxis.LEFTX {
+		left_x_axis_val = axis_val
+	}
+	if sdl.GamepadAxis(axis) == sdl.GamepadAxis.LEFTY {
+		left_y_axis_val = -axis_val
+	}
+
+    left_x_axis_val := abs(left_x_axis_val) > AXIS_CUTOFF ? left_x_axis_val : 0
+	left_y_axis_val := abs(left_y_axis_val) > AXIS_CUTOFF ? left_y_axis_val : 0
+	is_rotating : bool = abs(left_x_axis_val) > AXIS_CUTOFF || abs(left_y_axis_val) > AXIS_CUTOFF
+    dir_indicator := &shapes[player_dir_indicator_shape_i]
+
+	if is_rotating {
+		ang := linalg.atan2(left_y_axis_val, left_x_axis_val)
+		if ang < 0 {
+			// neg val is bottom half, convert to 0...TAU going ccw
+			ang = math.TAU - abs(ang)
+		}
+        snap_ang: f32
+        EIGTH_OF_PI := f32(math.PI / 8.0) 
+        if ang >= math.TAU - EIGTH_OF_PI || ang < EIGTH_OF_PI {
+            snap_ang = 0
+        } else if ang >= EIGTH_OF_PI && ang < 3 * EIGTH_OF_PI {
+            snap_ang = 2 * EIGTH_OF_PI // up right
+        } else if ang >= 3 * EIGTH_OF_PI && ang < 5 * EIGTH_OF_PI {
+            snap_ang = 4 * EIGTH_OF_PI // up 
+        } else if ang >= 5 * EIGTH_OF_PI && ang < 7 * EIGTH_OF_PI {
+            snap_ang = 6 * EIGTH_OF_PI // up left
+        } else if ang >= 7 * EIGTH_OF_PI && ang < 9 * EIGTH_OF_PI {
+            snap_ang = math.PI // left
+        } else if ang >= 9 * EIGTH_OF_PI && ang < 11 * EIGTH_OF_PI {
+            snap_ang = 10 * EIGTH_OF_PI // down left
+        } else if ang >= 11 * EIGTH_OF_PI && ang < 13 * EIGTH_OF_PI {
+            snap_ang = 12 * EIGTH_OF_PI // down
+        } else if ang >= 13 * EIGTH_OF_PI && ang < 15 * EIGTH_OF_PI {
+            snap_ang = 14 * EIGTH_OF_PI // down right
+        }
+        
+        tri_pos := pvec(
+            ang = snap_ang, 
+            radius = GRID_PADDING / 2.0 + 4, 
+            center = player.pos + GRID_PADDING / 2.0
+	    )
+        dir_indicator.tf = tf(tri_pos, snap_ang - math.PI / 2.0 , {5, 5})
+        dir_indicator.visible = true
+    } else {
+        dir_indicator.visible = false
+    }
 }
 
 // Gamepad management

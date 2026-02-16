@@ -29,7 +29,9 @@ sprite_start_2: int
 sprite_end_2: int
 
 gpu_sprites := make([dynamic]GPU_Sprite)
-rectangles := make([dynamic]Rectangle)
+
+shapes := make([dynamic]Shape)
+shape_i := 0
 
 RenderPackData :: struct {
 	rad: f32,
@@ -40,16 +42,25 @@ RenderPackData :: struct {
 	col: [4]f32
 }
 
-Rectangle :: struct {
+ShapeType :: enum {
+	Rectangle,
+	Triangle
+}
+
+Shape :: struct {
+	type: ShapeType,
 	tf: Blendable_Transform,
 	color: [4]f32,
 	anchor: Anchor,
 	z: int,
+	visible: bool
 }
 
-add_rectangle :: proc(rect: Rectangle)
+add_shape :: proc(shape: Shape) -> int
 {
-	append(&rectangles, rect)
+	i := len(shapes)
+	append(&shapes, shape)
+	return i
 }
 
 get_sim_dt :: proc(dt: f32) -> f32
@@ -112,10 +123,15 @@ pack_shapes :: proc(dt: f32, cam: [2]f32, z: int)
 
 	// pack the shapes
 
-	if len(rectangles) > 0 {
-		for rect in rectangles {
-			if rect.z == z {
-				pack_rect(rect, dt)
+	if len(shapes) > 0 {
+		for shape in shapes {
+			if shape.z == z && shape.visible {
+				switch shape.type {
+					case .Rectangle:
+						pack_rect(shape, dt)
+					case .Triangle:
+						pack_tri(shape, dt)
+				}
 			}
 		}
 	}
@@ -327,12 +343,12 @@ pack_batch_shape_arr :: proc(
 	}
 }
 
-pack_rect :: proc(rect: Rectangle, dt: f32)
+pack_rect :: proc(shape: Shape, dt: f32)
 {
-	tf := blend_fit_res_letterbox(rect.tf, dt)
+	tf := blend_fit_res_letterbox(shape.tf, dt)
 
 	vert_ref: int
-	switch rect.anchor {
+	switch shape.anchor {
 		case .center:
 			vert_ref = vert_ref_quad
 		case .bottom_left:
@@ -346,7 +362,24 @@ pack_rect :: proc(rect: Rectangle, dt: f32)
 			position = {tf.pos.x, tf.pos.y, 1},
 			rotation = tf.rot, // + math.PI/2
 			scale = tf.scale,
-			color = rect.color
+			color = shape.color
+		}
+	)
+}
+
+// TODO: anchor is ignored, add or change Shape description?
+pack_tri :: proc(shape: Shape, dt: f32)
+{
+	tf := blend_fit_res_letterbox(shape.tf, dt)
+
+	pack_batch_shape_vert_ref(
+		vert_ref_tri,  
+		count = 3, 
+		model = Batch_Shape_Model {
+			position = {tf.pos.x, tf.pos.y, 1},
+			rotation = tf.rot, // + math.PI/2
+			scale = tf.scale,
+			color = shape.color
 		}
 	)
 }
