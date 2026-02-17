@@ -52,8 +52,8 @@ step_game :: proc()
 
 // Direction
 
-Direction :: enum { north, south, west, east }
-DIRECTIONS :: [4]Direction { .north, .south, .west, .east }
+Direction :: enum { north, south, west, east, northeast, northwest, southeast, southwest }
+DIRECTIONS :: [8]Direction { .north, .south, .west, .east, .northeast, .northwest, .southeast, .southwest }
 
 // rename: 90 deg
 turn_left :: proc(facing: Direction) -> Direction {
@@ -63,6 +63,11 @@ turn_left :: proc(facing: Direction) -> Direction {
         case .south: result = .east
         case .east: result = .north
         case .north: result = .west
+        case .northwest: result = .southwest
+        case .southwest: result = .southeast
+        case .southeast: result = .northeast
+        case .northeast: result = .northwest
+
     }
     return result
 }
@@ -74,6 +79,10 @@ turn_right :: proc(facing: Direction) -> Direction {
         case .south: result = .west
         case .east: result = .south
         case .north: result = .east
+        case .northwest: result = .northeast
+        case .northeast: result = .southeast
+        case .southeast: result = .southwest
+        case .southwest: result = .northwest
     }
     return result
 }

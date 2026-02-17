@@ -95,22 +95,26 @@ handle_rotate_left_axis :: proc(axis: sdl.GamepadAxis, value: sdl.Sint16)
             snap_ang = 0
             facing_dir = .east
         } else if ang >= EIGTH_OF_PI && ang < 3 * EIGTH_OF_PI {
-            snap_ang = 2 * EIGTH_OF_PI // up right
+            snap_ang = 2 * EIGTH_OF_PI 
+            facing_dir = .northeast
         } else if ang >= 3 * EIGTH_OF_PI && ang < 5 * EIGTH_OF_PI {
-            snap_ang = 4 * EIGTH_OF_PI // up 
+            snap_ang = 4 * EIGTH_OF_PI
             facing_dir = .north
         } else if ang >= 5 * EIGTH_OF_PI && ang < 7 * EIGTH_OF_PI {
-            snap_ang = 6 * EIGTH_OF_PI // up left
+            snap_ang = 6 * EIGTH_OF_PI
+            facing_dir = .northwest
         } else if ang >= 7 * EIGTH_OF_PI && ang < 9 * EIGTH_OF_PI {
-            snap_ang = math.PI // left
+            snap_ang = math.PI
             facing_dir = .west
         } else if ang >= 9 * EIGTH_OF_PI && ang < 11 * EIGTH_OF_PI {
-            snap_ang = 10 * EIGTH_OF_PI // down left
+            snap_ang = 10 * EIGTH_OF_PI
+            facing_dir = .southwest
         } else if ang >= 11 * EIGTH_OF_PI && ang < 13 * EIGTH_OF_PI {
-            snap_ang = 12 * EIGTH_OF_PI // down
+            snap_ang = 12 * EIGTH_OF_PI
             facing_dir = .south
         } else if ang >= 13 * EIGTH_OF_PI && ang < 15 * EIGTH_OF_PI {
-            snap_ang = 14 * EIGTH_OF_PI // down right
+            snap_ang = 14 * EIGTH_OF_PI 
+            facing_dir = .southeast
         }
         
         tri_pos := pvec(

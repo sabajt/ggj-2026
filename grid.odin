@@ -31,7 +31,15 @@ cell_move :: proc(cell: [2]int, dir: Direction) -> [2]int
         case .north:
             result = {cell.x, cell.y + 1}
         case .south:
-            result = { cell.x, cell.y - 1}          
+            result = { cell.x, cell.y - 1}    
+        case .northwest:
+            result = { cell.x - 1, cell.y + 1 }  
+        case .northeast:
+            result = { cell.x + 1, cell.y + 1 } 
+        case .southwest:
+            result = { cell.x - 1, cell.y - 1 }   
+        case .southeast:
+            result = { cell.x + 1, cell.y - 1 }        
     }
     return result
 }
