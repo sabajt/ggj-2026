@@ -24,13 +24,13 @@ cell_move :: proc(cell: [2]int, dir: Direction) -> [2]int
 {
     result: [2]int
     switch dir {
-        case .left:
+        case .west:
             result = { cell.x - 1, cell.y }
-        case .right:
+        case .east:
             result = { cell.x + 1, cell.y }  
-        case .up:
+        case .north:
             result = {cell.x, cell.y + 1}
-        case .down:
+        case .south:
             result = { cell.x, cell.y - 1}          
     }
     return result

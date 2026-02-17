@@ -10,6 +10,7 @@ gamepad_2 : ^sdl.Gamepad
 left_x_axis_val: f32
 left_y_axis_val: f32
 AXIS_CUTOFF : f32 = 0.3
+facing_dir: Maybe(Direction)
 
 handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult 
 {
@@ -21,15 +22,11 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                 // quit
                 case .Q:
                     return .SUCCESS
-                // move
-                case .LEFT:
-                    handle_wizard_move(.left)
-                case .RIGHT:
-                    handle_wizard_move(.right)
-                case .UP:
-                    handle_wizard_move(.up)
-                case .DOWN:
-                    handle_wizard_move(.down)
+                // TODO: keyboard arrow key
+                // case .LEFT:
+                // case .RIGHT:
+                // case .UP:
+                // case .DOWN:
                 case .X:
                     handle_wizard_wait()
                 // spell
@@ -39,21 +36,18 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
         case .GAMEPAD_BUTTON_DOWN:
 		    button := sdl.GamepadButton(event.gbutton.button)
 		    #partial switch button {
-			    case .START:
-				    fmt.println("start pressed")
-                case .DPAD_LEFT:
-                    handle_wizard_move(.left)
-                case .DPAD_RIGHT:
-                    handle_wizard_move(.right)  
-                case .DPAD_UP:
-                    handle_wizard_move(.up)
-                case .DPAD_DOWN:
-                    handle_wizard_move(.down)  
-                case .EAST, .SOUTH:
-                    handle_wizard_wait()  
+                // TODO: menu
+                // case .DPAD_LEFT:
+                // case .DPAD_RIGHT:
+                // case .DPAD_UP:
+                // case .DPAD_DOWN:
+                // case .EAST
                 case .RIGHT_SHOULDER:
-                    handle_wizard_spell(.fire_tree)
-
+                    if val, ok := facing_dir.?; ok { 
+                        handle_wizard_move(val)
+                    } else {
+                        handle_wizard_wait()
+                    }
 		    }
         case .GAMEPAD_ADDED:
 		    handle_gamepad_added(event.gdevice.which)
@@ -64,6 +58,10 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
             #partial switch axis {
             case .LEFTX, .LEFTY:
                 handle_rotate_left_axis(axis, event.gaxis.value)
+            case .RIGHT_TRIGGER:
+                if event.gaxis.value > 0 {
+                    handle_wizard_spell(.fire_tree)
+                }
             }
     }
     return .CONTINUE
@@ -95,18 +93,22 @@ handle_rotate_left_axis :: proc(axis: sdl.GamepadAxis, value: sdl.Sint16)
         EIGTH_OF_PI := f32(math.PI / 8.0) 
         if ang >= math.TAU - EIGTH_OF_PI || ang < EIGTH_OF_PI {
             snap_ang = 0
+            facing_dir = .east
         } else if ang >= EIGTH_OF_PI && ang < 3 * EIGTH_OF_PI {
             snap_ang = 2 * EIGTH_OF_PI // up right
         } else if ang >= 3 * EIGTH_OF_PI && ang < 5 * EIGTH_OF_PI {
             snap_ang = 4 * EIGTH_OF_PI // up 
+            facing_dir = .north
         } else if ang >= 5 * EIGTH_OF_PI && ang < 7 * EIGTH_OF_PI {
             snap_ang = 6 * EIGTH_OF_PI // up left
         } else if ang >= 7 * EIGTH_OF_PI && ang < 9 * EIGTH_OF_PI {
             snap_ang = math.PI // left
+            facing_dir = .west
         } else if ang >= 9 * EIGTH_OF_PI && ang < 11 * EIGTH_OF_PI {
             snap_ang = 10 * EIGTH_OF_PI // down left
         } else if ang >= 11 * EIGTH_OF_PI && ang < 13 * EIGTH_OF_PI {
             snap_ang = 12 * EIGTH_OF_PI // down
+            facing_dir = .south
         } else if ang >= 13 * EIGTH_OF_PI && ang < 15 * EIGTH_OF_PI {
             snap_ang = 14 * EIGTH_OF_PI // down right
         }
@@ -120,6 +122,7 @@ handle_rotate_left_axis :: proc(axis: sdl.GamepadAxis, value: sdl.Sint16)
         dir_indicator.visible = true
     } else {
         dir_indicator.visible = false
+        facing_dir = nil
     }
 }
 
