@@ -13,9 +13,21 @@ facing_dir: Maybe(Direction)
 // poll for sdl events
 check_input :: proc() {
     if gamepad_1 != nil {
+        // aim
         axis_x := sdl.GetGamepadAxis(gamepad_1, sdl.GamepadAxis.LEFTX)
         axis_y := sdl.GetGamepadAxis(gamepad_1, sdl.GamepadAxis.LEFTY)
         handle_left_stick(axis_x, axis_y)
+
+        if !is_stepping && action_post_step_t >= ACTION_POST_STEP_DUR {
+            // move
+            if sdl.GetGamepadButton(gamepad_1, sdl.GamepadButton.RIGHT_SHOULDER) {
+                if val, ok := facing_dir.?; ok { 
+                    handle_wizard_move(val)
+                } else  {
+                    handle_wizard_wait()
+                }
+            }
+        }
     }
 }
 
@@ -50,14 +62,7 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                 // case .DPAD_UP:
                 // case .DPAD_DOWN:
                 // case .EAST
-                case .RIGHT_SHOULDER:
-                    if !is_stepping {
-                        if val, ok := facing_dir.?; ok { 
-                            handle_wizard_move(val)
-                        } else  {
-                            handle_wizard_wait()
-                        }
-                    }
+
 		    }
         case .GAMEPAD_ADDED:
 		    handle_gamepad_added(event.gdevice.which)

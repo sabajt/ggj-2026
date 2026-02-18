@@ -6,12 +6,14 @@ import "core:fmt"
 import "core:math"
 import "core:math/rand"
 
-ACTION_DUR :: int(7)
+ACTION_DUR :: int(8)
+ACTION_POST_STEP_DUR :: int(3)
 
 flash_on := true
 actions := make(map[int]Action)
 action_i := 0
 action_step_t: int = 0
+action_post_step_t: int = 0
 is_stepping: bool = false
 is_game_over: bool = false
 game_over_delay: int = GAME_OVER_DELAY_DUR
@@ -228,7 +230,12 @@ update :: proc()
         // finish step
         if action_step_t == ACTION_DUR {
             action_step_t = 0
+            action_post_step_t = 0
             is_stepping = false
+        }
+    } else {
+        if action_post_step_t < ACTION_POST_STEP_DUR {
+            action_post_step_t += 1
         }
     }
 
