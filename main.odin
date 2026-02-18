@@ -13,9 +13,7 @@ GRID_PADDING :: f32(16)
 UI_GRID_PADDING_WIDTH :: f32(10)
 UI_GRID_PADDING_TOP :: f32(1)
 
-// resolution := [2]f32 {640, 360} 
-// resolution := [2]f32 {960, 540} 
-resolution := 3 * INTERNAL_RES 
+resolution := config.resolution
 letterbox_resolution: [2]f32
 
 // frame timing

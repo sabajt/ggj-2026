@@ -229,6 +229,11 @@ update :: proc()
     }
 
     if is_stepping {
+        // disable inter-step actions
+        dir_indicator := &shapes[player_dir_indicator_shape_i]
+        dir_indicator.visible = false
+        facing_dir = nil
+
         // check for hits before adding actions, otherwise killed enemy might add action
         check_hits()
 

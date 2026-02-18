@@ -43,10 +43,12 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                 // case .DPAD_DOWN:
                 // case .EAST
                 case .RIGHT_SHOULDER:
-                    if val, ok := facing_dir.?; ok { 
-                        handle_wizard_move(val)
-                    } else {
-                        handle_wizard_wait()
+                    if !is_stepping {
+                        if val, ok := facing_dir.?; ok { 
+                            handle_wizard_move(val)
+                        } else  {
+                            handle_wizard_wait()
+                        }
                     }
 		    }
         case .GAMEPAD_ADDED:
@@ -54,13 +56,15 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
         case .GAMEPAD_REMOVED:
 		    handle_gamepad_removed(event.gdevice.which)
         case .GAMEPAD_AXIS_MOTION:
-            axis := sdl.GamepadAxis(event.gaxis.axis)
-            #partial switch axis {
-            case .LEFTX, .LEFTY:
-                handle_rotate_left_axis(axis, event.gaxis.value)
-            case .RIGHT_TRIGGER:
-                if event.gaxis.value > 0 {
-                    handle_wizard_spell(.fire_tree)
+            if !is_stepping {
+                axis := sdl.GamepadAxis(event.gaxis.axis)
+                #partial switch axis {
+                case .LEFTX, .LEFTY:
+                    handle_rotate_left_axis(axis, event.gaxis.value)
+                case .RIGHT_TRIGGER:
+                    if event.gaxis.value > 0 {
+                        handle_wizard_spell(.fire_tree)
+                    }
                 }
             }
     }

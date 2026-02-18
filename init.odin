@@ -105,7 +105,7 @@ init_transfer_mem :: proc()
 	ok := ttf.Init()
 	assert(ok)
 
-	font_sfns_mono = ttf.OpenFont("fonts/monogram.ttf", 32)
+	font_sfns_mono = ttf.OpenFont("fonts/monogram.ttf", config.font_size)
 	if font_sfns_mono == nil {
 		fmt.println("ERROR: Couldn't open font")
 	}
