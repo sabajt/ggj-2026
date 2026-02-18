@@ -1,3 +1,4 @@
+- Shoot in direction 
 - UI: mask UI boxes
 - mask action: dash movement -> move multiple squares in a line
 - mask action: fly power (winged) -> enable a number of steps (moving or still) without most collisions
@@ -26,6 +27,7 @@ bugs
 
 done
 
+x move 8 directions w/ arrow UI
 x UI: right side box
 x step system: move & projectiles have discrete start & end cells, lerping smoothly between steps.
 x step system: hitbox based realtime collision instead of discrete states 

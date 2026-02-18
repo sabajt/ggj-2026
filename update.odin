@@ -65,31 +65,6 @@ cast_orb_spell :: proc(cell: [2]int)
     }
 }
 
-cast_fire_spell :: proc(cell: [2]int)
-{
-    for dir in DIRECTIONS {
-        // adjacent to player
-        cell := cell_move(cell, dir)
-        add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
-
-        // move 4 direction out
-        for i in 0 ..< 8 {
-            cell = cell_move(cell, dir)
-            add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
-
-            // 1 / 3 chance to have a branch left or right
-            if rand.int_max(3) == 0 {
-                branch_dir := rand.int_max(2) == 0 ? turn_left(dir) : turn_right(dir)
-                branch_cell := cell
-                for i in 0 ..< (3 + rand.int_max(4)) {
-                    branch_cell = cell_move(branch_cell, branch_dir)
-                    add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = COL_LEMON_LIME)
-                }
-            }
-        }
-    }
-}
-
 action_update_player_move :: proc(action: ^Action) 
 {
     if action_step_t == ACTION_DUR {
@@ -274,45 +249,6 @@ step_enemies :: proc()
     enemy.t += 1
 }
 
-step_orbs :: proc()
-{
-    for k, orb in orbs {
-        // move outward
-        cur := pos_to_cell(orb.pos)
-        dest := cell_move(cur, orb.dir)
-
-        action := Action {
-            i = action_i,
-            update = action_update_orb,
-            data = { 
-                start_cell = cur, 
-                end_cell = dest,
-                obj_id = orb.spr
-            }
-        }
-        actions[action_i] = action
-        action_i += 1
-    }
-}
-
-step_fire :: proc()
-{
-    for key, &fire in fires {
-        fire.t -= 1
-        if fire.t == 0 {
-            delete_key(&sprites, key)
-            delete_key(&fires, key)
-        } else {
-            // fire.cell = cell_move(fire.cell, fire.dir)
-            sprite := &sprites[key]
-            col := sprite.col
-            col.a = f32(fire.t + 1) / f32(fire.dur)
-            update_sprite(sprite, col = col)
-            snap_sprite_to_latest_frame(sprite)
-        }
-    }
-}
-
 find_empty_spawn_cell :: proc() -> [2]int
 {
     x := WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_X - WIZARD_PAD)
@@ -362,48 +298,5 @@ check_hits :: proc()
     }
 }
 
-// old_update :: proc() 
-// {
-//     update_resolutions()
 
-//     // update player move request
-//     if dir, ok := wizard_direction_request.?; ok { 
-//         player.cell = cell_move(player.cell, dir)
-//         spr := &sprites[player.sprite]
-//         update_sprite(spr, cell_pos(player.cell))
-//         snap_sprite_to_latest_frame(spr)
-
-//         step_game()
-//         wizard_direction_request = nil
-//     }
-
-//     if wizard_wait_request { 
-//         step_game()
-//         wizard_wait_request = false
-//     }
-
-//     // update player spell request
-
-//     if spell, ok := wizard_spell_request.?; ok { 
-//         create_spell(spell)
-//         step_game()
-
-//         wizard_spell_request = nil
-//     }
-
-//     // animate enemy and player
-
-//     enemy_sprite := &sprites[enemy.sprite]
-//     enemy_sprite.col.a = flash_on ? 1 : 0.2
-
-//     player_sprite := &sprites[player.sprite]
-//     player_sprite.col.a = flash_on ? 1 : 0.2
-
-//     // update step time and common step vars
-
-//     if game_step_time % 8 == 0 {
-//         flash_on = !flash_on
-//     }
-//     game_step_time += 1
-// }
 

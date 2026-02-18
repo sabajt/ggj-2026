@@ -42,14 +42,6 @@ handle_wizard_spell :: proc(spell: Spell)
     }
 }
 
-step_game :: proc()
-{
-    step_enemies()
-    step_spells()
-
-    check_hits()
-}
-
 // Direction
 
 Direction :: enum { north, south, west, east, northeast, northwest, southeast, southwest }

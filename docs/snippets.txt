@@ -1,0 +1,68 @@
+// old_update :: proc() 
+// {
+//     update_resolutions()
+
+//     // update player move request
+//     if dir, ok := wizard_direction_request.?; ok { 
+//         player.cell = cell_move(player.cell, dir)
+//         spr := &sprites[player.sprite]
+//         update_sprite(spr, cell_pos(player.cell))
+//         snap_sprite_to_latest_frame(spr)
+
+//         step_game()
+//         wizard_direction_request = nil
+//     }
+
+//     if wizard_wait_request { 
+//         step_game()
+//         wizard_wait_request = false
+//     }
+
+//     // update player spell request
+
+//     if spell, ok := wizard_spell_request.?; ok { 
+//         create_spell(spell)
+//         step_game()
+
+//         wizard_spell_request = nil
+//     }
+
+//     // animate enemy and player
+
+//     enemy_sprite := &sprites[enemy.sprite]
+//     enemy_sprite.col.a = flash_on ? 1 : 0.2
+
+//     player_sprite := &sprites[player.sprite]
+//     player_sprite.col.a = flash_on ? 1 : 0.2
+
+//     // update step time and common step vars
+
+//     if game_step_time % 8 == 0 {
+//         flash_on = !flash_on
+//     }
+//     game_step_time += 1
+// }
+
+
+// step_spells :: proc()
+// {
+//     step_fire()
+// }
+
+// create_spell :: proc(spell: Spell)
+// {
+//     switch spell {
+//         case .fire_tree:
+//             create_fire_tree_spell()
+//         case .orb:
+//             fmt.println("unhandled spell: orb")
+//     }
+// }
+
+step_game :: proc()
+{
+    step_enemies()
+    step_spells()
+
+    check_hits()
+}
