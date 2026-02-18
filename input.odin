@@ -31,7 +31,7 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                     handle_wizard_wait()
                 // spell
                 case .Z:
-                    handle_wizard_spell(.fire_tree)
+                    // handle_wizard_spell(.fire_tree)
             }
         case .GAMEPAD_BUTTON_DOWN:
 		    button := sdl.GamepadButton(event.gbutton.button)
@@ -63,7 +63,10 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                     handle_rotate_left_axis(axis, event.gaxis.value)
                 case .RIGHT_TRIGGER:
                     if event.gaxis.value > 0 {
-                        handle_wizard_spell(.fire_tree)
+                        if val, ok := facing_dir.?; ok { 
+                            spell := Fire_Spell { cell = pos_to_cell(player.pos), dir = val }
+                            handle_wizard_spell(spell)
+                        }
                     }
                 }
             }

@@ -199,8 +199,14 @@ update :: proc()
     // player initiate step with spell cast
     if spell, ok := wizard_spell_request.?; ok {         
         wizard_spell_request = nil
-        cast_fire_spell(pos_to_cell(player.pos))
         is_stepping = true
+
+        switch s in spell {
+            case Fire_Spell:
+                cast_fire_spell(s)
+            case Orb_Spell:
+                break
+        }
     }
 
     if is_stepping {

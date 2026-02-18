@@ -10,10 +10,17 @@ Wizard :: struct {
     action_i: int 
 }
 
-Spell :: enum {
-    fire_tree,
-    orb
+Spell :: union {
+    Fire_Spell,
+    Orb_Spell
 }
+
+Fire_Spell :: struct {
+    cell: [2]int,
+    dir: Direction
+}
+
+Orb_Spell :: struct {}
 
 wizard_direction_request: Maybe(Direction) = nil
 wizard_spell_request: Maybe(Spell) = nil
