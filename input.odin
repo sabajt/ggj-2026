@@ -82,9 +82,11 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
 
 handle_left_stick :: proc(axis_x: sdl.Sint16, axis_y: sdl.Sint16) 
 {
+    // normalize -1, 1
     val_x := f32(axis_x) / f32(max(sdl.Sint16))
     val_y := -f32(axis_y) / f32(max(sdl.Sint16))
 
+    // process depending on cutoff threshold
     left_x_axis_val := abs(val_x) > AXIS_CUTOFF ? val_x : 0
 	left_y_axis_val := abs(val_y) > AXIS_CUTOFF ? val_y : 0
 	is_rotating: bool = abs(val_x) > AXIS_CUTOFF || abs(val_y) > AXIS_CUTOFF
@@ -101,24 +103,31 @@ handle_left_stick :: proc(axis_x: sdl.Sint16, axis_y: sdl.Sint16)
         if ang >= math.TAU - EIGTH_OF_PI || ang < EIGTH_OF_PI {
             snap_ang = 0
             facing_dir = .east
+
         } else if ang >= EIGTH_OF_PI && ang < 3 * EIGTH_OF_PI {
             snap_ang = 2 * EIGTH_OF_PI 
             facing_dir = .northeast
+
         } else if ang >= 3 * EIGTH_OF_PI && ang < 5 * EIGTH_OF_PI {
             snap_ang = 4 * EIGTH_OF_PI
             facing_dir = .north
+
         } else if ang >= 5 * EIGTH_OF_PI && ang < 7 * EIGTH_OF_PI {
             snap_ang = 6 * EIGTH_OF_PI
             facing_dir = .northwest
+
         } else if ang >= 7 * EIGTH_OF_PI && ang < 9 * EIGTH_OF_PI {
             snap_ang = math.PI
             facing_dir = .west
+
         } else if ang >= 9 * EIGTH_OF_PI && ang < 11 * EIGTH_OF_PI {
             snap_ang = 10 * EIGTH_OF_PI
             facing_dir = .southwest
+
         } else if ang >= 11 * EIGTH_OF_PI && ang < 13 * EIGTH_OF_PI {
             snap_ang = 12 * EIGTH_OF_PI
             facing_dir = .south
+
         } else if ang >= 13 * EIGTH_OF_PI && ang < 15 * EIGTH_OF_PI {
             snap_ang = 14 * EIGTH_OF_PI 
             facing_dir = .southeast
