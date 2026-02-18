@@ -7,11 +7,19 @@ import sdl "vendor:sdl3"
 
 gamepad_1 : ^sdl.Gamepad
 gamepad_2 : ^sdl.Gamepad
-left_x_axis_val: f32
-left_y_axis_val: f32
-AXIS_CUTOFF : f32 = 0.3
+AXIS_CUTOFF : f32 = 0.4
 facing_dir: Maybe(Direction)
 
+// poll for sdl events
+check_input :: proc() {
+    if gamepad_1 != nil {
+        axis_x := sdl.GetGamepadAxis(gamepad_1, sdl.GamepadAxis.LEFTX)
+        axis_y := sdl.GetGamepadAxis(gamepad_1, sdl.GamepadAxis.LEFTY)
+        handle_left_stick(axis_x, axis_y)
+    }
+}
+
+// observe sdl events
 handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult 
 {
 	#partial switch event.type {
@@ -58,9 +66,7 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
         case .GAMEPAD_AXIS_MOTION:
             if !is_stepping {
                 axis := sdl.GamepadAxis(event.gaxis.axis)
-                #partial switch axis {
-                case .LEFTX, .LEFTY:
-                    handle_rotate_left_axis(axis, event.gaxis.value)
+                #partial switch axis {                    
                 case .RIGHT_TRIGGER:
                     if event.gaxis.value > 0 {
                         if val, ok := facing_dir.?; ok { 
@@ -74,20 +80,14 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
     return .CONTINUE
 }
 
-handle_rotate_left_axis :: proc(axis: sdl.GamepadAxis, value: sdl.Sint16) 
+handle_left_stick :: proc(axis_x: sdl.Sint16, axis_y: sdl.Sint16) 
 {
-	axis_val := f32(value) / f32(max(sdl.Sint16))
+    val_x := f32(axis_x) / f32(max(sdl.Sint16))
+    val_y := -f32(axis_y) / f32(max(sdl.Sint16))
 
-	if sdl.GamepadAxis(axis) == sdl.GamepadAxis.LEFTX {
-		left_x_axis_val = axis_val
-	}
-	if sdl.GamepadAxis(axis) == sdl.GamepadAxis.LEFTY {
-		left_y_axis_val = -axis_val
-	}
-
-    left_x_axis_val := abs(left_x_axis_val) > AXIS_CUTOFF ? left_x_axis_val : 0
-	left_y_axis_val := abs(left_y_axis_val) > AXIS_CUTOFF ? left_y_axis_val : 0
-	is_rotating : bool = abs(left_x_axis_val) > AXIS_CUTOFF || abs(left_y_axis_val) > AXIS_CUTOFF
+    left_x_axis_val := abs(val_x) > AXIS_CUTOFF ? val_x : 0
+	left_y_axis_val := abs(val_y) > AXIS_CUTOFF ? val_y : 0
+	is_rotating: bool = abs(val_x) > AXIS_CUTOFF || abs(val_y) > AXIS_CUTOFF
     dir_indicator := &shapes[player_dir_indicator_shape_i]
 
 	if is_rotating {
@@ -170,6 +170,8 @@ handle_rotate_left_axis :: proc(axis: sdl.GamepadAxis, value: sdl.Sint16)
 		fmt.println("gamepad 2 closed and unassigned")
 	}
 }
+
+
 
 
 

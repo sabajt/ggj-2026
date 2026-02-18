@@ -158,6 +158,7 @@ update_resolutions :: proc()
 
 update :: proc() 
 {
+    check_input()
     update_resolutions()
 
     defer {
