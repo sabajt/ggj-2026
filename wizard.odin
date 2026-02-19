@@ -40,43 +40,6 @@ handle_wizard_spell :: proc(spell: Spell)
     }
 }
 
-// Direction
-
-Direction :: enum { north, south, west, east, northeast, northwest, southeast, southwest }
-DIRECTIONS :: [8]Direction { .north, .south, .west, .east, .northeast, .northwest, .southeast, .southwest }
-
-// rename: 90 deg
-turn_left :: proc(facing: Direction) -> Direction {
-    result: Direction
-    switch facing {
-        case .west: result = .south
-        case .south: result = .east
-        case .east: result = .north
-        case .north: result = .west
-        case .northwest: result = .southwest
-        case .southwest: result = .southeast
-        case .southeast: result = .northeast
-        case .northeast: result = .northwest
-
-    }
-    return result
-}
-// rename: 90 deg
-turn_right :: proc(facing: Direction) -> Direction {
-    result: Direction
-    switch facing {
-        case .west: result = .north
-        case .south: result = .west
-        case .east: result = .south
-        case .north: result = .east
-        case .northwest: result = .northeast
-        case .northeast: result = .southeast
-        case .southeast: result = .southwest
-        case .southwest: result = .northwest
-    }
-    return result
-}
-
 // enemies
 
 enemy: Wizard

@@ -46,7 +46,7 @@ cast_fire_spell :: proc(spell: Fire_Spell)
 
         // 1 / 3 chance to have a branch left or right
         if rand.int_max(3) == 0 {
-            branch_dir := rand.int_max(2) == 0 ? turn_left(dir) : turn_right(dir)
+            branch_dir := rand.int_max(2) == 0 ? turn_left_90_deg(dir) : turn_right_90_deg(dir)
             branch_cell := cell
             for i in 0 ..< (3 + rand.int_max(4)) {
                 branch_cell = cell_move(branch_cell, branch_dir)

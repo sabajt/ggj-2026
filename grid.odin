@@ -4,6 +4,42 @@ import "core:math"
 
 // GRID_OFFSET := [2]f32 {UI_DIVIDER_1, UI_DIVIDER_1}
 
+Direction :: enum { north, south, west, east, northeast, northwest, southeast, southwest }
+DIRECTIONS :: [8]Direction { .north, .south, .west, .east, .northeast, .northwest, .southeast, .southwest }
+
+turn_left_90_deg :: proc(facing: Direction) -> Direction 
+{
+    result: Direction
+    switch facing {
+        case .west: result = .south
+        case .south: result = .east
+        case .east: result = .north
+        case .north: result = .west
+        case .northwest: result = .southwest
+        case .southwest: result = .southeast
+        case .southeast: result = .northeast
+        case .northeast: result = .northwest
+
+    }
+    return result
+}
+
+turn_right_90_deg :: proc(facing: Direction) -> Direction 
+{
+    result: Direction
+    switch facing {
+        case .west: result = .north
+        case .south: result = .west
+        case .east: result = .south
+        case .north: result = .east
+        case .northwest: result = .northeast
+        case .northeast: result = .southeast
+        case .southeast: result = .southwest
+        case .southwest: result = .northwest
+    }
+    return result
+}
+
 cell_pos :: proc(cell: [2]int) -> [2]f32
 {
 	return { 
