@@ -76,7 +76,7 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                 case .RIGHT_TRIGGER:
                     if event.gaxis.value > 0 {
                         if val, ok := facing_dir.?; ok { 
-                            spell := Fire_Spell { cell = pos_to_cell(player.pos), dir = val }
+                            spell := create_current_mask_spell(pos_to_cell(player.pos), dir = val)
                             handle_wizard_spell(spell)
                         }
                     }

@@ -121,7 +121,7 @@ reset_game :: proc()
 		image_name = "mask_2.png",
 		color = COL_BLUE_RASP,
 		move_type = .step,
-		spell_type = .fire  
+		spell_type = .orb  
 	})
 
 	// TESTING mask add

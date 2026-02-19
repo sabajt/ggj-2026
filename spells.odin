@@ -26,10 +26,26 @@ Fire_Spell :: struct {
     dir: Direction
 }
 
-Orb_Spell :: struct {}
+Orb_Spell :: struct {
+    cell: [2]int,
+    dir: Direction
+}
 
 fires := make(map[int]Projectile)
 orbs := make(map[int]Projectile)
+
+create_current_mask_spell :: proc(cell: [2]int, dir: Direction) -> Spell
+{
+    mask := masks[mask_index]
+    spell: Spell
+    switch mask.spell_type {
+        case .fire:
+            spell =  Fire_Spell {cell, dir}
+        case .orb:
+            spell = Orb_Spell {cell, dir}
+    }
+    return spell
+}
 
 cast_fire_spell :: proc(spell: Fire_Spell)
 {
@@ -54,6 +70,11 @@ cast_fire_spell :: proc(spell: Fire_Spell)
             }
         }
     }
+}
+
+cast_orb_spell :: proc(s: Orb_Spell)
+{
+    add_orb(s.cell, s.dir)
 }
 
 add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32) 

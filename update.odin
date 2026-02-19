@@ -60,13 +60,6 @@ add_enemy_move_action :: proc(dest: [2]int)
     action_i += 1
 }
 
-cast_orb_spell :: proc(cell: [2]int)
-{
-    for dir in DIRECTIONS {
-        add_orb(cell, dir)
-    }
-}
-
 action_update_player_move :: proc(action: ^Action) 
 {
     if action_step_t == ACTION_DUR {
@@ -208,7 +201,7 @@ update :: proc()
             case Fire_Spell:
                 cast_fire_spell(s)
             case Orb_Spell:
-                break
+                cast_orb_spell(s)
         }
     }
 
@@ -250,7 +243,9 @@ step_enemies :: proc()
 {
     if enemy.t % 3 == 0 {
         cell := pos_to_cell(enemy.pos)
-        cast_orb_spell(cell)
+        for dir in DIRECTIONS {
+            cast_orb_spell({cell, dir})
+        }
     } else {
         cell := get_enemy_player_path_next_coord()
         add_enemy_move_action(cell)
