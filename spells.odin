@@ -8,7 +8,9 @@ Projectile :: struct {
     dir: Direction,
     spr: int,
     pos: [2]f32,
-    dur: int
+    dur: int,
+    type: Spell_Type,
+    hostile: bool
 }
 
 Spell :: union {
@@ -23,12 +25,16 @@ Spell_Type :: enum {
 
 Fire_Spell :: struct {
     cell: [2]int,
-    dir: Direction
+    dir: Direction,
+    hostile: bool,
+    color: [4]f32
 }
 
 Orb_Spell :: struct {
     cell: [2]int,
-    dir: Direction
+    dir: Direction,
+    hostile: bool,
+    color: [4]f32
 }
 
 fires := make(map[int]Projectile)
@@ -40,9 +46,9 @@ create_current_mask_spell :: proc(cell: [2]int, dir: Direction) -> Spell
     spell: Spell
     switch mask.spell_type {
         case .fire:
-            spell =  Fire_Spell {cell, dir}
+            spell =  Fire_Spell {cell=cell, dir=dir, hostile=false, color=mask.color}
         case .orb:
-            spell = Orb_Spell {cell, dir}
+            spell = Orb_Spell {cell=cell, dir=dir, hostile=false, color=mask.color}
     }
     return spell
 }
@@ -51,14 +57,14 @@ cast_fire_spell :: proc(spell: Fire_Spell)
 {
     dir := spell.dir
 
-    // adjacent to player
+    // adjacent to caster
     cell := cell_move(spell.cell, dir)
-    add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
+    add_fire(cell, dir, dur = 5 + rand.int_max(4), col = spell.color, hostile = spell.hostile)
 
     // move 4 direction out
     for i in 0 ..< 8 {
         cell = cell_move(cell, dir)
-        add_fire(cell, dir, dur = 5 + rand.int_max(4), col = COL_LEMON_LIME)
+        add_fire(cell, dir, dur = 5 + rand.int_max(4), col = spell.color, hostile = spell.hostile)
 
         // 1 / 3 chance to have a branch left or right
         if rand.int_max(3) == 0 {
@@ -66,7 +72,7 @@ cast_fire_spell :: proc(spell: Fire_Spell)
             branch_cell := cell
             for i in 0 ..< (3 + rand.int_max(4)) {
                 branch_cell = cell_move(branch_cell, branch_dir)
-                add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = COL_LEMON_LIME)
+                add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = spell.color, hostile = spell.hostile)
             }
         }
     }
@@ -74,10 +80,10 @@ cast_fire_spell :: proc(spell: Fire_Spell)
 
 cast_orb_spell :: proc(s: Orb_Spell)
 {
-    add_orb(s.cell, s.dir)
+    add_orb(s.cell, s.dir, hostile = s.hostile , color = s.color)
 }
 
-add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32) 
+add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32, hostile: bool) 
 {
     pos := cell_pos(cell)
     spr := add_sprite("fire_0.png", pos, col = col, anchor = .bottom_left)
@@ -86,23 +92,25 @@ add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32)
         dir = dir,
         spr = spr,
         pos = pos,
-        dur = dur
+        dur = dur,
+        hostile = hostile
     }
     fires[spr] = fire
 }
 
 // TODO: calculate cell from position
-// track position in model, not cell
-add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20) -> int
+// track position in model, not cell 
+add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20, hostile: bool, color: [4]f32) -> int
 {
     pos := cell_pos(cell)
-    spr := add_sprite("orb.png", pos, col = enemy_col, anchor = .bottom_left)
+    spr := add_sprite("orb.png", pos, col = color, anchor = .bottom_left)
     orb := Projectile {
         t = dur,
         dir = dir,
         spr = spr,
         pos = pos,
-        dur = dur
+        dur = dur,
+        hostile = hostile
     }
     orbs[spr] = orb
     return spr

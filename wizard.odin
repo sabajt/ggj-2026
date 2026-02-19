@@ -19,6 +19,11 @@ wizard_direction_request: Maybe(Direction) = nil
 wizard_spell_request: Maybe(Spell) = nil
 wizard_wait_request: bool = false
 
+get_player_sprite :: proc() -> ^Sprite 
+{
+	return &sprites[player.sprite]
+}
+
 handle_wizard_move :: proc(dir: Direction)
 {
     if !is_stepping {
@@ -97,32 +102,4 @@ get_enemy_player_path_next_coord :: proc() -> [2]int
     fmt.println("warning: could not find astar path from %v to %v", sp, ep)
     return {0, 0}
 }
-
-// check_hits_old :: proc()
-// {
-    // // check for enemies hitting player projectile
-    // for k, fire in fires {
-    //     if enemy.cell == fire.cell {
-    //         // next enemy
-    //         delete_key(&sprites, enemy.sprite)
-
-    //         spawn_x := WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_X - WIZARD_PAD)
-    //         spawn_y := WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_Y - WIZARD_PAD)
-
-    //         add_enemy({spawn_x, spawn_y})
-    //     }
-    // }
-
-    // // reset if projectiles or enemies hits player
-    // for k, orb in orbs {
-    //     if orb.cell == player.cell {
-    //         reset_game()
-    //         return
-    //     }
-    // }
-    // if enemy.cell == player.cell {
-    //     reset_game()
-    //     return
-    // }
-// }
 

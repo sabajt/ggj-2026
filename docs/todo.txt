@@ -1,23 +1,22 @@
-- UI: mask UI boxes
+- UI: current mask and its stats
+- mask action cooldown
+- player / enemey color scheme?
 - mask action: dash movement -> move multiple squares in a line
 - mask action: fly power (winged) -> enable a number of steps (moving or still) without most collisions
 - mask action: invisiblity -> enable number of steps without enemy viz
 - mask action: slide movement -> move until hitting an object
 - mask action: teleport movement -> random teleport movement, levelled up into directional (with small random vars)
-- most move actions can be upgraded to faster speed (multiple movement per game step implemented simulation slowdowns.)
-- UI: current mask and its stats
-- UI -> equip mask as action
+- most move actions can be upgraded to faster speed (multiple movement per game step implemented simulation slowdowns.) .. or decremented based on attack or other effects
+- enemy aim
 - move between screens
 - connected areas
 - health HUD
-- small good looking text
 - normal enemy with line of sight for attack
 - boss with mask
 - collect mask from boss
 - mask levels / xp system
 - up / down levels 
 - buildings (use line of sight to hide interior)
-- gamepad
 - add sound / music
 
 bugs
@@ -26,6 +25,8 @@ bugs
 
 done
 
+x gamepad
+x UI: mask UI boxes
 x Shoot in direction 
 x move 8 directions w/ arrow UI
 x UI: right side box

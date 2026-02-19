@@ -244,7 +244,13 @@ step_enemies :: proc()
     if enemy.t % 3 == 0 {
         cell := pos_to_cell(enemy.pos)
         for dir in DIRECTIONS {
-            cast_orb_spell({cell, dir})
+            spell := Orb_Spell {
+                cell=cell, 
+                dir=dir, 
+                hostile=true,
+                color=enemy_col
+            }
+            cast_orb_spell(spell)
         }
     } else {
         cell := get_enemy_player_path_next_coord()
@@ -272,8 +278,34 @@ find_empty_spawn_cell :: proc() -> [2]int
 
 check_hits :: proc()
 {
-    for k, fire in fires {
-        if grid_item_collide(fire.pos, enemy.pos) {
+    // projectiles
+    for k, projectile in fires {
+        check_projectile_hit(projectile)
+    }
+    for k, projectile in orbs {
+        check_projectile_hit(projectile)
+    }
+
+    // reset if enemy hits player directly
+    if grid_item_collide(enemy.pos, player.pos) {
+        is_game_over = true
+        killed_by = &sprites[enemy.sprite]
+        return
+    }
+}
+
+check_projectile_hit :: proc(projectile: Projectile) 
+{
+    if projectile.hostile {
+        // reset if orbs hits player
+        if grid_item_collide(projectile.pos, player.pos) {
+            is_game_over = true
+            killed_by = &sprites[projectile.spr]
+            return
+        }
+    } else {
+        // destroy enemy
+        if grid_item_collide(projectile.pos, enemy.pos) {
             // TODO: add flashing hit indicator
 
             // remove enemy
@@ -285,22 +317,4 @@ check_hits :: proc()
             add_enemy(cell)
         }
     }
-
-    // reset if orbs hits player
-    for k, orb in orbs {
-        if grid_item_collide(orb.pos, player.pos) {
-            is_game_over = true
-            killed_by = &sprites[orb.spr]
-            return
-        }
-    }
-    // reset if enemy hits player
-    if grid_item_collide(enemy.pos, player.pos) {
-        is_game_over = true
-        killed_by = &sprites[enemy.sprite]
-        return
-    }
 }
-
-
-

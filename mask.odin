@@ -44,17 +44,10 @@ step_mask_index :: proc(dir: Index_Step_Direction)
 		}
 	}  
 
-	// number_of_masks := len(masks)
-	// switch dir {
-	// 	case .up:
-	// 		if mask_index < number_of_masks - 1 {
-	// 			mask_index += 1
-	// 		}
-	// 	case .down:
-	// 		if mask_index > 0 {
-	// 			mask_index -= 1
-	// 		}
-	// }
+	mask := masks[mask_index]
+	sprite := get_player_sprite()
+	sprite.name = mask.image_name
+	sprite.col = mask.color
 }
 
 mask_slot_center :: proc(i: int) -> [2]f32
@@ -71,14 +64,6 @@ mask_slot_center :: proc(i: int) -> [2]f32
 
 init_mask_boxes :: proc()
 {
-	// DOING:
-	// [x] save shape indexes for reference later (give me shapes at index 0-5)
-	// [x] step mask index based on player mask array from input
-	// [x] update shape visibility on index change
-	// [x] draw mask sprite on top always 
-	// [] player actions based on mask 
-	// [] implement orb attack mask 
-
 	for i in 0..<6 {
 		pos := mask_slot_center(i)
 		mask_box_refs[i][0] = add_shape({ // outer
