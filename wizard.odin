@@ -10,23 +10,14 @@ Wizard :: struct {
     action_i: int 
 }
 
-Spell :: union {
-    Fire_Spell,
-    Orb_Spell
+Move_Type :: enum {
+    step
 }
 
-Fire_Spell :: struct {
-    cell: [2]int,
-    dir: Direction
-}
-
-Orb_Spell :: struct {}
-
+player: Wizard
 wizard_direction_request: Maybe(Direction) = nil
 wizard_spell_request: Maybe(Spell) = nil
 wizard_wait_request: bool = false
-
-player: Wizard
 
 handle_wizard_move :: proc(dir: Direction)
 {

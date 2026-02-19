@@ -2,6 +2,7 @@ package main
 
 import "core:math"
 import "core:math/rand"
+import "core:fmt"
 
 game_state : Game_State = .main
 menu_option_text_id_0: int
@@ -18,13 +19,15 @@ UI_DIVIDER_1 :: f32(1)
 WIZARD_PAD :: 5
 GAME_OVER_DELAY_DUR :: 90
 
+grid_right := GRID_PADDING * GAME_GRID_SIZE_X
+grid_top := GRID_PADDING * GAME_GRID_SIZE_Y + 0.3 // TODO: WHY
+
 enter_main :: proc()
 {
 	game_state = .main
-	reset_game()
+	reset_game() // careful this needs to be called first to clear colletions
 
 	// top UI bar
-	grid_top := GRID_PADDING * GAME_GRID_SIZE_Y + 0.3
 	topbar_rect_height := INTERNAL_RES.y - grid_top
 	add_shape({
 		type = .Rectangle,
@@ -43,10 +46,8 @@ enter_main :: proc()
 		visible = true
 	}) 
 
-	// ADDING VISIBLE
-
 	// right-side UI bar
-	grid_right := GRID_PADDING * GAME_GRID_SIZE_X
+
 	rightbar_rect_width := INTERNAL_RES.x - grid_right
 	add_shape({
 		type = .Rectangle,
@@ -65,20 +66,16 @@ enter_main :: proc()
 		visible = true
 	})
 
-	// right hand text
-	id := add_text_item("Testing some text")
-	text_item := &text_items[id]
-	text_item.pos = fit_res_vec2({grid_right + 6, grid_top - 4}, resolution)
+	init_mask_boxes()
 
-	// testing dir arrow	
-	tri_pos := pvec(
-		ang = math.PI, 
-		radius = GRID_PADDING / 2.0 + 4, 
-		center = player.pos + GRID_PADDING / 2.0
-	)
+	// // right hand text
+	// id := add_text_item("Testing some text")
+	// text_item := &text_items[id]
+	// text_item.pos = fit_res_vec2({grid_right + 6, grid_top - 4}, resolution)
+
+	// player direction arrow (pos updated on stick / player move)
 	player_dir_indicator_shape_i = add_shape({
 		type = .Triangle,
-		tf = tf(tri_pos, math.PI / 2.0, {5, 5}),
 		color = COL_GRAY_0,
 		anchor = .center,
 		z = 1,
@@ -96,6 +93,16 @@ reset_game :: proc()
 	clear(&orbs)
 	clear(&sprites)
 	clear(&actions)
+	clear(&masks)
+
+	// add player masks
+	mask := Mask {
+		image_name = "mask_1.png",
+		color = COL_LEMON_LIME,
+		move_type = .step,
+		spell_type = .fire  
+	}
+	add_mask(mask)
 
 	// add player
 	cell := [2]int { 
@@ -103,11 +110,26 @@ reset_game :: proc()
 		WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_Y - 2 * WIZARD_PAD)
 	}
 	player_pos := cell_pos(cell)
-	spr_i := add_sprite("mask_1.png", pos = player_pos, col = COL_LEMON_LIME, anchor = .bottom_left)
+	spr_i := add_sprite(mask.image_name, pos = player_pos, col = mask.color, anchor = .bottom_left)
 	player = Wizard { sprite = spr_i, pos = player_pos}
 
 	// add enemy
 	add_enemy({GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y})
-}
 
+	// TESTING mask add
+	add_mask({
+		image_name = "mask_2.png",
+		color = COL_BLUE_RASP,
+		move_type = .step,
+		spell_type = .fire  
+	})
+
+	// TESTING mask add
+	add_mask({
+		image_name = "mask_3.png",
+		color = COL_FRESH_ORANGE,
+		move_type = .step,
+		spell_type = .fire  
+	})
+}
 

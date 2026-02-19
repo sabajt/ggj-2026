@@ -11,6 +11,23 @@ Projectile :: struct {
     dur: int
 }
 
+Spell :: union {
+    Fire_Spell,
+    Orb_Spell
+}
+
+Spell_Type :: enum {
+    fire,
+    orb
+}
+
+Fire_Spell :: struct {
+    cell: [2]int,
+    dir: Direction
+}
+
+Orb_Spell :: struct {}
+
 fires := make(map[int]Projectile)
 orbs := make(map[int]Projectile)
 

@@ -56,12 +56,13 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
         case .GAMEPAD_BUTTON_DOWN:
 		    button := sdl.GamepadButton(event.gbutton.button)
 		    #partial switch button {
-                // TODO: menu
-                // case .DPAD_LEFT:
-                // case .DPAD_RIGHT:
-                // case .DPAD_UP:
-                // case .DPAD_DOWN:
-                // case .EAST
+                case .DPAD_LEFT:
+                    step_mask_index(.down)
+                case .DPAD_RIGHT:
+                    step_mask_index(.up)
+                case .DPAD_UP: break
+                case .DPAD_DOWN: break
+                case .EAST: break
 
 		    }
         case .GAMEPAD_ADDED:
