@@ -10,6 +10,11 @@ config := Config {
 //     font_size = 24
 // }
 
+// config := Config {
+//     resolution = INTERNAL_RES,
+//     font_size = 14
+// }
+
 Config :: struct {
     resolution: [2]f32,
     font_size: f32,

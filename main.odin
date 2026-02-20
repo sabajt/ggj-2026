@@ -9,7 +9,7 @@ import sdl "vendor:sdl3"
 window: ^sdl.Window
 
 INTERNAL_RES :: [2]f32 {640, 360} 
-GRID_PADDING :: f32(16)
+GRID_PADDING :: f32(18)
 UI_GRID_PADDING_WIDTH :: f32(10)
 UI_GRID_PADDING_TOP :: f32(1)
 

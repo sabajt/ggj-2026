@@ -2,9 +2,9 @@ package main
 
 
 COL_WHITE := [4]f32 {1, 1, 1, 1}
+COL_BLACK := [4]f32 {0, 0, 0, 1}
 COL_GRAY_0 := [4]f32 {0.9, 0.9, 0.9, 1}
 
-COL_BLACK := [4]f32 {0, 0, 0, 1}
 COL_BLUE_RASP := [4]f32 {0.2, 0.8, 1, 1}
 COL_ICY_BLUE := [4]f32 {0.3, 0.8, 0.9, 1}
 COL_PINKY_PINK := [4]f32 {1, 0.4, 0.95, 1}

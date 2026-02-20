@@ -37,8 +37,18 @@ Orb_Spell :: struct {
     color: [4]f32
 }
 
-fires := make(map[int]Projectile)
-orbs := make(map[int]Projectile)
+fires: map[int]Projectile
+orbs : map[int]Projectile
+
+spell_icon_name :: proc(spell_type: Spell_Type) -> string
+{
+    result: string
+    switch spell_type {
+        case .fire: result = "fire_0.png"
+        case .orb: result = "orb.png"
+    }
+    return result
+}
 
 create_current_mask_spell :: proc(cell: [2]int, dir: Direction) -> Spell
 {

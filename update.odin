@@ -10,7 +10,7 @@ ACTION_DUR :: int(8)
 ACTION_POST_STEP_DUR :: int(3)
 
 flash_on := true
-actions := make(map[int]Action)
+actions: map[int]Action
 action_i := 0
 action_step_t: int = 0
 action_post_step_t: int = 0

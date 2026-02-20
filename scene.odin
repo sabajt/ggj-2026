@@ -8,58 +8,49 @@ game_state : Game_State = .main
 menu_option_text_id_0: int
 menu_option_text_id_1: int
 player_dir_indicator_shape_i: int
+rhs_menu_spell_icon_sprite_i: int
 
 Game_State :: enum {
 	main
 }
 
-GAME_GRID_SIZE_X :: 30
-GAME_GRID_SIZE_Y :: 21
+GAME_GRID_SIZE_X :: 28
+GAME_GRID_SIZE_Y :: 20
 UI_DIVIDER_1 :: f32(1)
+UI_PAD :: f32(2)
 WIZARD_PAD :: 5
 GAME_OVER_DELAY_DUR :: 90
 
 grid_right := GRID_PADDING * GAME_GRID_SIZE_X
-grid_top := GRID_PADDING * GAME_GRID_SIZE_Y + 0.3 // TODO: WHY
 
 enter_main :: proc()
 {
 	game_state = .main
 	reset_game() // careful this needs to be called first to clear colletions
 
-	// top UI bar
-	topbar_rect_height := INTERNAL_RES.y - grid_top
-	add_shape({
-		type = .Rectangle,
-		tf = tf({0, grid_top}, 0, {INTERNAL_RES.x, topbar_rect_height}),
-		color = {0,0,0,1},
-		anchor = .bottom_left,
-		z = 1,
-		visible = true
-	})
-	add_shape({
-		type = .Rectangle,
-		tf = tf({0, grid_top}, 0, {INTERNAL_RES.x, UI_DIVIDER_1}),
-		color = COL_GRAY_0,
-		anchor = .bottom_left,
-		z = 2,
-		visible = true
-	}) 
-
 	// right-side UI bar
 
 	rightbar_rect_width := INTERNAL_RES.x - grid_right
-	add_shape({
+	add_shape({ // background fill
 		type = .Rectangle,
 		tf = tf({grid_right, 0}, 0, {rightbar_rect_width, INTERNAL_RES.y}),
-		color = {0,0,0,1},
+		color = COL_BLACK,
 		anchor = .bottom_left,
 		z = 1,
 		visible = true
 	})
-	add_shape({
+	add_shape({ // vertical divider
 		type = .Rectangle,
-		tf = tf({grid_right, 0}, 0, {UI_DIVIDER_1, grid_top}),
+		tf = tf({grid_right, 0}, 0, {UI_DIVIDER_1, INTERNAL_RES.y}),
+		color = COL_GRAY_0,
+		anchor = .bottom_left,
+		z = 1,
+		visible = true
+	})
+
+	add_shape({ // top mask selection bottom divider
+		type = .Rectangle,
+		tf = tf({grid_right, rhs_menu_mask_selector_bottom_divider_y() }, 0, {rightbar_rect_width, UI_DIVIDER_1}),
 		color = COL_GRAY_0,
 		anchor = .bottom_left,
 		z = 1,
@@ -85,6 +76,8 @@ enter_main :: proc()
 
 reset_game :: proc()
 {
+	// TODO: BEWARE not clearing shapes. might be better to just remake everything on reset
+
 	is_game_over = false
 	game_over_delay = GAME_OVER_DELAY_DUR
 	killed_by = nil
@@ -116,18 +109,42 @@ reset_game :: proc()
 	// add enemy
 	add_enemy({GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y})
 
-	// TESTING mask add
+	// UI: attack slot
+	rhs_menu_spell_icon_sprite_i = add_sprite(
+		name = spell_icon_name(mask.spell_type), 
+		pos = rhs_menu_spell_icon_center(), 
+		col = mask.color, 
+		z = 2
+	)
+
+	// ------------ Test Add Some Masks ------------
 	add_mask({
 		image_name = "mask_2.png",
 		color = COL_BLUE_RASP,
 		move_type = .step,
 		spell_type = .orb  
 	})
-
-	// TESTING mask add
 	add_mask({
 		image_name = "mask_3.png",
 		color = COL_FRESH_ORANGE,
+		move_type = .step,
+		spell_type = .fire  
+	})
+	add_mask({
+		image_name = "mask_1.png",
+		color = COL_PANIC_RED,
+		move_type = .step,
+		spell_type = .orb  
+	})
+	add_mask({
+		image_name = "mask_3.png",
+		color = COL_WARNING_YELLOW,
+		move_type = .step,
+		spell_type = .fire  
+	})
+	add_mask({
+		image_name = "mask_2.png",
+		color = COL_PINKY_PINK,
 		move_type = .step,
 		spell_type = .fire  
 	})

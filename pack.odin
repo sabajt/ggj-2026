@@ -28,9 +28,9 @@ sprite_end_1: int
 sprite_start_2: int
 sprite_end_2: int
 
-gpu_sprites := make([dynamic]GPU_Sprite)
+gpu_sprites: [dynamic]GPU_Sprite
 
-shapes := make([dynamic]Shape)
+shapes: [dynamic]Shape
 shape_i := 0
 
 RenderPackData :: struct {

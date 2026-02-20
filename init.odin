@@ -6,6 +6,18 @@ import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
 init :: proc() {
+
+	// -- moved from global scope init after odin update made this a compile error
+	gpu_sprites = make([dynamic]GPU_Sprite)
+	shapes = make([dynamic]Shape)
+	fires = make(map[int]Projectile)
+	orbs = make(map[int]Projectile)
+	masks = make([dynamic]Mask)
+	actions = make(map[int]Action)
+	sprites = make(map[int]Sprite)
+	camera = create_camera()
+	// -- 
+
 	ok := sdl.Init({.VIDEO, .GAMEPAD, .AUDIO})
 	assert(ok)
 

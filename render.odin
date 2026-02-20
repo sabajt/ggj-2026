@@ -12,7 +12,7 @@ Z_ORDER_MAX :: int(3)
 
 text_index_offset := 0
 text_vertex_offset := 0
-camera := create_camera() 
+camera: Camera
 needs_text_render: bool = false
 
 Camera :: struct {
