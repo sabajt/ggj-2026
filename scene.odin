@@ -34,6 +34,7 @@ reset_game :: proc()
 	is_game_over = false
 	game_over_delay = GAME_OVER_DELAY_DUR
 	killed_by = nil
+	mask_index = 0
 
 	clear(&fires)
 	clear(&orbs)
