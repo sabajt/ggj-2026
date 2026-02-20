@@ -9,6 +9,7 @@ menu_option_text_id_0: int
 menu_option_text_id_1: int
 player_dir_indicator_shape_i: int
 rhs_menu_spell_icon_sprite_i: int
+rhs_menu_spell_title_text_i: int
 
 Game_State :: enum {
 	main
@@ -38,11 +39,11 @@ reset_game :: proc()
 
 	clear(&fires)
 	clear(&orbs)
-	clear(&sprites)
 	clear(&actions)
 	clear(&masks)
 	clear(&shapes)
-	clear(&text_items)
+	clear_sprites()
+	clear_text_items()
 
 	// add player masks
 	mask := Mask {
@@ -72,6 +73,12 @@ reset_game :: proc()
 		col = mask.color, 
 		z = 2
 	)
+
+	// right hand text
+	rhs_menu_spell_title_text_i = add_text_item(spell_title_text(mask.spell_type))
+	text_item := &text_items[rhs_menu_spell_title_text_i]
+	// TODO: scale position in render (without scaling texture?). Also why is text top left anchor / easy to control this?
+	text_item.pos = fit_res_vec2(rhs_menu_spell_text_top_left(), resolution) 
 
 	// right-side UI bar
 
@@ -103,11 +110,6 @@ reset_game :: proc()
 	})
 
 	init_mask_boxes()
-
-	// // right hand text
-	// id := add_text_item("Testing some text")
-	// text_item := &text_items[id]
-	// text_item.pos = fit_res_vec2({grid_right + 6, grid_top - 4}, resolution)
 
 	// player direction arrow (pos updated on stick / player move)
 	player_dir_indicator_shape_i = add_shape({

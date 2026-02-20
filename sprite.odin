@@ -6,7 +6,10 @@ import "core:fmt"
 sprites: map[int]Sprite
 sprite_index := 0
 
-clear_sprites :: proc() { clear(&sprites) }
+clear_sprites :: proc() 
+{ 
+    clear(&sprites) 
+}
 
 Anchor :: enum {
     center,

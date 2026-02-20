@@ -50,6 +50,16 @@ spell_icon_name :: proc(spell_type: Spell_Type) -> string
     return result
 }
 
+spell_title_text :: proc(spell_type: Spell_Type) -> string
+{
+    result: string
+    switch spell_type {
+        case .fire: result = "Fire (Cast)"
+        case .orb: result = "Orb (Cast)"
+    }
+    return result
+}
+
 create_current_mask_spell :: proc(cell: [2]int, dir: Direction) -> Spell
 {
     mask := masks[mask_index]

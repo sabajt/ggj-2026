@@ -52,6 +52,18 @@ add_text_item :: proc(raw_string: string, screenpos: [2]f32 = {0, 0}, color: [4]
     return id
 }
 
+get_text_item :: proc(i: int) -> ^TTF_Text_Item
+{
+    return &text_items[i]
+}
+
+set_text_item :: proc(i: int, text: string) 
+{
+    item := get_text_item(i)
+    c_string := strings.clone_to_cstring(text, context.temp_allocator)
+    ttf.SetTextString(item.text, c_string, 0)
+}
+
 move_text_item_center_x :: proc(item: ^TTF_Text_Item, y: f32)
 {
     // TODO: need to add camera here?

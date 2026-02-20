@@ -1,5 +1,8 @@
 package main
 
+import ttf "vendor:sdl3/ttf"
+import "core:fmt"
+
 MASK_SLOT_SIDE :: GRID_PADDING
 MASK_SLOT_MARGIN :: f32(4) 
 
@@ -56,6 +59,9 @@ step_mask_index :: proc(dir: Index_Step_Direction)
 	spell_icon_sprite := &sprites[rhs_menu_spell_icon_sprite_i]
 	spell_icon_sprite.name = spell_icon_name(mask.spell_type)
 	spell_icon_sprite.col = mask.color
+
+	// update rhs menu spell title text
+	set_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type))
 }
 
 // vv menu layout file?
@@ -79,6 +85,15 @@ rhs_menu_spell_icon_center :: proc() -> [2]f32
 {
 	pos := mask_slot_center(0)
 	pos.y = rhs_menu_mask_selector_bottom_divider_y() - (MASK_SLOT_MARGIN + MASK_SLOT_SIDE / 2)
+	return pos
+}
+
+rhs_menu_spell_text_top_left :: proc() -> [2]f32
+{
+	pos := rhs_menu_spell_icon_center()
+	// TODO: this will break at different sizes and need to be added to config
+	// sdl text size gives unexpected results.. how to get actual text size in pixels?
+	pos += {16, 4} 
 	return pos
 }
 
