@@ -73,38 +73,6 @@ reset_game :: proc()
 		z = 2
 	)
 
-	// ------------ Test Add Some Masks ------------
-	add_mask({
-		image_name = "mask_2.png",
-		color = COL_BLUE_RASP,
-		move_type = .step,
-		spell_type = .orb  
-	})
-	add_mask({
-		image_name = "mask_3.png",
-		color = COL_FRESH_ORANGE,
-		move_type = .step,
-		spell_type = .fire  
-	})
-	add_mask({
-		image_name = "mask_1.png",
-		color = COL_PANIC_RED,
-		move_type = .step,
-		spell_type = .orb  
-	})
-	add_mask({
-		image_name = "mask_3.png",
-		color = COL_WARNING_YELLOW,
-		move_type = .step,
-		spell_type = .fire  
-	})
-	add_mask({
-		image_name = "mask_2.png",
-		color = COL_PINKY_PINK,
-		move_type = .step,
-		spell_type = .fire  
-	})
-
 	// right-side UI bar
 
 	rightbar_rect_width := INTERNAL_RES.x - grid_right
@@ -148,6 +116,38 @@ reset_game :: proc()
 		anchor = .center,
 		z = 1,
 		visible = false
+	})
+
+	// ------------ Test Add Some Masks ------------
+	add_mask({
+		image_name = "mask_2.png",
+		color = COL_BLUE_RASP,
+		move_type = .step,
+		spell_type = .orb  
+	})
+	add_mask({
+		image_name = "mask_3.png",
+		color = COL_FRESH_ORANGE,
+		move_type = .step,
+		spell_type = .fire  
+	})
+	add_mask({
+		image_name = "mask_1.png",
+		color = COL_PANIC_RED,
+		move_type = .step,
+		spell_type = .orb  
+	})
+	add_mask({
+		image_name = "mask_3.png",
+		color = COL_WARNING_YELLOW,
+		move_type = .step,
+		spell_type = .fire  
+	})
+	add_mask({
+		image_name = "mask_2.png",
+		color = COL_PINKY_PINK,
+		move_type = .step,
+		spell_type = .fire  
 	})
 }
 
