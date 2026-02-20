@@ -61,7 +61,8 @@ step_mask_index :: proc(dir: Index_Step_Direction)
 	spell_icon_sprite.col = mask.color
 
 	// update rhs menu spell title text
-	set_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type))
+	update_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type), mask.color)
+
 }
 
 // vv menu layout file?

@@ -57,11 +57,18 @@ get_text_item :: proc(i: int) -> ^TTF_Text_Item
     return &text_items[i]
 }
 
-set_text_item :: proc(i: int, text: string) 
+update_text_item :: proc(i: int, text: Maybe(string) = nil, color: Maybe([4]f32) = nil) 
 {
     item := get_text_item(i)
-    c_string := strings.clone_to_cstring(text, context.temp_allocator)
-    ttf.SetTextString(item.text, c_string, 0)
+                    
+    if val, ok := text.?; ok { 
+        c_string := strings.clone_to_cstring(val, context.temp_allocator)
+        ttf.SetTextString(item.text, c_string, 0)
+    }
+
+    if val, ok := color.?; ok {
+        item.color = val
+    }
 }
 
 move_text_item_center_x :: proc(item: ^TTF_Text_Item, y: f32)

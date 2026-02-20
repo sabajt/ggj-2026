@@ -75,7 +75,7 @@ reset_game :: proc()
 	)
 
 	// right hand text
-	rhs_menu_spell_title_text_i = add_text_item(spell_title_text(mask.spell_type))
+	rhs_menu_spell_title_text_i = add_text_item(spell_title_text(mask.spell_type), color = mask.color)
 	text_item := &text_items[rhs_menu_spell_title_text_i]
 	// TODO: scale position in render (without scaling texture?). Also why is text top left anchor / easy to control this?
 	text_item.pos = fit_res_vec2(rhs_menu_spell_text_top_left(), resolution) 
