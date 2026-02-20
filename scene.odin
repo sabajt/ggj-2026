@@ -27,57 +27,10 @@ enter_main :: proc()
 {
 	game_state = .main
 	reset_game() // careful this needs to be called first to clear colletions
-
-	// right-side UI bar
-
-	rightbar_rect_width := INTERNAL_RES.x - grid_right
-	add_shape({ // background fill
-		type = .Rectangle,
-		tf = tf({grid_right, 0}, 0, {rightbar_rect_width, INTERNAL_RES.y}),
-		color = COL_BLACK,
-		anchor = .bottom_left,
-		z = 1,
-		visible = true
-	})
-	add_shape({ // vertical divider
-		type = .Rectangle,
-		tf = tf({grid_right, 0}, 0, {UI_DIVIDER_1, INTERNAL_RES.y}),
-		color = COL_GRAY_0,
-		anchor = .bottom_left,
-		z = 1,
-		visible = true
-	})
-
-	add_shape({ // top mask selection bottom divider
-		type = .Rectangle,
-		tf = tf({grid_right, rhs_menu_mask_selector_bottom_divider_y() }, 0, {rightbar_rect_width, UI_DIVIDER_1}),
-		color = COL_GRAY_0,
-		anchor = .bottom_left,
-		z = 1,
-		visible = true
-	})
-
-	init_mask_boxes()
-
-	// // right hand text
-	// id := add_text_item("Testing some text")
-	// text_item := &text_items[id]
-	// text_item.pos = fit_res_vec2({grid_right + 6, grid_top - 4}, resolution)
-
-	// player direction arrow (pos updated on stick / player move)
-	player_dir_indicator_shape_i = add_shape({
-		type = .Triangle,
-		color = COL_GRAY_0,
-		anchor = .center,
-		z = 1,
-		visible = false
-	})
 }
 
 reset_game :: proc()
 {
-	// TODO: BEWARE not clearing shapes. might be better to just remake everything on reset
-
 	is_game_over = false
 	game_over_delay = GAME_OVER_DELAY_DUR
 	killed_by = nil
@@ -87,6 +40,8 @@ reset_game :: proc()
 	clear(&sprites)
 	clear(&actions)
 	clear(&masks)
+	clear(&shapes)
+	clear(&text_items)
 
 	// add player masks
 	mask := Mask {
@@ -147,6 +102,51 @@ reset_game :: proc()
 		color = COL_PINKY_PINK,
 		move_type = .step,
 		spell_type = .fire  
+	})
+
+	// right-side UI bar
+
+	rightbar_rect_width := INTERNAL_RES.x - grid_right
+	add_shape({ // background fill
+		type = .Rectangle,
+		tf = tf({grid_right, 0}, 0, {rightbar_rect_width, INTERNAL_RES.y}),
+		color = COL_BLACK,
+		anchor = .bottom_left,
+		z = 1,
+		visible = true
+	})
+	add_shape({ // vertical divider
+		type = .Rectangle,
+		tf = tf({grid_right, 0}, 0, {UI_DIVIDER_1, INTERNAL_RES.y}),
+		color = COL_GRAY_0,
+		anchor = .bottom_left,
+		z = 1,
+		visible = true
+	})
+
+	add_shape({ // top mask selection bottom divider
+		type = .Rectangle,
+		tf = tf({grid_right, rhs_menu_mask_selector_bottom_divider_y() }, 0, {rightbar_rect_width, UI_DIVIDER_1}),
+		color = COL_GRAY_0,
+		anchor = .bottom_left,
+		z = 1,
+		visible = true
+	})
+
+	init_mask_boxes()
+
+	// // right hand text
+	// id := add_text_item("Testing some text")
+	// text_item := &text_items[id]
+	// text_item.pos = fit_res_vec2({grid_right + 6, grid_top - 4}, resolution)
+
+	// player direction arrow (pos updated on stick / player move)
+	player_dir_indicator_shape_i = add_shape({
+		type = .Triangle,
+		color = COL_GRAY_0,
+		anchor = .center,
+		z = 1,
+		visible = false
 	})
 }
 
