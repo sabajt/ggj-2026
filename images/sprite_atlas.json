@@ -1,95 +1,95 @@
 {
 	"Name": "sprite_atlas",
 	"Width": 64,
-	"Height": 32,
+	"Height": 64,
 	"Images": [
 		{
 			"Name": "wall_1.png",
 			"X": 0,
 			"Y": 0,
-			"W": 16,
-			"H": 16,
+			"W": 18,
+			"H": 18,
 			"TrimOffsetX": 0,
 			"TrimOffsetY": 0,
-			"UntrimmedWidth": 16,
-			"UntrimmedHeight": 16
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
 		},
 		{
 			"Name": "fire_0.png",
-			"X": 48,
-			"Y": 16,
-			"W": 16,
-			"H": 16,
+			"X": 18,
+			"Y": 36,
+			"W": 18,
+			"H": 18,
 			"TrimOffsetX": 0,
 			"TrimOffsetY": 0,
-			"UntrimmedWidth": 16,
-			"UntrimmedHeight": 16
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
 		},
 		{
 			"Name": "fire_1.png",
-			"X": 32,
-			"Y": 16,
-			"W": 16,
-			"H": 16,
+			"X": 36,
+			"Y": 18,
+			"W": 18,
+			"H": 18,
 			"TrimOffsetX": 0,
 			"TrimOffsetY": 0,
-			"UntrimmedWidth": 16,
-			"UntrimmedHeight": 16
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
 		},
 		{
 			"Name": "orb.png",
-			"X": 48,
-			"Y": 0,
-			"W": 16,
-			"H": 16,
+			"X": 18,
+			"Y": 18,
+			"W": 18,
+			"H": 18,
 			"TrimOffsetX": 0,
 			"TrimOffsetY": 0,
-			"UntrimmedWidth": 16,
-			"UntrimmedHeight": 16
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
 		},
 		{
 			"Name": "spike.png",
-			"X": 32,
-			"Y": 0,
-			"W": 16,
-			"H": 16,
+			"X": 0,
+			"Y": 36,
+			"W": 18,
+			"H": 18,
 			"TrimOffsetX": 0,
 			"TrimOffsetY": 0,
-			"UntrimmedWidth": 16,
-			"UntrimmedHeight": 16
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
 		},
 		{
 			"Name": "mask_2.png",
-			"X": 16,
-			"Y": 16,
-			"W": 16,
-			"H": 16,
+			"X": 0,
+			"Y": 18,
+			"W": 18,
+			"H": 18,
 			"TrimOffsetX": 0,
 			"TrimOffsetY": 0,
-			"UntrimmedWidth": 16,
-			"UntrimmedHeight": 16
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
 		},
 		{
 			"Name": "mask_3.png",
-			"X": 16,
+			"X": 36,
 			"Y": 0,
-			"W": 16,
-			"H": 16,
+			"W": 18,
+			"H": 18,
 			"TrimOffsetX": 0,
 			"TrimOffsetY": 0,
-			"UntrimmedWidth": 16,
-			"UntrimmedHeight": 16
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
 		},
 		{
 			"Name": "mask_1.png",
-			"X": 0,
-			"Y": 16,
-			"W": 16,
-			"H": 16,
+			"X": 18,
+			"Y": 0,
+			"W": 18,
+			"H": 18,
 			"TrimOffsetX": 0,
 			"TrimOffsetY": 0,
-			"UntrimmedWidth": 16,
-			"UntrimmedHeight": 16
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
 		}
 	]
 }
