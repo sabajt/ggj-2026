@@ -18,7 +18,9 @@ Mask :: struct {
 	image_name: string,
 	color: [4]f32,
 	move_type: Move_Type,
-	spell_type: Spell_Type
+	spell_type: Spell_Type,
+	spell_cool_t: int, // ready when 0
+	spell_cool_dur: int
 }
 masks: [dynamic]Mask
 
@@ -33,6 +35,46 @@ add_mask :: proc(mask: Mask)
 		col = mask.color, 
 		z = 2
 	)
+}
+
+attempt_current_mask_spell :: proc(dir: Direction) 
+{
+    if current_mask_spell_ready() {
+        spell := create_current_mask_spell(pos_to_cell(player.pos), dir = dir)
+        handle_wizard_spell(spell)
+    } else {
+		// TODO: implement "can't cast" feedback or remove
+        fmt.println("current mask spell not ready")
+    }
+}
+
+current_mask_spell_ready :: proc() -> bool
+{
+	mask := get_current_mask()
+	return mask.spell_cool_t == 0
+}
+
+get_current_mask :: proc() -> ^Mask 
+{
+	return &masks[mask_index]
+}
+
+mask_spell_cooldown_number_text :: proc(mask: Mask) -> string
+{
+	result := "Ready"
+	if mask.spell_cool_t > 0 {
+		result = fmt.tprint(mask.spell_cool_t)
+	}
+	return result
+}
+
+mask_spell_cooldown_color :: proc(mask: Mask) -> [4]f32
+{
+	result := mask.color
+	if mask.spell_cool_t > 0 {
+		result = COL_GRAY_0
+	}
+	return result
 }
 
 step_mask_index :: proc(dir: Index_Step_Direction) 
@@ -55,14 +97,15 @@ step_mask_index :: proc(dir: Index_Step_Direction)
 	sprite.name = mask.image_name
 	sprite.col = mask.color
 
-	// update rhs menu spell icon
-	spell_icon_sprite := &sprites[rhs_menu_spell_icon_sprite_i]
-	spell_icon_sprite.name = spell_icon_name(mask.spell_type)
-	spell_icon_sprite.col = mask.color
+	// update spell UI
+	update_rhs_spell_icon()
+	update_rhs_menu_spell_title_text()
+	update_rhs_menu_spell_cooldown_text()
+}
 
-	// update rhs menu spell title text
-	update_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type), mask.color)
-
+get_spell_icon_sprite :: proc() -> ^Sprite
+{
+	return &sprites[rhs_menu_spell_icon_sprite_i]
 }
 
 // vv menu layout file?
@@ -95,6 +138,15 @@ rhs_menu_spell_text_top_left :: proc() -> [2]f32
 	// TODO: this will break at different sizes and need to be added to config
 	// sdl text size gives unexpected results.. how to get actual text size in pixels?
 	pos += {16, 4} 
+	return pos
+}
+
+rhs_menu_spell_cooldown_text_top_left :: proc() -> [2]f32
+{
+	pos := rhs_menu_spell_text_top_left()
+	// TODO: this will break at different sizes and need to be added to config
+	// sdl text size gives unexpected results.. how to get actual text size in pixels?
+	pos += {60, 0} 
 	return pos
 }
 

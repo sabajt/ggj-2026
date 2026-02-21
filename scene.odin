@@ -10,6 +10,7 @@ menu_option_text_id_1: int
 player_dir_indicator_shape_i: int
 rhs_menu_spell_icon_sprite_i: int
 rhs_menu_spell_title_text_i: int
+rhs_menu_spell_cooldown_text_i: int
 
 Game_State :: enum {
 	main
@@ -50,7 +51,8 @@ reset_game :: proc()
 		image_name = "mask_1.png",
 		color = COL_LEMON_LIME,
 		move_type = .step,
-		spell_type = .fire  
+		spell_type = .fire,
+		spell_cool_dur = 3  
 	}
 	add_mask(mask)
 
@@ -74,11 +76,17 @@ reset_game :: proc()
 		z = 2
 	)
 
-	// right hand text
+	// spell title text
 	rhs_menu_spell_title_text_i = add_text_item(spell_title_text(mask.spell_type), color = mask.color)
 	text_item := &text_items[rhs_menu_spell_title_text_i]
 	// TODO: scale position in render (without scaling texture?). Also why is text top left anchor / easy to control this?
 	text_item.pos = fit_res_vec2(rhs_menu_spell_text_top_left(), resolution) 
+
+	// spell cooldown text 	
+	rhs_menu_spell_cooldown_text_i = add_text_item(mask_spell_cooldown_number_text(mask), color = mask.color)
+	spell_cooldown_text := &text_items[rhs_menu_spell_cooldown_text_i]
+	// TODO: scale position in render (without scaling texture?). Also why is text top left anchor / easy to control this?
+	spell_cooldown_text.pos = fit_res_vec2(rhs_menu_spell_cooldown_text_top_left(), resolution) 
 
 	// right-side UI bar
 
@@ -125,31 +133,37 @@ reset_game :: proc()
 		image_name = "mask_2.png",
 		color = COL_BLUE_RASP,
 		move_type = .step,
-		spell_type = .orb  
+		spell_type = .orb,
+		spell_cool_dur = 1  
 	})
 	add_mask({
 		image_name = "mask_3.png",
 		color = COL_FRESH_ORANGE,
 		move_type = .step,
-		spell_type = .fire  
+		spell_type = .fire,
+		spell_cool_dur = 5  
+ 
 	})
 	add_mask({
 		image_name = "mask_1.png",
 		color = COL_PANIC_RED,
 		move_type = .step,
-		spell_type = .orb  
+		spell_type = .orb,
+		spell_cool_dur = 2  
 	})
 	add_mask({
 		image_name = "mask_3.png",
 		color = COL_WARNING_YELLOW,
 		move_type = .step,
-		spell_type = .fire  
+		spell_type = .fire,
+		spell_cool_dur = 6  
 	})
 	add_mask({
 		image_name = "mask_2.png",
 		color = COL_PINKY_PINK,
 		move_type = .step,
-		spell_type = .fire  
+		spell_type = .fire,
+		spell_cool_dur = 8  
 	})
 }
 

@@ -75,9 +75,8 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                 #partial switch axis {                    
                 case .RIGHT_TRIGGER:
                     if event.gaxis.value > 0 {
-                        if val, ok := facing_dir.?; ok { 
-                            spell := create_current_mask_spell(pos_to_cell(player.pos), dir = val)
-                            handle_wizard_spell(spell)
+                        if dir, ok := facing_dir.?; ok { 
+                            attempt_current_mask_spell(dir)
                         }
                     }
                 }
@@ -90,7 +89,7 @@ handle_left_stick :: proc(axis_x: sdl.Sint16, axis_y: sdl.Sint16)
 {
     // normalize -1, 1
     val_x := f32(axis_x) / f32(max(sdl.Sint16))
-    val_y := -f32(axis_y) / f32(max(sdl.Sint16))
+    val_y := -f32(axis_y) / f32(max(sdl.Sint16)) // invert y for some reason
 
     // process depending on cutoff threshold
     left_x_axis_val := abs(val_x) > AXIS_CUTOFF ? val_x : 0
