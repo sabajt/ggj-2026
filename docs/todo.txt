@@ -1,5 +1,10 @@
+- multiple enemies
+- enemy / player multi hits / health (try small # first)
+- enemy sprite linger flash on hit
+- player health HUD
+- projectiles indicate dir?
+- effect on enemy kill (particle and/or geo)
 - UI: current mask and its stats
-- mask action cooldown
 - player / enemey color scheme?
 - mask action: dash movement -> move multiple squares in a line
 - mask action: fly power (winged) -> enable a number of steps (moving or still) without most collisions
@@ -10,7 +15,6 @@
 - enemy aim
 - move between screens
 - connected areas
-- health HUD
 - normal enemy with line of sight for attack
 - boss with mask
 - collect mask from boss
@@ -25,6 +29,7 @@ bugs
 
 done
 
+x mask action cooldown
 x gamepad
 x UI: mask UI boxes
 x Shoot in direction 
