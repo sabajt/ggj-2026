@@ -9,7 +9,8 @@ import "core:math/rand"
 ACTION_DUR :: int(8)
 ACTION_POST_STEP_DUR :: int(3)
 
-flash_on := true
+flash_5_on := true
+flash_8_on := true
 actions: map[int]Action
 action_i := 0
 action_step_t: int = 0
@@ -161,7 +162,10 @@ update :: proc()
         game_step_time += 1
 
         if game_step_time % 5 == 0 {
-            flash_on = !flash_on
+            flash_5_on = !flash_5_on
+        }
+        if game_step_time % 8 == 0 {
+            flash_8_on = !flash_8_on
         }
     }
 
@@ -172,10 +176,10 @@ update :: proc()
         } else {
             // animate enemy and player
             // enemy_sprite := &sprites[enemy.sprite]
-            killed_by.col.a = flash_on ? 1 : 0.2
+            killed_by.col.a = flash_5_on ? 1 : 0.2
 
             player_sprite := &sprites[player.sprite]
-            player_sprite.col.a = flash_on ? 1 : 0.2
+            player_sprite.col.a = flash_5_on ? 1 : 0.2
         }
         return
     }
@@ -234,6 +238,14 @@ update :: proc()
         if action_post_step_t < ACTION_POST_STEP_DUR {
             action_post_step_t += 1
         }
+    }
+
+    // flash UI where needed
+    if current_mask_spell_ready() {
+        mask := get_current_mask()^
+        color := mask.color
+        color.a = flash_8_on ? 1 : 0.2
+        update_text_item(rhs_menu_spell_cooldown_text_i, mask_spell_cooldown_number_text(mask), color)
     }
 
     if is_game_over {
