@@ -196,7 +196,10 @@ update :: proc()
     if spell, ok := wizard_spell_request.?; ok {         
         wizard_spell_request = nil
         is_stepping = true
-
+        
+        mask := get_current_mask()
+        mask.spell_cool_t = mask.spell_cool_dur + 1
+        
         switch s in spell {
             case Fire_Spell:
                 cast_fire_spell(s)
@@ -213,7 +216,8 @@ update :: proc()
         if action_step_t == 0 {
             step_enemies()
             step_orbs()
-            step_fire()
+            step_fire()       
+            step_mask_cooldowns()
         }
 
         // update / animate step: steps currently remove themselves when finished
@@ -238,6 +242,37 @@ update :: proc()
         }
     }
 }
+
+step_mask_cooldowns :: proc()
+{
+    for &mask in masks {
+        mask.spell_cool_t = max(0, mask.spell_cool_t - 1)
+    }
+    update_rhs_menu_spell_cooldown_text()
+    update_rhs_menu_spell_title_text()
+    update_rhs_spell_icon()
+}
+
+update_rhs_spell_icon :: proc()
+{
+    mask := get_current_mask()^
+    sprite := get_spell_icon_sprite()
+	sprite.name = spell_icon_name(mask.spell_type)
+	sprite.col = mask_spell_cooldown_color(mask)
+}
+
+update_rhs_menu_spell_cooldown_text :: proc()
+{
+    mask := get_current_mask()^
+    update_text_item(rhs_menu_spell_cooldown_text_i, mask_spell_cooldown_number_text(mask), mask.color)
+}
+
+update_rhs_menu_spell_title_text :: proc()
+{
+    mask := get_current_mask()^
+    update_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type), mask_spell_cooldown_color(mask))
+}
+
 
 step_enemies :: proc()
 {

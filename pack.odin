@@ -97,9 +97,8 @@ pack :: proc(dt: f32, cam: [2]f32)
 		case .main:
 			// state specific packing
 		}
-
-		pack_text_ttf()
 	}
+	pack_text_ttf()
 }
 
 pack_shapes :: proc(dt: f32, cam: [2]f32, z: int)
