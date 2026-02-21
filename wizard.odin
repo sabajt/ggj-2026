@@ -7,7 +7,8 @@ Wizard :: struct {
     sprite: int,
     pos: [2]f32,
     t: int,
-    action_i: int 
+    action_i: int,
+    color: [4]f32
 }
 
 Move_Type :: enum {
@@ -18,6 +19,8 @@ player: Wizard
 wizard_direction_request: Maybe(Direction) = nil
 wizard_spell_request: Maybe(Spell) = nil
 wizard_wait_request: bool = false
+
+enemies: map[int]Wizard
 
 get_player_sprite :: proc() -> ^Sprite 
 {
@@ -46,24 +49,21 @@ handle_wizard_spell :: proc(spell: Spell)
 }
 
 // enemies
-
-enemy: Wizard
-enemy_col: [4]f32
-
-// TODO: multiple enemies, right now just replace single
-add_enemy :: proc(cell: [2]int)
+add_enemy :: proc(cell: [2]int) -> int
 {
     col_i := rand.int_max(8)
-    enemy_col = colors[col_i]
-
-	i := add_sprite("mask_2.png", pos = cell_pos(cell), col = enemy_col, anchor = .bottom_left)
-	enemy = Wizard {
+    color := colors[col_i]
+	i := add_sprite("mask_2.png", pos = cell_pos(cell), col = color, anchor = .bottom_left)
+	enemy := Wizard {
 		sprite = i,
-		pos = cell_pos(cell)
+		pos = cell_pos(cell),
+        color = color
 	}
+    enemies[i] = enemy
+    return i
 }
 
-get_enemy_player_path_next_coord :: proc() -> [2]int
+get_grid_cell_to_player_path_next_coord :: proc(cell: [2]int) -> [2]int
 {
 	astar: AStar_Grid
 	astar_grid_init(&astar)
@@ -90,7 +90,7 @@ get_enemy_player_path_next_coord :: proc() -> [2]int
 	//
 	// NOTE: By default, `get_path` allocates memory using `context.allocator`. You can pass your own allocator as an argument to change this.
 	// This allocator is only used for the output slice, and not for anything internal to the pathfinding algorithm.
-    sp := pos_to_cell(enemy.pos)
+    sp := cell
     ep := pos_to_cell(player.pos)
 	path, ok := astar_get_path(&astar, {i32(sp.x), i32(sp.y)}, {i32(ep.x), i32(ep.y)})
     defer { delete(path) }

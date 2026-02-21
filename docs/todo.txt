@@ -1,4 +1,3 @@
-- multiple enemies
 - enemy / player multi hits / health (try small # first)
 - enemy sprite linger flash on hit
 - player health HUD
@@ -6,6 +5,8 @@
 - effect on enemy kill (particle and/or geo)
 - UI: current mask and its stats
 - player / enemey color scheme?
+- enemy drop xp pill
+- pickup xp pill
 - mask action: dash movement -> move multiple squares in a line
 - mask action: fly power (winged) -> enable a number of steps (moving or still) without most collisions
 - mask action: invisiblity -> enable number of steps without enemy viz
@@ -29,6 +30,7 @@ bugs
 
 done
 
+x multiple enemies
 x mask action cooldown
 x gamepad
 x UI: mask UI boxes

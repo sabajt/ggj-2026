@@ -43,6 +43,7 @@ reset_game :: proc()
 	clear(&actions)
 	clear(&masks)
 	clear(&shapes)
+	clear(&enemies)
 	clear_sprites()
 	clear_text_items()
 

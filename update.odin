@@ -49,12 +49,13 @@ add_player_move_action :: proc(dir: Direction)
     action_i += 1
 }
 
-add_enemy_move_action :: proc(dest: [2]int)
+add_enemy_move_action :: proc(i: int, dest: [2]int)
 {
+    enemy := &enemies[i]
     action := Action {
         i = action_i,
         update = action_update_enemy_move,
-        data = { start_cell = pos_to_cell(enemy.pos), end_cell = dest}
+        data = { obj_id = i, start_cell = pos_to_cell(enemy.pos), end_cell = dest}
     }
     actions[action_i] = action
     enemy.action_i = action_i
@@ -80,6 +81,7 @@ action_update_player_move :: proc(action: ^Action)
 
 action_update_enemy_move :: proc(action: ^Action) 
 {
+    enemy := &enemies[action.data.obj_id]
     if action_step_t == ACTION_DUR {
         delete_key(&actions, action.i)
         sprite := &sprites[enemy.sprite]
@@ -288,22 +290,24 @@ update_rhs_menu_spell_title_text :: proc()
 
 step_enemies :: proc()
 {
-    if enemy.t % 3 == 0 {
+    for k, &enemy in enemies {
         cell := pos_to_cell(enemy.pos)
-        for dir in DIRECTIONS {
-            spell := Orb_Spell {
-                cell=cell, 
-                dir=dir, 
-                hostile=true,
-                color=enemy_col
+        if enemy.t % 3 == 0 {
+            for dir in CARDINALS {
+                spell := Orb_Spell {
+                    cell=cell, 
+                    dir=dir, 
+                    hostile=true,
+                    color=enemy.color
+                }
+                cast_orb_spell(spell)
             }
-            cast_orb_spell(spell)
+        } else {
+            cell := get_grid_cell_to_player_path_next_coord(cell)
+            add_enemy_move_action(i = k, dest = cell)
         }
-    } else {
-        cell := get_enemy_player_path_next_coord()
-        add_enemy_move_action(cell)
+        enemy.t += 1
     }
-    enemy.t += 1
 }
 
 find_empty_spawn_cell :: proc() -> [2]int
@@ -333,11 +337,13 @@ check_hits :: proc()
         check_projectile_hit(projectile)
     }
 
-    // reset if enemy hits player directly
-    if grid_item_collide(enemy.pos, player.pos) {
-        is_game_over = true
-        killed_by = &sprites[enemy.sprite]
-        return
+    // enemy
+    for k, enemy in enemies {
+        if grid_item_collide(enemy.pos, player.pos) {
+            is_game_over = true
+            killed_by = &sprites[enemy.sprite]
+            return
+        }
     }
 }
 
@@ -351,17 +357,22 @@ check_projectile_hit :: proc(projectile: Projectile)
             return
         }
     } else {
-        // destroy enemy
-        if grid_item_collide(projectile.pos, enemy.pos) {
-            // TODO: add flashing hit indicator
+        for k, enemy in enemies {
+            // destroy enemy
+            if grid_item_collide(projectile.pos, enemy.pos) {
+                // TODO: add flashing hit indicator
 
-            // remove enemy
-            delete_key(&sprites, enemy.sprite)
-            delete_key(&actions, enemy.action_i)
-
-            // next enemy
-            cell := find_empty_spawn_cell()
-            add_enemy(cell)
+                // remove enemy
+                delete_key(&sprites, enemy.sprite)
+                delete_key(&actions, enemy.action_i)
+                delete_key(&enemies, enemy.sprite)
+                
+                // next enemies
+                for i in 0 ..< 2 {
+                    cell := find_empty_spawn_cell()
+                    add_enemy(cell)
+                }
+            }
         }
     }
 }

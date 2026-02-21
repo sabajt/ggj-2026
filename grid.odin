@@ -6,6 +6,8 @@ import "core:math"
 
 Direction :: enum { north, south, west, east, northeast, northwest, southeast, southwest }
 DIRECTIONS :: [8]Direction { .north, .south, .west, .east, .northeast, .northwest, .southeast, .southwest }
+CARDINALS :: [4]Direction { .north, .south, .west, .east }
+ORDINALS :: [4]Direction { .northeast, .northwest, .southeast, .southwest }
 
 turn_left_90_deg :: proc(facing: Direction) -> Direction 
 {
