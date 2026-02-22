@@ -7,7 +7,7 @@ config := Config {
 
 // config := Config {
 //     resolution = 2 * INTERNAL_RES,
-//     font_size = 24
+//     font_size = 20
 // }
 
 // config := Config {

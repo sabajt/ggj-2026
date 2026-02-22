@@ -8,7 +8,9 @@ Wizard :: struct {
     pos: [2]f32,
     t: int,
     action_i: int,
-    color: [4]f32
+    color: [4]f32,
+    is_hit: bool, // marked during action step, cleared on step end if still alive
+    health: int
 }
 
 Move_Type :: enum {
@@ -57,7 +59,8 @@ add_enemy :: proc(cell: [2]int) -> int
 	enemy := Wizard {
 		sprite = i,
 		pos = cell_pos(cell),
-        color = color
+        color = color,
+        health = 3
 	}
     enemies[i] = enemy
     return i

@@ -235,6 +235,8 @@ update :: proc()
             action_step_t = 0
             action_post_step_t = 0
             is_stepping = false
+
+            enemies_finish_step()
         }
     } else {
         if action_post_step_t < ACTION_POST_STEP_DUR {
@@ -254,6 +256,13 @@ update :: proc()
         if game_over_delay == GAME_OVER_DELAY_DUR {
             snap_all_sprites_to_latest_frame()
         }
+    }
+}
+
+enemies_finish_step :: proc()
+{
+    for k, &enemy in enemies {
+        enemy.is_hit = false
     }
 }
 
@@ -338,8 +347,9 @@ check_hits :: proc()
     }
 
     // enemy
-    for k, enemy in enemies {
-        if grid_item_collide(enemy.pos, player.pos) {
+    for k, &enemy in enemies {
+        // TODO: checking !enemy.is_hit makes enemy not damage on this step - wanted?
+        if !enemy.is_hit && grid_item_collide(enemy.pos, player.pos) { 
             is_game_over = true
             killed_by = &sprites[enemy.sprite]
             return
@@ -357,22 +367,31 @@ check_projectile_hit :: proc(projectile: Projectile)
             return
         }
     } else {
-        for k, enemy in enemies {
-            // destroy enemy
-            if grid_item_collide(projectile.pos, enemy.pos) {
-                // TODO: add flashing hit indicator
-
-                // remove enemy
-                delete_key(&sprites, enemy.sprite)
-                delete_key(&actions, enemy.action_i)
-                delete_key(&enemies, enemy.sprite)
-                
-                // next enemies
-                for i in 0 ..< 2 {
-                    cell := find_empty_spawn_cell()
-                    add_enemy(cell)
+        for k, &enemy in enemies {
+            // hit enemy
+            if !enemy.is_hit && grid_item_collide(projectile.pos, enemy.pos) {
+                enemy.is_hit = true
+                enemy.health -= 1
+                if enemy.health <= 0 {
+                    destroy_enemy(enemy)
                 }
             }
         }
     }
 }
+
+destroy_enemy :: proc(enemy: Wizard)
+{
+    // remove enemy
+    delete_key(&sprites, enemy.sprite)
+    delete_key(&actions, enemy.action_i)
+    delete_key(&enemies, enemy.sprite)
+    
+    // next enemies
+    for i in 0 ..< 2 {
+        cell := find_empty_spawn_cell()
+        add_enemy(cell)
+    }
+}
+
+
