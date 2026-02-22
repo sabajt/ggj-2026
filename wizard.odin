@@ -3,13 +3,15 @@ package main
 import "core:fmt"
 import "core:math/rand"
 
+ACTOR_HIT_T_DUR :: int(70)
+
 Wizard :: struct {
     sprite: int,
     pos: [2]f32,
-    t: int,
-    action_i: int,
+    t: int, // cumulative step / turn time
+    action_i: int, // step action time normalized
     color: [4]f32,
-    is_hit: bool, // marked during action step, cleared on step end if still alive
+    is_hit_t: int, // marked during action step, cleared on decrement to 0 or next step start
     health: int
 }
 

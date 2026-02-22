@@ -215,16 +215,11 @@ update :: proc()
     }
 
     if is_stepping {
-        // check for hits before adding actions, otherwise killed enemy might add action
-        check_hits()
-
-        // add any world step actions
+        // add any world step actions, beginning of action setup
         if action_step_t == 0 {
-            step_enemies()
-            step_orbs()
-            step_fire()       
-            step_mask_cooldowns()
+            step_action_begin()
         }
+        check_hits()
 
         // update / animate step: steps currently remove themselves when finished
         action_step_t += 1
@@ -232,11 +227,7 @@ update :: proc()
 
         // finish step
         if action_step_t == ACTION_DUR {
-            action_step_t = 0
-            action_post_step_t = 0
-            is_stepping = false
-
-            enemies_finish_step()
+            step_action_end()
         }
     } else {
         if action_post_step_t < ACTION_POST_STEP_DUR {
@@ -252,6 +243,19 @@ update :: proc()
         update_text_item(rhs_menu_spell_cooldown_text_i, mask_spell_cooldown_number_text(mask), color)
     }
 
+    // decrement hit_t and flash hit actors
+    for k, &enemy in enemies {
+        enemy.is_hit_t = max(0, enemy.is_hit_t - 1)
+        sprite := &sprites[enemy.sprite]
+        color := sprite.col
+        if enemy.is_hit_t > 0 {
+            color.a = flash_5_on ? 0.2 : 1
+        } else {
+            color.a = 1
+        }
+        update_sprite(sprite, col = color)
+    }
+
     if is_game_over {
         if game_over_delay == GAME_OVER_DELAY_DUR {
             snap_all_sprites_to_latest_frame()
@@ -259,10 +263,26 @@ update :: proc()
     }
 }
 
-enemies_finish_step :: proc()
+step_action_begin :: proc()
+{
+    begin_step_enemies()
+    step_enemies()
+    step_orbs()
+    step_fire()       
+    step_mask_cooldowns()
+}
+
+step_action_end :: proc()
+{
+    action_step_t = 0
+    action_post_step_t = 0
+    is_stepping = false
+}
+
+begin_step_enemies :: proc()
 {
     for k, &enemy in enemies {
-        enemy.is_hit = false
+        enemy.is_hit_t = 0
     }
 }
 
@@ -348,8 +368,8 @@ check_hits :: proc()
 
     // enemy
     for k, &enemy in enemies {
-        // TODO: checking !enemy.is_hit makes enemy not damage on this step - wanted?
-        if !enemy.is_hit && grid_item_collide(enemy.pos, player.pos) { 
+        // TODO: checking enemy.is_hit_t == 0 makes enemy not attack on this step - wanted?
+        if enemy.is_hit_t == 0 && grid_item_collide(enemy.pos, player.pos) { 
             is_game_over = true
             killed_by = &sprites[enemy.sprite]
             return
@@ -369,8 +389,8 @@ check_projectile_hit :: proc(projectile: Projectile)
     } else {
         for k, &enemy in enemies {
             // hit enemy
-            if !enemy.is_hit && grid_item_collide(projectile.pos, enemy.pos) {
-                enemy.is_hit = true
+            if enemy.is_hit_t == 0 && grid_item_collide(projectile.pos, enemy.pos) {
+                enemy.is_hit_t = ACTOR_HIT_T_DUR
                 enemy.health -= 1
                 if enemy.health <= 0 {
                     destroy_enemy(enemy)
