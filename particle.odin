@@ -70,8 +70,8 @@ clear_radius_effects :: proc()
 create_random_particle :: proc(mode: Radius_Effect_Mode) -> Radius_Effect 
 {
 	pos := [2]f32{
-		INTERNAL_RES.x / 2 + (2 * rand.float32() - 1) * 300, 
-		INTERNAL_RES.y / 2 + (2 * rand.float32() - 1) * 300 
+		INTERNAL_RES.x / 2 + (2 * rand.float32() - 1) * INTERNAL_RES.x / 3, 
+		INTERNAL_RES.y / 2 + (2 * rand.float32() - 1) * INTERNAL_RES.y / 3 
 	}
 	return create_random_particle_pos(mode, pos + camera.pos)
 }
@@ -154,6 +154,8 @@ create_particle_effect :: proc(
 
 pack_radius_particles :: proc(dt: f32, cam: [2]f32) 
 {
+	particle_input_start = len(batch_shape_inputs)
+
 	// pack fill and lines
 	for arr in radius_effects {
 		for p in arr {
@@ -163,6 +165,7 @@ pack_radius_particles :: proc(dt: f32, cam: [2]f32)
 			}
 		}
 	}
+	particle_input_end = len(batch_shape_inputs)
 }
 // TODO: same as above except p.mode == or != .Circles
 pack_radius_particles_sdf :: proc(dt: f32, cam: [2]f32) 
@@ -196,7 +199,6 @@ pack_radius_particle :: proc(p: Radius_Effect, dt: f32, cam: [2]f32)
 	pos = fit_res_vec2(pos, letterbox_resolution) 
 
 	if p.mode == .Solid || p.mode == .Line {
-
 		model = Batch_Shape_Model {
 			position = { pos.x, pos.y, 1 },
 			rotation = rot,
@@ -207,7 +209,6 @@ pack_radius_particle :: proc(p: Radius_Effect, dt: f32, cam: [2]f32)
 			period = 0
 		}
 	}	
-
 	verts := [dynamic]Batch_Shape_Vertex {}
 
 	for i : uint = 0; i < p.res; i += 1 {

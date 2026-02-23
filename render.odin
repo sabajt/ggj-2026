@@ -235,6 +235,8 @@ render :: proc(dt: f32)
 	// z order
 	solid_len: int 
 	solid_start: int
+	particle_len: int // TODO: this includes solid, lines mode (solids), but circle mode is sdf... fix
+	particle_start: int
 	sdf_len: int 
 	sdf_start: int
 	if z == 0 {
@@ -246,11 +248,15 @@ render :: proc(dt: f32)
 	} else if z == 2 {
 		solid_len = solid_input_end_2 - solid_input_start_2
 		solid_start = solid_input_start_2
+		particle_len = particle_input_end - particle_input_start
+		particle_start = particle_input_start
+		sdf_len = last_sdf_input - first_sdf_input
+		sdf_start = first_sdf_input
 	}
 
 	camera_mat := camera_mat_from_blend_pos(camera_blend_pos)
 
-	if solid_len > 0 {
+	if solid_len > 0 || particle_len > 0 {
 		// draw batched shapes: fill
 
 		sdl.BindGPUGraphicsPipeline(render_pass, pipeline_fill)
@@ -287,30 +293,36 @@ render :: proc(dt: f32)
 		res_ubo := Res_Ubo { res_cam = {res.x, res.y, camera_blend_pos.x, camera_blend_pos.y } }
 		sdl.PushGPUFragmentUniformData(command_buffer, 0, &res_ubo, size_of(res_ubo))
 
-		sdl.DrawGPUPrimitives(
-			render_pass, 
-			num_vertices = u32(solid_len), 
-			num_instances = 1, 
-			first_vertex = u32(solid_start),
-			first_instance = 0
-		)
+		if solid_len > 0 {
+			sdl.DrawGPUPrimitives(
+				render_pass, 
+				num_vertices = u32(solid_len), 
+				num_instances = 1, 
+				first_vertex = u32(solid_start),
+				first_instance = 0
+			)
+		} else {
+			sdl.DrawGPUPrimitives(
+				render_pass, 
+				num_vertices = u32(particle_len), 
+				num_instances = 1, 
+				first_vertex = u32(particle_start),
+				first_instance = 0
+			)
+		}
 	}
 
 	if sdf_len > 0 {
 		// draw batched shapes: sdf circles
-
-		sdf_particles_len := last_sdf_input - first_sdf_input
-
 		sdl.BindGPUGraphicsPipeline(render_pass, pipeline_sdf)
-
 		res_ubo := Res_Ubo { res_cam = {res.x, res.y, camera_blend_pos.x, camera_blend_pos.y } }
 		sdl.PushGPUFragmentUniformData(command_buffer, 0, &res_ubo, size_of(res_ubo))
 
 		sdl.DrawGPUPrimitives(
 			render_pass, 
-			num_vertices = u32(sdf_particles_len), // TODO: z ordering
+			num_vertices = u32(sdf_len), // TODO: z ordering
 			num_instances = 1, 
-			first_vertex = u32(first_sdf_input),  // TODO: z ordering
+			first_vertex = u32(sdf_start),  // TODO: z ordering
 			first_instance = 0
 		)
 	}

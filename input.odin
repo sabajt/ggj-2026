@@ -39,6 +39,9 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
             return .SUCCESS
         case .KEY_DOWN:
             #partial switch event.key.scancode {
+                // TESTING particle
+                case .P:
+                    create_random_particles = true
                 // quit
                 case .Q:
                     return .SUCCESS

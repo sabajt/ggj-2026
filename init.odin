@@ -22,7 +22,7 @@ init :: proc() {
 	ok := sdl.Init({.VIDEO, .GAMEPAD, .AUDIO})
 	assert(ok)
 
-	window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {})
+	window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {.HIGH_PIXEL_DENSITY})
 	// window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {.FULLSCREEN})
 	assert(window != nil)
 
@@ -118,11 +118,15 @@ init_transfer_mem :: proc()
 	ok := ttf.Init()
 	assert(ok)
 
-	font_sfns_mono = ttf.OpenFont("fonts/monogram.ttf", config.font_size)
+	font_sfns_mono = ttf.OpenFont("fonts/SFNSMono.ttf", config.font_size)
+	// font_sfns_mono = ttf.OpenFont("fonts/monogram.ttf", config.font_size)
+	// sdf_ok := ttf.SetFontSDF(font_sfns_mono, true)
+	// assert(sdf_ok, "font could not be configured for SDF")
 	if font_sfns_mono == nil {
 		fmt.println("ERROR: Couldn't open font")
 	}
-	ttf.SetFontHinting(font_sfns_mono, ttf.Hinting.LIGHT_SUBPIXEL)
+	ttf.SetFontStyle(font_sfns_mono, {.BOLD})
+	// ttf.SetFontHinting(font_sfns_mono, ttf.Hinting.LIGHT_SUBPIXEL)
 
 	text_engine = ttf.CreateGPUTextEngine(gpu)
 

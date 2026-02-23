@@ -261,6 +261,8 @@ update :: proc()
             snap_all_sprites_to_latest_frame()
         }
     }
+
+    update_particles()
 }
 
 step_action_begin :: proc()

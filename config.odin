@@ -2,17 +2,17 @@ package main
 
 config := Config {
     resolution = 3 * INTERNAL_RES,
-    font_size = 32
+    font_size = 18 // 32 monogram
 }
 
 // config := Config {
 //     resolution = 2 * INTERNAL_RES,
-//     font_size = 20
+//     font_size = 15 // 20 monogram
 // }
 
 // config := Config {
 //     resolution = INTERNAL_RES,
-//     font_size = 14
+//     font_size = 9 // 14 monogram
 // }
 
 Config :: struct {

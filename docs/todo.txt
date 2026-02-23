@@ -1,5 +1,4 @@
 - enemy / player multi hits / health (try small # first)
-- enemy sprite linger flash on hit
 - player health HUD
 - projectiles indicate dir?
 - effect on enemy kill (particle and/or geo)
@@ -30,6 +29,7 @@ bugs
 
 done
 
+x enemy sprite linger flash on hit
 x multiple enemies
 x mask action cooldown
 x gamepad

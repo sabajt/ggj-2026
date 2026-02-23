@@ -28,6 +28,9 @@ sprite_end_1: int
 sprite_start_2: int
 sprite_end_2: int
 
+particle_input_start: int
+particle_input_end: int
+
 gpu_sprites: [dynamic]GPU_Sprite
 
 shapes: [dynamic]Shape
@@ -81,15 +84,9 @@ pack :: proc(dt: f32, cam: [2]f32)
 {
 	sim_dt := get_sim_dt(dt)
 
+	pack_shared_verts()
+
 	for i in 0 ..< Z_ORDER_MAX {
-		// Need to create checkpoints (first_sdf etc) as going thru z index that render will use to draw 
-
-		if i == 0 {
-			pack_shared_verts()
-		}
-
-		// pack_radius_particles(sim_dt, cam)
-		// pack_sdf(sim_dt, cam)
 		pack_shapes(sim_dt, cam, z = i)
 		pack_sprites(sim_dt, z = i)
 
@@ -98,6 +95,8 @@ pack :: proc(dt: f32, cam: [2]f32)
 			// state specific packing
 		}
 	}
+	pack_radius_particles(sim_dt, cam)
+	pack_sdf(sim_dt, cam)
 	pack_text_ttf()
 }
 
