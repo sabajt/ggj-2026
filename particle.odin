@@ -76,6 +76,52 @@ create_random_particle :: proc(mode: Radius_Effect_Mode) -> Radius_Effect
 	return create_random_particle_pos(mode, pos + camera.pos)
 }
 
+create_kill_particle_1 :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
+{
+	return create_particle_effect(
+		mode = .Circles, 
+		pos = pos,
+		vel = {0, 0},
+		drag = 0,
+		life = 1,
+		res = 10,
+		rad_start = 6,
+		rad_end = 35, 
+		col_start = color,
+		col_end = {color.r, color.g, color.b, 0.02},
+		rot_start = 0,
+		rot_end = 0,
+		node_rad_start = 0.1,
+		node_rad_end = 10,
+		thic = 60,
+		fade = 0,
+		ease = .Exponential_Out
+	)
+}
+
+create_kill_particle_2 :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
+{
+	return create_particle_effect(
+		mode = .Solid, 
+		pos = pos,
+		vel = {0, 0},
+		drag = 0,
+		life = 1,
+		res = 4,
+		rad_start = 8,
+		rad_end = 50, 
+		col_start = color,
+		col_end = {color.r, color.g, color.b, 0.01},
+		rot_start = 0,
+		rot_end = 4,
+		node_rad_start = 0,
+		node_rad_end = 0,
+		thic = 4,
+		fade = 0,
+		ease = .Quadratic_Out
+	)
+}
+
 create_random_particle_pos :: proc(mode: Radius_Effect_Mode, pos: [2]f32) -> Radius_Effect
 {
 	rad_start := f32(2)

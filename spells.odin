@@ -98,6 +98,14 @@ cast_fire_spell :: proc(spell: Fire_Spell)
     }
 }
 
+add_kill_particle :: proc(pos: [2]f32, color: [4]f32)
+{
+    grow_effect_batch_if_needed()
+    re_arr := &radius_effects[len(radius_effects) - 1]
+    append(re_arr, create_kill_particle_1(pos, color))
+    // append(re_arr, create_kill_particle_2(pos, color))
+}
+
 cast_orb_spell :: proc(s: Orb_Spell)
 {
     add_orb(s.cell, s.dir, hostile = s.hostile , color = s.color)

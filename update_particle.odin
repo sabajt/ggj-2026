@@ -4,6 +4,11 @@ import "core:fmt"
 import "core:math/linalg"
 import "core:math/ease"
 
+get_player_center :: proc() -> [2]f32
+{
+	return player.pos + GRID_PADDING / 2
+}
+
 update_particles :: proc()
 {
 	if create_random_particles  {
@@ -15,6 +20,7 @@ update_particles :: proc()
 		append(re_arr, create_random_particle(.Solid))
 		append(re_arr, create_random_particle(.Line))
 		append(re_arr, create_random_particle(.Circles))
+
 	}
 
 	// update / remove

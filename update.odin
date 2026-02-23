@@ -404,6 +404,8 @@ check_projectile_hit :: proc(projectile: Projectile)
 
 destroy_enemy :: proc(enemy: Wizard)
 {
+    add_kill_particle(enemy.pos, enemy.color)
+
     // remove enemy
     delete_key(&sprites, enemy.sprite)
     delete_key(&actions, enemy.action_i)
@@ -414,6 +416,7 @@ destroy_enemy :: proc(enemy: Wizard)
         cell := find_empty_spawn_cell()
         add_enemy(cell)
     }
+
 }
 
 
