@@ -1,11 +1,11 @@
 - enemy / player multi hits / health (try small # first)
-- player health HUD
 - projectiles indicate dir?
 - effect on enemy kill (particle and/or geo)
+- effect on enemy kill: xp going to rhs mask slot
 - UI: current mask and its stats
+- UI: player health HUD
+- UI: mask levels / xp system
 - player / enemey color scheme?
-- enemy drop xp pill
-- pickup xp pill
 - mask action: dash movement -> move multiple squares in a line
 - mask action: fly power (winged) -> enable a number of steps (moving or still) without most collisions
 - mask action: invisiblity -> enable number of steps without enemy viz
@@ -18,7 +18,6 @@
 - normal enemy with line of sight for attack
 - boss with mask
 - collect mask from boss
-- mask levels / xp system
 - up / down levels 
 - buildings (use line of sight to hide interior)
 - add sound / music
