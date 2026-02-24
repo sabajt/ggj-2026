@@ -91,7 +91,7 @@ create_gpu_sprite :: proc(spr: Sprite, dt: f32) -> GPU_Sprite
     return GPU_Sprite {
         position = {blended_tf.pos.x, blended_tf.pos.y, 1},
         rotation = blended_tf.rot,
-        scale = blended_tf.scale * {w, -h},
+        scale = blended_tf.scale * {w, -h}, // must invert h or sprites draw upside down
         anchor = anchor,
         tex_u = f32(atlas_image.X) / f32(sprite_atlas.Width),
         tex_v = f32(atlas_image.Y) / f32(sprite_atlas.Height),

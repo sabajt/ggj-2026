@@ -46,10 +46,10 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                 case .Q:
                     return .SUCCESS
                 // TODO: keyboard arrow key
-                // case .LEFT:
-                // case .RIGHT:
-                // case .UP:
-                // case .DOWN:
+                case .LEFT:
+                    step_mask_index(.down)
+                case .RIGHT:
+                    step_mask_index(.up)
                 case .X:
                     handle_wizard_wait()
                 // spell

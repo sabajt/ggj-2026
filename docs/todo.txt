@@ -1,9 +1,9 @@
 - enemy / player multi hits / health (try small # first)
+- UI: player health HUD
+- projectiles destroy self on hit (sometimes?)
 - projectiles indicate dir?
-- effect on enemy kill (particle and/or geo)
 - effect on enemy kill: xp going to rhs mask slot
 - UI: current mask and its stats
-- UI: player health HUD
 - UI: mask levels / xp system
 - player / enemey color scheme?
 - mask action: dash movement -> move multiple squares in a line
@@ -28,6 +28,7 @@ bugs
 
 done
 
+x effect on enemy kill (particle and/or geo)
 x enemy sprite linger flash on hit
 x multiple enemies
 x mask action cooldown

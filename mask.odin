@@ -8,6 +8,7 @@ MASK_SLOT_MARGIN :: f32(4)
 
 mask_box_refs: [6][2]int = {}
 mask_index: int = 0
+heart_sprite_refs: [6]int = {}
 
 Index_Step_Direction :: enum {
 	up, 
@@ -108,22 +109,32 @@ get_spell_icon_sprite :: proc() -> ^Sprite
 	return &sprites[rhs_menu_spell_icon_sprite_i]
 }
 
-// vv menu layout file?
-
 mask_slot_center :: proc(i: int) -> [2]f32
 {
-	pos_y := MASK_SLOT_SIDE / 2.0 + 2 * UI_PAD
 	org_x := grid_right + UI_DIVIDER_1
-
 	rhs_width := INTERNAL_RES.x - org_x
 	slot_width := (rhs_width - 2 * MASK_SLOT_MARGIN) / 6.0
 
 	pos: [2]f32 = {
 		org_x + f32(i) * slot_width + slot_width/2 + MASK_SLOT_MARGIN,
-		INTERNAL_RES.y - pos_y
+		INTERNAL_RES.y - 1.5 * rhs_section_height()
 	}
 	return pos
 }
+
+heart_slot_center :: proc(i: int) -> [2]f32
+{
+	org_x := grid_right + UI_DIVIDER_1
+	rhs_width := INTERNAL_RES.x - org_x
+	slot_width := (rhs_width - 2 * MASK_SLOT_MARGIN) / 6.0
+
+	pos: [2]f32 = {
+		org_x + f32(i) * slot_width + slot_width/2 + MASK_SLOT_MARGIN,
+		INTERNAL_RES.y - 0.5 * rhs_section_height()
+	}
+	return pos
+}
+
 
 rhs_menu_spell_icon_center :: proc() -> [2]f32
 {
@@ -150,9 +161,19 @@ rhs_menu_spell_cooldown_text_top_left :: proc() -> [2]f32
 	return pos
 }
 
+rhs_menu_hp_section_bottom_divider_y :: proc() -> f32
+{
+	return INTERNAL_RES.y - rhs_section_height()
+}
+
 rhs_menu_mask_selector_bottom_divider_y :: proc() -> f32
 {
-	return INTERNAL_RES.y - 2 * (INTERNAL_RES.y - mask_slot_center(0).y) - 1
+	return INTERNAL_RES.y - 2 * rhs_section_height()
+}
+
+rhs_section_height :: proc() -> f32
+{
+	return MASK_SLOT_SIDE + 4 * UI_PAD + 1
 }
 
 init_mask_boxes :: proc()
@@ -186,5 +207,16 @@ init_mask_boxes :: proc()
 	}
 }
 
-// ^^ menu layout?
+init_hp_hearts :: proc()
+{
+	for i in 0..<6 {
+		pos := heart_slot_center(i)
+		heart_sprite_refs[i] = add_sprite(
+			name = "heart.png",
+			pos = pos,
+			col = COL_PANIC_RED,
+			z = 2
+		)
+	}
+}
 

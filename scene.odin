@@ -11,6 +11,7 @@ player_dir_indicator_shape_i: int
 rhs_menu_spell_icon_sprite_i: int
 rhs_menu_spell_title_text_i: int
 rhs_menu_spell_cooldown_text_i: int
+rhs_menu_hp_text_i: int
 
 Game_State :: enum {
 	main
@@ -46,6 +47,7 @@ reset_game :: proc()
 	clear(&enemies)
 	clear_sprites()
 	clear_text_items()
+	clear_radius_effects()
 
 	// add player masks
 	mask := Mask {
@@ -89,7 +91,7 @@ reset_game :: proc()
 	// TODO: scale position in render (without scaling texture?). Also why is text top left anchor / easy to control this?
 	spell_cooldown_text.pos = fit_res_vec2(rhs_menu_spell_cooldown_text_top_left(), resolution) 
 
-	// right-side UI bar
+	// right-side UI background / dividers
 
 	rightbar_rect_width := INTERNAL_RES.x - grid_right
 	add_shape({ // background fill
@@ -108,7 +110,14 @@ reset_game :: proc()
 		z = 1,
 		visible = true
 	})
-
+	add_shape({ // hp section bottom divider
+		type = .Rectangle,
+		tf = tf({grid_right, rhs_menu_hp_section_bottom_divider_y()}, 0, {rightbar_rect_width, UI_DIVIDER_1}),
+		color = COL_GRAY_0,
+		anchor = .bottom_left,
+		z = 1,
+		visible = true
+	})
 	add_shape({ // top mask selection bottom divider
 		type = .Rectangle,
 		tf = tf({grid_right, rhs_menu_mask_selector_bottom_divider_y() }, 0, {rightbar_rect_width, UI_DIVIDER_1}),
@@ -119,6 +128,7 @@ reset_game :: proc()
 	})
 
 	init_mask_boxes()
+	init_hp_hearts()
 
 	// player direction arrow (pos updated on stick / player move)
 	player_dir_indicator_shape_i = add_shape({

@@ -16,7 +16,7 @@
 		},
 		{
 			"Name": "fire_0.png",
-			"X": 18,
+			"X": 36,
 			"Y": 36,
 			"W": 18,
 			"H": 18,
@@ -27,8 +27,8 @@
 		},
 		{
 			"Name": "fire_1.png",
-			"X": 36,
-			"Y": 18,
+			"X": 18,
+			"Y": 36,
 			"W": 18,
 			"H": 18,
 			"TrimOffsetX": 0,
@@ -38,7 +38,7 @@
 		},
 		{
 			"Name": "orb.png",
-			"X": 18,
+			"X": 36,
 			"Y": 18,
 			"W": 18,
 			"H": 18,
@@ -49,8 +49,8 @@
 		},
 		{
 			"Name": "spike.png",
-			"X": 0,
-			"Y": 36,
+			"X": 18,
+			"Y": 18,
 			"W": 18,
 			"H": 18,
 			"TrimOffsetX": 0,
@@ -61,7 +61,7 @@
 		{
 			"Name": "mask_2.png",
 			"X": 0,
-			"Y": 18,
+			"Y": 36,
 			"W": 18,
 			"H": 18,
 			"TrimOffsetX": 0,
@@ -71,6 +71,17 @@
 		},
 		{
 			"Name": "mask_3.png",
+			"X": 0,
+			"Y": 18,
+			"W": 18,
+			"H": 18,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
+		},
+		{
+			"Name": "mask_1.png",
 			"X": 36,
 			"Y": 0,
 			"W": 18,
@@ -81,7 +92,7 @@
 			"UntrimmedHeight": 18
 		},
 		{
-			"Name": "mask_1.png",
+			"Name": "heart.png",
 			"X": 18,
 			"Y": 0,
 			"W": 18,
