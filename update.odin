@@ -6,7 +6,7 @@ import "core:fmt"
 import "core:math"
 import "core:math/rand"
 
-ACTION_DUR :: int(8)
+action_dur := int(8)
 ACTION_POST_STEP_DUR :: int(3)
 
 flash_5_on := true
@@ -64,7 +64,7 @@ add_enemy_move_action :: proc(i: int, dest: [2]int)
 
 action_update_player_move :: proc(action: ^Action) 
 {
-    if action_step_t == ACTION_DUR {
+    if action_step_t == action_dur {
         delete_key(&actions, action.i)
         sprite := &sprites[player.sprite]
         player.pos = cell_pos(action.data.end_cell)
@@ -73,7 +73,7 @@ action_update_player_move :: proc(action: ^Action)
         
     } else {
         sprite := &sprites[player.sprite]
-        t := f32(action_step_t) / f32(ACTION_DUR)
+        t := f32(action_step_t) / f32(action_dur)
         player.pos = math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
         update_sprite(sprite, pos = player.pos)
     }
@@ -82,7 +82,7 @@ action_update_player_move :: proc(action: ^Action)
 action_update_enemy_move :: proc(action: ^Action) 
 {
     enemy := &enemies[action.data.obj_id]
-    if action_step_t == ACTION_DUR {
+    if action_step_t == action_dur {
         delete_key(&actions, action.i)
         sprite := &sprites[enemy.sprite]
         enemy.pos = cell_pos(action.data.end_cell)
@@ -90,7 +90,7 @@ action_update_enemy_move :: proc(action: ^Action)
         snap_sprite_to_latest_frame(sprite)
     } else {
         sprite := &sprites[enemy.sprite]
-        t := f32(action_step_t) / f32(ACTION_DUR)
+        t := f32(action_step_t) / f32(action_dur)
         enemy.pos = math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
         update_sprite(sprite, pos = enemy.pos)
     }
@@ -102,7 +102,7 @@ action_update_orb :: proc(action: ^Action)
     sprite := &sprites[obj_id]
     orb := &orbs[obj_id]
 
-    if action_step_t == ACTION_DUR {
+    if action_step_t == action_dur {
         delete_key(&actions, action.i)
 
         orb.pos = cell_pos(action.data.end_cell)
@@ -115,7 +115,7 @@ action_update_orb :: proc(action: ^Action)
             delete_key(&orbs, obj_id)
         } 
     } else {
-        t := f32(action_step_t) / f32(ACTION_DUR)
+        t := f32(action_step_t) / f32(action_dur)
         pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
 
         col := sprite.col
@@ -183,34 +183,35 @@ update :: proc()
             player_sprite := &sprites[player.sprite]
             player_sprite.col.a = flash_5_on ? 1 : 0.2
         }
-        return
     }
 
-    // player initiate step with movement
-    if dir, ok := wizard_direction_request.?; ok { 
-        wizard_direction_request = nil
-        add_player_move_action(dir)
-        is_stepping = true
-    }
-    // player initiate step with wait
-    if wizard_wait_request {
-        wizard_wait_request = false
-        is_stepping = true
-    }
+    if !is_game_over {
+        // player initiate step with movement
+        if dir, ok := wizard_direction_request.?; ok { 
+            wizard_direction_request = nil
+            add_player_move_action(dir)
+            is_stepping = true
+        }
+        // player initiate step with wait
+        if wizard_wait_request {
+            wizard_wait_request = false
+            is_stepping = true
+        }
 
-    // player initiate step with spell cast
-    if spell, ok := wizard_spell_request.?; ok {         
-        wizard_spell_request = nil
-        is_stepping = true
-        
-        mask := get_current_mask()
-        mask.spell_cool_t = mask.spell_cool_dur + 1
-        
-        switch s in spell {
-            case Fire_Spell:
-                cast_fire_spell(s)
-            case Orb_Spell:
-                cast_orb_spell(s)
+        // player initiate step with spell cast
+        if spell, ok := wizard_spell_request.?; ok {         
+            wizard_spell_request = nil
+            is_stepping = true
+            
+            mask := get_current_mask()
+            mask.spell_cool_t = mask.spell_cool_dur + 1
+            
+            switch s in spell {
+                case Fire_Spell:
+                    cast_fire_spell(s)
+                case Orb_Spell:   
+                    cast_orb_spell(s)
+            }
         }
     }
 
@@ -226,7 +227,7 @@ update :: proc()
         update_actions()
 
         // finish step
-        if action_step_t == ACTION_DUR {
+        if action_step_t == action_dur {
             step_action_end()
         }
     } else {
@@ -285,6 +286,7 @@ step_action_end :: proc()
     action_step_t = 0
     action_post_step_t = 0
     is_stepping = false
+    action_dur = 8
     update_hp_hearts()
 }
 
@@ -344,7 +346,7 @@ step_enemies :: proc()
     for k, &enemy in enemies {
         cell := pos_to_cell(enemy.pos)
         if enemy.t % 3 == 0 {
-            for dir in CARDINALS { // TODO: shoot towards player
+            for dir in CARDINALS { // TODO: shoot towards player (enemy aim)
                 spell := Orb_Spell {
                     cell=cell, 
                     dir=dir, 
@@ -396,6 +398,7 @@ check_hits :: proc()
             if player.health <= 0 {
                 is_game_over = true
                 killed_by = &sprites[enemy.sprite]
+                kill_slowdown()
                 return
             }
         }
@@ -422,6 +425,7 @@ check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
             if actor^ == player {
                 is_game_over = true
                 killed_by = &sprites[projectile.spr]
+                kill_slowdown()
             } else {
                 destroy_enemy(actor^)
             }
@@ -430,6 +434,13 @@ check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
             destroy_projectile(projectile)
         }
     }
+}
+
+kill_slowdown :: proc()
+{
+    cur_action_t := f32(action_step_t) / f32(action_dur)
+    action_dur = 60
+    action_step_t = int(math.ceil(cur_action_t * f32(action_dur)))
 }
 
 destroy_projectile :: proc(projectile: Projectile)
