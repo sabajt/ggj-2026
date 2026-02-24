@@ -1,7 +1,14 @@
-- enemy / player multi hits / health (try small # first)
-- UI: player health HUD
+
+- UI: player health HUD 
 - projectiles destroy self on hit (sometimes?)
-- projectiles indicate dir?
+- projectiles indicate dir
+- black outline of player dir arrow to cut over sprites
+- enemy aim
+- normal enemy with line of sight for attack
+- bosses with mask: first boss has fire
+- collect mask from bosses: solid fill cell + flashing black sillouhet?
+//////
+- projectiles hit projectiles: quad tree or similar
 - effect on enemy kill: xp going to rhs mask slot
 - UI: current mask and its stats
 - UI: mask levels / xp system
@@ -12,12 +19,8 @@
 - mask action: slide movement -> move until hitting an object
 - mask action: teleport movement -> random teleport movement, levelled up into directional (with small random vars)
 - most move actions can be upgraded to faster speed (multiple movement per game step implemented simulation slowdowns.) .. or decremented based on attack or other effects
-- enemy aim
 - move between screens
 - connected areas
-- normal enemy with line of sight for attack
-- boss with mask
-- collect mask from boss
 - up / down levels 
 - buildings (use line of sight to hide interior)
 - add sound / music
@@ -28,6 +31,7 @@ bugs
 
 done
 
+x enemy / player multi hits / health (try small # first)
 x effect on enemy kill (particle and/or geo)
 x enemy sprite linger flash on hit
 x multiple enemies

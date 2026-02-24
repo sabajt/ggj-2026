@@ -66,7 +66,7 @@ reset_game :: proc()
 	}
 	player_pos := cell_pos(cell)
 	spr_i := add_sprite(mask.image_name, pos = player_pos, col = mask.color, anchor = .bottom_left)
-	player = Wizard { sprite = spr_i, pos = player_pos}
+	player = Wizard { sprite = spr_i, pos = player_pos, health = 3 }
 
 	// add enemy
 	add_enemy({GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y})

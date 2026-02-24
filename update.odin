@@ -244,16 +244,9 @@ update :: proc()
     }
 
     // decrement hit_t and flash hit actors
+    update_actor_hit_t(&player)
     for k, &enemy in enemies {
-        enemy.is_hit_t = max(0, enemy.is_hit_t - 1)
-        sprite := &sprites[enemy.sprite]
-        color := sprite.col
-        if enemy.is_hit_t > 0 {
-            color.a = flash_5_on ? 0.2 : 1
-        } else {
-            color.a = 1
-        }
-        update_sprite(sprite, col = color)
+        update_actor_hit_t(&enemy)
     }
 
     if is_game_over {
@@ -263,6 +256,19 @@ update :: proc()
     }
 
     update_particles()
+}
+
+update_actor_hit_t :: proc(actor: ^Wizard)
+{
+    actor.is_hit_t = max(0, actor.is_hit_t - 1)
+    sprite := &sprites[actor.sprite]
+    color := sprite.col
+    if actor.is_hit_t > 0 {
+        color.a = flash_5_on ? 0.2 : 1
+    } else {
+        color.a = 1
+    }
+    update_sprite(sprite, col = color)
 }
 
 step_action_begin :: proc()
@@ -382,21 +388,25 @@ check_hits :: proc()
 check_projectile_hit :: proc(projectile: Projectile) 
 {
     if projectile.hostile {
-        // reset if orbs hits player
-        if grid_item_collide(projectile.pos, player.pos) {
-            is_game_over = true
-            killed_by = &sprites[projectile.spr]
-            return
-        }
+        check_and_handle_actor_hit(projectile, &player)
     } else {
         for k, &enemy in enemies {
-            // hit enemy
-            if enemy.is_hit_t == 0 && grid_item_collide(projectile.pos, enemy.pos) {
-                enemy.is_hit_t = ACTOR_HIT_T_DUR
-                enemy.health -= 1
-                if enemy.health <= 0 {
-                    destroy_enemy(enemy)
-                }
+            check_and_handle_actor_hit(projectile, &enemy)
+        }
+    }
+}
+
+check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
+{
+    if actor.is_hit_t == 0 && grid_item_collide(projectile.pos, actor.pos) {
+        actor.is_hit_t = ACTOR_HIT_T_DUR
+        actor.health -= 1
+        if actor.health <= 0 {
+            if actor^ == player {
+                is_game_over = true
+                killed_by = &sprites[projectile.spr]
+            } else {
+                destroy_enemy(actor^)
             }
         }
     }
