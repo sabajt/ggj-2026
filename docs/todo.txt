@@ -1,5 +1,4 @@
 
-- UI: player health HUD 
 - projectiles destroy self on hit (sometimes?)
 - projectiles indicate dir
 - black outline of player dir arrow to cut over sprites
@@ -31,6 +30,7 @@ bugs
 
 done
 
+x UI: player health HUD 
 x enemy / player multi hits / health (try small # first)
 x effect on enemy kill (particle and/or geo)
 x enemy sprite linger flash on hit

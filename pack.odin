@@ -156,7 +156,7 @@ pack_sprites :: proc(dt: f32, z: int)
 
 	if len(sprites) > 0 {
 		for i, spr in sprites {
-			if spr.z == z {
+			if spr.visible && spr.z == z {
 				append(&gpu_sprites, create_gpu_sprite(spr, dt)) 
 			}
 		}

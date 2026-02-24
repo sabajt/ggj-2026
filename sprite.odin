@@ -22,13 +22,14 @@ Sprite :: struct {
     col: [4]f32,
     anchor: Anchor,
     z: int,
+    visible: bool
 }
 
 // TODO: think about returning sprite itelf. easier for rest of code?
 // game objs can attach sprite and use tf.cur.pos? 
-add_sprite :: proc(name: string, pos: [2]f32 = 0, rot: f32 = 0, scale: [2]f32 = 1, col: [4]f32 = 1, anchor: Anchor = .center, z: int = 0) -> int
+add_sprite :: proc(name: string, pos: [2]f32 = 0, rot: f32 = 0, scale: [2]f32 = 1, col: [4]f32 = 1, anchor: Anchor = .center, z: int = 0, visible: bool = true) -> int
 {
-    spr := Sprite {name, tf(pos, rot, scale), col, anchor, z}
+    spr := Sprite {name, tf(pos, rot, scale), col, anchor, z, visible}
     sprites[sprite_index] = spr
     last_index := sprite_index    
     sprite_index += 1
@@ -38,19 +39,23 @@ add_sprite :: proc(name: string, pos: [2]f32 = 0, rot: f32 = 0, scale: [2]f32 = 
 
 update_sprite :: proc(
     spr: ^Sprite, 
+    name: Maybe(string) = nil,
     pos: Maybe([2]f32) = nil, 
     rot:  Maybe(f32) = nil, 
     scale:  Maybe([2]f32) = nil, 
     col:  Maybe([4]f32) = nil, 
-    anchor:  Maybe(Anchor) = nil)
+    anchor:  Maybe(Anchor) = nil,
+    visible: Maybe(bool) = nil)
 {
     snap_sprite_to_latest_frame(spr) // TODO: This should be done somewhere else?
 
+    if val, ok := name.?; ok { spr.name = val }
     if val, ok := pos.?; ok { spr.tf.cur.pos = val }
     if val, ok := rot.?; ok { spr.tf.cur.rot = val }
     if val, ok := scale.?; ok { spr.tf.cur.scale = val }
     if val, ok := col.?; ok { spr.col = val }
     if val, ok := anchor.?; ok { spr.anchor = val }
+    if val, ok := visible.?; ok { spr.visible = val}
 }
 
 snap_sprite_to_latest_frame :: proc(spr: ^Sprite)

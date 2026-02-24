@@ -68,14 +68,14 @@ action_update_player_move :: proc(action: ^Action)
         delete_key(&actions, action.i)
         sprite := &sprites[player.sprite]
         player.pos = cell_pos(action.data.end_cell)
-        update_sprite(sprite, player.pos)
+        update_sprite(sprite, pos = player.pos)
         snap_sprite_to_latest_frame(sprite)
         
     } else {
         sprite := &sprites[player.sprite]
         t := f32(action_step_t) / f32(ACTION_DUR)
         player.pos = math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
-        update_sprite(sprite, player.pos)
+        update_sprite(sprite, pos = player.pos)
     }
 }
 
@@ -86,13 +86,13 @@ action_update_enemy_move :: proc(action: ^Action)
         delete_key(&actions, action.i)
         sprite := &sprites[enemy.sprite]
         enemy.pos = cell_pos(action.data.end_cell)
-        update_sprite(sprite, enemy.pos)
+        update_sprite(sprite, pos = enemy.pos)
         snap_sprite_to_latest_frame(sprite)
     } else {
         sprite := &sprites[enemy.sprite]
         t := f32(action_step_t) / f32(ACTION_DUR)
         enemy.pos = math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
-        update_sprite(sprite, enemy.pos)
+        update_sprite(sprite, pos = enemy.pos)
     }
 }
 
@@ -106,7 +106,7 @@ action_update_orb :: proc(action: ^Action)
         delete_key(&actions, action.i)
 
         orb.pos = cell_pos(action.data.end_cell)
-        update_sprite(sprite, cell_pos(action.data.end_cell))
+        update_sprite(sprite, pos = cell_pos(action.data.end_cell))
         snap_sprite_to_latest_frame(sprite)
 
         orb.t -= 1
@@ -124,7 +124,7 @@ action_update_orb :: proc(action: ^Action)
         col.a = math.lerp(col_alpha_start, col_alpha_end, t)
 
         orb.pos = pos
-        update_sprite(sprite, pos, col = col)
+        update_sprite(sprite, pos = pos, col = col)
     }
 }
 
@@ -285,6 +285,20 @@ step_action_end :: proc()
     action_step_t = 0
     action_post_step_t = 0
     is_stepping = false
+    update_hp_hearts()
+}
+
+update_hp_hearts :: proc()
+{
+    for i in 0 ..< 6  {
+        sprite := &sprites[heart_sprite_refs[i]]
+        sprite_name := i < player.health ? "heart.png" : "heart_empty.png"
+        sprite_visible := i < player_max_health
+        update_sprite(sprite, name = sprite_name, visible = sprite_visible)
+
+        empty_spot_shape := &shapes[heart_empty_spot_refs[i]]
+        empty_spot_shape.visible = i >= player_max_health
+    }
 }
 
 begin_step_enemies :: proc()

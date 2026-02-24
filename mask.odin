@@ -9,6 +9,7 @@ MASK_SLOT_MARGIN :: f32(4)
 mask_box_refs: [6][2]int = {}
 mask_index: int = 0
 heart_sprite_refs: [6]int = {}
+heart_empty_spot_refs: [6]int = {}
 
 Index_Step_Direction :: enum {
 	up, 
@@ -217,14 +218,14 @@ init_hp_hearts :: proc()
 			col = COL_PANIC_RED,
 			z = 2
 		)
-		add_shape(Shape {
+		heart_empty_spot_refs[i] = add_shape(Shape {
 			type = .Rectangle,
 			tf = tf(pos),
 			color = COL_WHITE,
 			anchor = .center,
 			z = 1,
-			visible = i >= player_max_health
 		})
 	}
+	update_hp_hearts()
 }
 
