@@ -4,6 +4,7 @@ package main
 
 import "core:math"
 import "core:math/rand"
+import "core:fmt"
 
 LINE_WIDTH := f32(3) // TODO: resolution scale abstract. something is messed up here (look at entry animation in)
 
@@ -119,6 +120,43 @@ create_kill_particle_2 :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
 		thic = 4,
 		fade = 0,
 		ease = .Quadratic_Out
+	)
+}
+
+mutate_color :: proc(color: [4]f32) -> [4]f32
+{
+	r := color.r + (2 * rand.float32() - 1) / 3.0
+	g := color.g + (2 * rand.float32() - 1) / 3.0
+	b := color.b + (2 * rand.float32() - 1) / 3.0
+
+	return { r, g, b, color.a }
+}
+
+create_game_over_particle :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
+{
+	t := f32(action_step_t) / f32(action_dur)
+
+	start_color := mutate_color(color)
+	node_rad_start := (180 + rand.float32() * 40) * (1 - t)
+
+	return create_particle_effect(
+		mode = .Circles, 
+		pos = pos,
+		vel = {0, 0},
+		drag = 0,
+		life = 0.8,
+		res = 8,
+		rad_start = 50,
+		rad_end = 1, 
+		col_start = start_color,
+		col_end = {color.r, color.g, color.b, 0},
+		rot_start = 0,
+		rot_end = 0,
+		node_rad_start = node_rad_start,
+		node_rad_end = 1 + rand.float32() * 3,
+		thic = 2,
+		fade = 0,
+		ease = .Exponential_Out
 	)
 }
 

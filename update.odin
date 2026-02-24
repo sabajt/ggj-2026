@@ -169,6 +169,13 @@ update :: proc()
                 killed_by.col.a = flash_5_on ? 1 : 0.2
                 player_sprite := &sprites[player.sprite]
                 player_sprite.col.a = flash_5_on ? 1 : 0.2
+
+                // player kill particles
+                if is_stepping {
+                    if sim_time % 3 == 0 {
+                        add_game_over_particle(player.pos + GRID_PADDING/2, get_current_mask().color)
+                    }
+                }
             }
         }
 
@@ -273,6 +280,8 @@ update_actor_hit_t :: proc(actor: ^Wizard)
 step_action_begin :: proc()
 {
     begin_step_enemies()
+    begin_step_player()
+
     step_enemies()
     step_orbs()
     step_fire()       
@@ -305,7 +314,14 @@ begin_step_enemies :: proc()
 {
     for k, &enemy in enemies {
         enemy.is_hit_t = 0
+        enemy.was_hit_on_step = false
     }
+}
+
+begin_step_player :: proc()
+{
+    player.is_hit_t = 0
+    player.was_hit_on_step = false
 }
 
 step_mask_cooldowns :: proc()
@@ -390,7 +406,8 @@ check_hits :: proc()
 
     // enemy
     for k, &enemy in enemies {
-        if player.is_hit_t == 0 && grid_item_collide(enemy.pos, player.pos) { 
+        if player.was_hit_on_step == false && grid_item_collide(enemy.pos, player.pos) { 
+            player.was_hit_on_step = true
             player.is_hit_t = ACTOR_HIT_T_DUR
             player.health -= 1
             if player.health <= 0 {
@@ -416,7 +433,8 @@ check_projectile_hit :: proc(projectile: Projectile)
 
 check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
 {
-    if actor.is_hit_t == 0 && grid_item_collide(projectile.pos, actor.pos) {
+    if actor.was_hit_on_step == false && grid_item_collide(projectile.pos, actor.pos) {
+        actor.was_hit_on_step = true
         actor.is_hit_t = ACTOR_HIT_T_DUR
         actor.health -= 1
         if actor.health <= 0 {

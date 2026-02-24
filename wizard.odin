@@ -11,6 +11,7 @@ Wizard :: struct {
     t: int, // cumulative step / turn time
     action_i: int, // current action
     color: [4]f32,
+    was_hit_on_step: bool,
     is_hit_t: int, // marked during action step, cleared on decrement to 0 or next step start
     health: int
 }
