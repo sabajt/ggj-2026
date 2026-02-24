@@ -10,7 +10,8 @@ Projectile :: struct {
     pos: [2]f32,
     dur: int,
     type: Spell_Type,
-    hostile: bool
+    hostile: bool,
+    action_i: int
 }
 
 Spell :: union {
@@ -121,6 +122,7 @@ add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32, hostil
         spr = spr,
         pos = pos,
         dur = dur,
+        type = .fire,
         hostile = hostile
     }
     fires[spr] = fire
@@ -138,6 +140,7 @@ add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20, hostile: bool, colo
         spr = spr,
         pos = pos,
         dur = dur,
+        type = .orb,
         hostile = hostile
     }
     orbs[spr] = orb
@@ -146,7 +149,7 @@ add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20, hostile: bool, colo
 
 step_orbs :: proc()
 {
-    for k, orb in orbs {
+    for k, &orb in orbs {
         // move outward
         cur := pos_to_cell(orb.pos)
         dest := cell_move(cur, orb.dir)
@@ -160,6 +163,7 @@ step_orbs :: proc()
                 obj_id = orb.spr
             }
         }
+        orb.action_i = action_i
         actions[action_i] = action
         action_i += 1
     }

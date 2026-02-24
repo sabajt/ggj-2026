@@ -344,7 +344,7 @@ step_enemies :: proc()
     for k, &enemy in enemies {
         cell := pos_to_cell(enemy.pos)
         if enemy.t % 3 == 0 {
-            for dir in CARDINALS {
+            for dir in CARDINALS { // TODO: shoot towards player
                 spell := Orb_Spell {
                     cell=cell, 
                     dir=dir, 
@@ -390,11 +390,14 @@ check_hits :: proc()
 
     // enemy
     for k, &enemy in enemies {
-        // TODO: checking enemy.is_hit_t == 0 makes enemy not attack on this step - wanted?
-        if enemy.is_hit_t == 0 && grid_item_collide(enemy.pos, player.pos) { 
-            is_game_over = true
-            killed_by = &sprites[enemy.sprite]
-            return
+        if player.is_hit_t == 0 && grid_item_collide(enemy.pos, player.pos) { 
+            player.is_hit_t = ACTOR_HIT_T_DUR
+            player.health -= 1
+            if player.health <= 0 {
+                is_game_over = true
+                killed_by = &sprites[enemy.sprite]
+                return
+            }
         }
     }
 }
@@ -423,6 +426,22 @@ check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
                 destroy_enemy(actor^)
             }
         }
+        if !is_game_over {
+            destroy_projectile(projectile)
+        }
+    }
+}
+
+destroy_projectile :: proc(projectile: Projectile)
+{
+    delete_key(&actions, projectile.action_i)
+    delete_key(&sprites, projectile.spr)
+
+    switch projectile.type {
+        case .fire:
+            delete_key(&fires, projectile.spr)
+        case .orb:
+            delete_key(&orbs, projectile.spr)
     }
 }
 
@@ -440,7 +459,6 @@ destroy_enemy :: proc(enemy: Wizard)
         cell := find_empty_spawn_cell()
         add_enemy(cell)
     }
-
 }
 
 

@@ -9,7 +9,7 @@ Wizard :: struct {
     sprite: int,
     pos: [2]f32,
     t: int, // cumulative step / turn time
-    action_i: int, // step action time normalized
+    action_i: int, // current action
     color: [4]f32,
     is_hit_t: int, // marked during action step, cleared on decrement to 0 or next step start
     health: int
@@ -105,6 +105,6 @@ get_grid_cell_to_player_path_next_coord :: proc(cell: [2]int) -> [2]int
         return {int(next_move.x), int(next_move.y)}
 	}
     fmt.println("warning: could not find astar path from %v to %v", sp, ep)
-    return {0, 0}
+    return cell
 }
 
