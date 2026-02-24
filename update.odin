@@ -255,6 +255,8 @@ update :: proc()
         update_actor_hit_t(&enemy)
     }
 
+    update_projectile_dir_indicators()
+
     if is_game_over {
         if game_over_delay == GAME_OVER_DELAY_DUR {
             snap_all_sprites_to_latest_frame()
@@ -262,6 +264,13 @@ update :: proc()
     }
 
     update_particles()
+}
+
+update_projectile_dir_indicators :: proc()
+{
+    for k, orb in orbs {
+        projectile_dir_indicator(orb)
+    }
 }
 
 update_actor_hit_t :: proc(actor: ^Wizard)
@@ -463,6 +472,11 @@ destroy_projectile :: proc(projectile: Projectile)
 {
     delete_key(&actions, projectile.action_i)
     delete_key(&sprites, projectile.spr)
+
+    if projectile.shape_i > 0 {
+        dir_indicator := &shapes[projectile.shape_i]
+        dir_indicator.visible = false
+    }
 
     switch projectile.type {
         case .fire:

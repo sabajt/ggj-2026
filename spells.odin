@@ -1,6 +1,7 @@
 package main
 
 import "core:math/rand"
+import "core:math"
 import "core:fmt"
 
 Projectile :: struct {
@@ -11,7 +12,8 @@ Projectile :: struct {
     dur: int,
     type: Spell_Type,
     hostile: bool,
-    action_i: int
+    action_i: int,
+    shape_i: int
 }
 
 Spell :: union {
@@ -141,6 +143,13 @@ add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20, hostile: bool, colo
 {
     pos := cell_pos(cell)
     spr := add_sprite("orb.png", pos, col = color, anchor = .bottom_left)
+    dir_indicator_i := add_shape({
+		type = .Triangle,
+		color = color,
+		anchor = .center,
+		z = 0,
+		visible = false
+	})
     orb := Projectile {
         t = dur,
         dir = dir,
@@ -148,7 +157,8 @@ add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20, hostile: bool, colo
         pos = pos,
         dur = dur,
         type = .orb,
-        hostile = hostile
+        hostile = hostile,
+        shape_i = dir_indicator_i
     }
     orbs[spr] = orb
     return spr
@@ -193,3 +203,39 @@ step_fire :: proc()
         }
     }
 }
+
+projectile_dir_indicator :: proc(projectile: Projectile)
+{
+    snap_ang: f32
+    EIGTH_OF_PI := f32(math.PI / 8.0) 
+
+    switch projectile.dir {
+        case .north:
+            snap_ang = 4 * EIGTH_OF_PI
+        case .south:
+            snap_ang = 12 * EIGTH_OF_PI
+        case .west:
+            snap_ang = math.PI
+        case .east:
+            snap_ang = 0
+        case .northeast:
+            snap_ang = 2 * EIGTH_OF_PI 
+        case .northwest:
+            snap_ang = 6 * EIGTH_OF_PI
+        case .southeast:
+            snap_ang = 14 * EIGTH_OF_PI 
+        case .southwest:
+            snap_ang = 10 * EIGTH_OF_PI 
+    }
+
+    tri_pos := pvec(
+        ang = snap_ang, 
+        radius = GRID_PADDING / 2.0 - 1, 
+        center = projectile.pos + GRID_PADDING / 2.0
+    )
+
+    dir_indicator := &shapes[projectile.shape_i]
+    dir_indicator.tf = tf(tri_pos, snap_ang - math.PI / 2.0 , {3, 3})
+    dir_indicator.visible = true
+}
+
