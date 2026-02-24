@@ -121,7 +121,7 @@ action_update_orb :: proc(action: ^Action)
         col := sprite.col
         col_alpha_start := f32(orb.t) / f32(orb.dur)
         col_alpha_end :=  f32(orb.t - 1) / f32(orb.dur)
-        col.a = math.lerp(col_alpha_start, col_alpha_end, t)
+        col.a = math.lerp(col_alpha_start, col_alpha_end, t) 
 
         orb.pos = pos
         update_sprite(sprite, pos = pos, col = col)
@@ -160,6 +160,18 @@ update :: proc()
     check_input()
 
     defer {
+        if is_game_over {
+            game_over_delay -= 1
+            if game_over_delay == 0 {
+                reset_game()
+            } else {
+                // flash player and killed by sprites
+                killed_by.col.a = flash_5_on ? 1 : 0.2
+                player_sprite := &sprites[player.sprite]
+                player_sprite.col.a = flash_5_on ? 1 : 0.2
+            }
+        }
+
         // update step time and common step vars
         game_step_time += 1
 
@@ -168,20 +180,6 @@ update :: proc()
         }
         if game_step_time % 8 == 0 {
             flash_8_on = !flash_8_on
-        }
-    }
-
-    if is_game_over {
-        game_over_delay -= 1
-        if game_over_delay == 0 {
-            reset_game()
-        } else {
-            // animate enemy and player
-            // enemy_sprite := &sprites[enemy.sprite]
-            killed_by.col.a = flash_5_on ? 1 : 0.2
-
-            player_sprite := &sprites[player.sprite]
-            player_sprite.col.a = flash_5_on ? 1 : 0.2
         }
     }
 
