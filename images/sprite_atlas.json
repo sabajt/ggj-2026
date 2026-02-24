@@ -1,6 +1,6 @@
 {
 	"Name": "sprite_atlas",
-	"Width": 64,
+	"Width": 128,
 	"Height": 64,
 	"Images": [
 		{
@@ -16,8 +16,8 @@
 		},
 		{
 			"Name": "fire_0.png",
-			"X": 36,
-			"Y": 36,
+			"X": 54,
+			"Y": 0,
 			"W": 18,
 			"H": 18,
 			"TrimOffsetX": 0,
@@ -27,7 +27,7 @@
 		},
 		{
 			"Name": "fire_1.png",
-			"X": 18,
+			"X": 36,
 			"Y": 36,
 			"W": 18,
 			"H": 18,
@@ -48,40 +48,7 @@
 			"UntrimmedHeight": 18
 		},
 		{
-			"Name": "spike.png",
-			"X": 18,
-			"Y": 18,
-			"W": 18,
-			"H": 18,
-			"TrimOffsetX": 0,
-			"TrimOffsetY": 0,
-			"UntrimmedWidth": 18,
-			"UntrimmedHeight": 18
-		},
-		{
-			"Name": "mask_2.png",
-			"X": 0,
-			"Y": 36,
-			"W": 18,
-			"H": 18,
-			"TrimOffsetX": 0,
-			"TrimOffsetY": 0,
-			"UntrimmedWidth": 18,
-			"UntrimmedHeight": 18
-		},
-		{
-			"Name": "mask_3.png",
-			"X": 0,
-			"Y": 18,
-			"W": 18,
-			"H": 18,
-			"TrimOffsetX": 0,
-			"TrimOffsetY": 0,
-			"UntrimmedWidth": 18,
-			"UntrimmedHeight": 18
-		},
-		{
-			"Name": "mask_1.png",
+			"Name": "heart_empty.png",
 			"X": 36,
 			"Y": 0,
 			"W": 18,
@@ -92,9 +59,53 @@
 			"UntrimmedHeight": 18
 		},
 		{
-			"Name": "heart.png",
+			"Name": "spike.png",
+			"X": 18,
+			"Y": 36,
+			"W": 18,
+			"H": 18,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
+		},
+		{
+			"Name": "mask_2.png",
+			"X": 18,
+			"Y": 18,
+			"W": 18,
+			"H": 18,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
+		},
+		{
+			"Name": "mask_3.png",
 			"X": 18,
 			"Y": 0,
+			"W": 18,
+			"H": 18,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
+		},
+		{
+			"Name": "mask_1.png",
+			"X": 0,
+			"Y": 36,
+			"W": 18,
+			"H": 18,
+			"TrimOffsetX": 0,
+			"TrimOffsetY": 0,
+			"UntrimmedWidth": 18,
+			"UntrimmedHeight": 18
+		},
+		{
+			"Name": "heart.png",
+			"X": 0,
+			"Y": 18,
 			"W": 18,
 			"H": 18,
 			"TrimOffsetX": 0,

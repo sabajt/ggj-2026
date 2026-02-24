@@ -20,10 +20,10 @@ Move_Type :: enum {
 }
 
 player: Wizard
+player_max_health: int = 3
 wizard_direction_request: Maybe(Direction) = nil
 wizard_spell_request: Maybe(Spell) = nil
 wizard_wait_request: bool = false
-
 enemies: map[int]Wizard
 
 get_player_sprite :: proc() -> ^Sprite 

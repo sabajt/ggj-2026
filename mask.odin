@@ -209,7 +209,7 @@ init_mask_boxes :: proc()
 
 init_hp_hearts :: proc()
 {
-	for i in 0..<6 {
+	for i in 0 ..< 6 {
 		pos := heart_slot_center(i)
 		heart_sprite_refs[i] = add_sprite(
 			name = "heart.png",
@@ -217,6 +217,14 @@ init_hp_hearts :: proc()
 			col = COL_PANIC_RED,
 			z = 2
 		)
+		add_shape(Shape {
+			type = .Rectangle,
+			tf = tf(pos),
+			color = COL_WHITE,
+			anchor = .center,
+			z = 1,
+			visible = i >= player_max_health
+		})
 	}
 }
 

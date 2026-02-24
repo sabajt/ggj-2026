@@ -21,7 +21,7 @@ Sprite :: struct {
     tf: Blendable_Transform,
     col: [4]f32,
     anchor: Anchor,
-    z: int
+    z: int,
 }
 
 // TODO: think about returning sprite itelf. easier for rest of code?

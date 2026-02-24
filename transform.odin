@@ -13,7 +13,7 @@ Blendable_Transform :: struct {
     last: Transform
 }
 
-tf :: proc(pos: [2]f32, rot: f32, scale: [2]f32) -> Blendable_Transform 
+tf :: proc(pos: [2]f32, rot: f32 = 0, scale: [2]f32 = 1) -> Blendable_Transform 
 {
     return {{pos, rot, scale}, {pos, rot, scale}}
 }
