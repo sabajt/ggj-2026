@@ -139,7 +139,7 @@ add_fire :: proc(cell: [2]int, dir: Direction, dur: int = 5, col: [4]f32, hostil
 
 // TODO: calculate cell from position
 // track position in model, not cell 
-add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 20, hostile: bool, color: [4]f32) -> int
+add_orb :: proc(cell: [2]int, dir: Direction, dur: int = 8, hostile: bool, color: [4]f32) -> int
 {
     pos := cell_pos(cell)
     spr := add_sprite("orb.png", pos, col = color, anchor = .bottom_left)

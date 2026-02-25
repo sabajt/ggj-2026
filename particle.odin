@@ -98,6 +98,26 @@ create_kill_particle_1 :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
 		fade = 0,
 		ease = .Exponential_Out
 	)
+
+	// return create_particle_effect(
+	// 	mode = .Circles, 
+	// 	pos = pos,
+	// 	vel = {0, 0},
+	// 	drag = 0,
+	// 	life = 10,
+	// 	res = 100,
+	// 	rad_start = 2,
+	// 	rad_end = 1000, 
+	// 	col_start = color,
+	// 	col_end = {color.r, color.g, color.b, 0},
+	// 	rot_start = 0,
+	// 	rot_end = 0,
+	// 	node_rad_start = 100,
+	// 	node_rad_end = 1,
+	// 	thic = 1.5,
+	// 	fade = 0,
+	// 	ease = .Quadratic_In
+	// )
 }
 
 create_kill_particle_2 :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
@@ -147,7 +167,7 @@ create_game_over_particle :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
 		life = 0.8,
 		res = 8,
 		rad_start = 50,
-		rad_end = 1, 
+		rad_end = 4, 
 		col_start = start_color,
 		col_end = {color.r, color.g, color.b, 0},
 		rot_start = 0,
@@ -156,7 +176,7 @@ create_game_over_particle :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
 		node_rad_end = 1 + rand.float32() * 3,
 		thic = 2,
 		fade = 0,
-		ease = .Exponential_Out
+		ease = .Quadratic_Out
 	)
 }
 

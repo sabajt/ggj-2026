@@ -103,17 +103,17 @@ action_update_orb :: proc(action: ^Action)
     orb := &orbs[obj_id]
 
     if action_step_t == action_dur {
-        delete_key(&actions, action.i)
-
         orb.pos = cell_pos(action.data.end_cell)
         update_sprite(sprite, pos = cell_pos(action.data.end_cell))
         snap_sprite_to_latest_frame(sprite)
 
         orb.t -= 1
         if orb.t == 0 {
-            delete_key(&sprites, obj_id)
-            delete_key(&orbs, obj_id)
-        } 
+            // destroy projectile: action is also deleted
+            destroy_projectile(orb^) 
+        } else {
+            delete_key(&actions, action.i)
+        }
     } else {
         t := f32(action_step_t) / f32(action_dur)
         pos := math.lerp(cell_pos(action.data.start_cell), cell_pos(action.data.end_cell), t)
