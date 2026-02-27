@@ -98,48 +98,28 @@ create_kill_particle_1 :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
 		fade = 0,
 		ease = .Exponential_Out
 	)
-
-	// return create_particle_effect(
-	// 	mode = .Circles, 
-	// 	pos = pos,
-	// 	vel = {0, 0},
-	// 	drag = 0,
-	// 	life = 10,
-	// 	res = 100,
-	// 	rad_start = 2,
-	// 	rad_end = 1000, 
-	// 	col_start = color,
-	// 	col_end = {color.r, color.g, color.b, 0},
-	// 	rot_start = 0,
-	// 	rot_end = 0,
-	// 	node_rad_start = 100,
-	// 	node_rad_end = 1,
-	// 	thic = 1.5,
-	// 	fade = 0,
-	// 	ease = .Quadratic_In
-	// )
 }
 
 create_kill_particle_2 :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
 {
 	return create_particle_effect(
-		mode = .Solid, 
+		mode = .Line, 
 		pos = pos,
 		vel = {0, 0},
 		drag = 0,
 		life = 1,
-		res = 4,
-		rad_start = 8,
-		rad_end = 50, 
+		res = 3,
+		rad_start = 2,
+		rad_end = 1000, 
 		col_start = color,
-		col_end = {color.r, color.g, color.b, 0.01},
+		col_end = {color.r, color.g, color.b, 0},
 		rot_start = 0,
-		rot_end = 4,
-		node_rad_start = 0,
-		node_rad_end = 0,
-		thic = 4,
-		fade = 0,
-		ease = .Quadratic_Out
+		rot_end = 200,
+		node_rad_start = 100,
+		node_rad_end = 1,
+		thic = 9.5,
+		fade = 2,
+		ease = .Quadratic_In
 	)
 }
 
@@ -154,30 +134,55 @@ mutate_color :: proc(color: [4]f32) -> [4]f32
 
 create_game_over_particle :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
 {
-	t := f32(action_step_t) / f32(action_dur)
-
 	start_color := mutate_color(color)
-	node_rad_start := (180 + rand.float32() * 40) * (1 - t)
 
 	return create_particle_effect(
-		mode = .Circles, 
+		mode = .Line, // TODO: line width
 		pos = pos,
 		vel = {0, 0},
 		drag = 0,
-		life = 0.8,
-		res = 8,
-		rad_start = 50,
-		rad_end = 4, 
+		life = 1,
+		res = 5,
+		rad_start = 2,
+		rad_end = 1000, 
 		col_start = start_color,
-		col_end = {color.r, color.g, color.b, 0},
+		col_end = {start_color.r, start_color.g, start_color.b, 0},
 		rot_start = 0,
-		rot_end = 0,
-		node_rad_start = node_rad_start,
-		node_rad_end = 1 + rand.float32() * 3,
-		thic = 2,
+		rot_end = 200,
+		node_rad_start = 100,
+		node_rad_end = 1,
+		thic = 0,
 		fade = 0,
-		ease = .Quadratic_Out
+		ease = .Quadratic_In
 	)
+}
+
+create_appear_particle :: proc(pos: [2]f32, color: [4]f32) -> Radius_Effect
+{
+	t := f32(session_t) / f32(APPEAR_ANIMATION_DUR)
+
+    start_color := mutate_color(color)
+    node_rad_start := (180 + rand.float32() * 40) * (1 - t)
+
+    return create_particle_effect(
+        mode = .Circles, 
+        pos = pos,
+        vel = {0, 0},
+        drag = 0,
+        life = 0.8,
+        res = 8,
+        rad_start = 100,
+        rad_end = 6, 
+        col_start = start_color,
+        col_end = {color.r, color.g, color.b, 0},
+        rot_start = 0,
+        rot_end = 0,
+        node_rad_start = node_rad_start,
+        node_rad_end = 1 + rand.float32() * 3,
+        thic = 2,
+        fade = 0,
+        ease = .Quadratic_Out
+    )
 }
 
 create_random_particle_pos :: proc(mode: Radius_Effect_Mode, pos: [2]f32) -> Radius_Effect
@@ -207,8 +212,6 @@ create_random_particle_pos :: proc(mode: Radius_Effect_Mode, pos: [2]f32) -> Rad
 
 // TODO: REFACTOR 1) Modes have mode create structs to separate from common particle effect container
 // TODO: REFACTOR 2) Designated inits for each type of effect
-
-// creates particle with life starting at current sim_time
 create_particle_effect :: proc(
 	mode: Radius_Effect_Mode, 
 	pos: [2]f32,

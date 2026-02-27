@@ -4,6 +4,7 @@ import "core:math"
 import "core:math/rand"
 import "core:fmt"
 
+session_t: int
 game_state : Game_State = .main
 menu_option_text_id_0: int
 menu_option_text_id_1: int
@@ -35,9 +36,10 @@ enter_main :: proc()
 reset_game :: proc()
 {
 	is_game_over = false
-	game_over_delay = GAME_OVER_DELAY_DUR
+	game_over_delay = 0
 	killed_by = nil
 	mask_index = 0
+	session_t = 0
 
 	clear(&fires)
 	clear(&orbs)

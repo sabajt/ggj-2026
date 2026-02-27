@@ -67,6 +67,7 @@ AppIterate :: proc "c" (appstate: rawptr) -> sdl.AppResult
 	for lag_time >= MS_PER_UPDATE {
 		sim_time += MS_PER_UPDATE
 		update()
+		game_step_time += 1
 		lag_time -= MS_PER_UPDATE
 	}
 

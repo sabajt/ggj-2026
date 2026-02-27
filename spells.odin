@@ -40,6 +40,11 @@ Orb_Spell :: struct {
     color: [4]f32
 }
 
+Kill_Particle :: enum {
+    enemy_1,
+    player
+}
+
 fires: map[int]Projectile
 orbs : map[int]Projectile
 
@@ -101,12 +106,24 @@ cast_fire_spell :: proc(spell: Fire_Spell)
     }
 }
 
-add_kill_particle :: proc(pos: [2]f32, color: [4]f32)
+add_kill_particle :: proc(pos: [2]f32, color: [4]f32, type: Kill_Particle)
 {
     grow_effect_batch_if_needed()
     re_arr := &radius_effects[len(radius_effects) - 1]
-    append(re_arr, create_kill_particle_1(pos, color))
-    // append(re_arr, create_kill_particle_2(pos, color))
+    
+    switch type {
+        case .player:
+            append(re_arr, create_kill_particle_1(pos, color))
+        case .enemy_1:
+            append(re_arr, create_kill_particle_2(pos, color))
+    }
+}
+
+add_appear_particle :: proc(pos: [2]f32, color: [4]f32)
+{
+    grow_effect_batch_if_needed()
+    re_arr := &radius_effects[len(radius_effects) - 1]
+    append(re_arr, create_appear_particle(pos, color))
 }
 
 add_game_over_particle :: proc(pos: [2]f32, color: [4]f32)

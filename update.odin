@@ -8,6 +8,7 @@ import "core:math/rand"
 
 action_dur := int(8)
 ACTION_POST_STEP_DUR :: int(3)
+APPEAR_ANIMATION_DUR :: int(60)
 
 flash_5_on := true
 flash_8_on := true
@@ -17,7 +18,7 @@ action_step_t: int = 0
 action_post_step_t: int = 0
 is_stepping: bool = false
 is_game_over: bool = false
-game_over_delay: int = GAME_OVER_DELAY_DUR
+game_over_delay: int = 0
 killed_by: ^Sprite 
 enemy_hit: int // last enemy hit (will need to refactor for many)
 
@@ -161,8 +162,8 @@ update :: proc()
 
     defer {
         if is_game_over {
-            game_over_delay -= 1
-            if game_over_delay == 0 {
+            game_over_delay += 1
+            if game_over_delay == GAME_OVER_DELAY_DUR {
                 reset_game()
             } else {
                 // flash player and killed by sprites
@@ -172,15 +173,15 @@ update :: proc()
 
                 // player kill particles
                 if is_stepping {
-                    if sim_time % 3 == 0 {
-                        add_game_over_particle(player.pos + GRID_PADDING/2, get_current_mask().color)
+                    if game_step_time % 3 == 0 && game_over_delay < 10 {
+                        add_game_over_particle(player.pos + GRID_PADDING / 2, get_current_mask().color)
                     }
                 }
             }
         }
 
         // update step time and common step vars
-        game_step_time += 1
+        session_t += 1
 
         if game_step_time % 5 == 0 {
             flash_5_on = !flash_5_on
@@ -261,6 +262,10 @@ update :: proc()
         if game_over_delay == GAME_OVER_DELAY_DUR {
             snap_all_sprites_to_latest_frame()
         }
+    }
+
+    if session_t < APPEAR_ANIMATION_DUR && game_step_time % 3 == 0 {
+        add_appear_particle(player.pos + GRID_PADDING / 2, get_current_mask().color)
     }
 
     update_particles()
@@ -412,21 +417,6 @@ check_hits :: proc()
     for k, projectile in orbs {
         check_projectile_hit(projectile)
     }
-
-    // enemy
-    for k, &enemy in enemies {
-        if player.was_hit_on_step == false && grid_item_collide(enemy.pos, player.pos) { 
-            player.was_hit_on_step = true
-            player.is_hit_t = ACTOR_HIT_T_DUR
-            player.health -= 1
-            if player.health <= 0 {
-                is_game_over = true
-                killed_by = &sprites[enemy.sprite]
-                kill_slowdown()
-                return
-            }
-        }
-    }
 }
 
 check_projectile_hit :: proc(projectile: Projectile) 
@@ -451,6 +441,7 @@ check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
                 is_game_over = true
                 killed_by = &sprites[projectile.spr]
                 kill_slowdown()
+                add_kill_particle(player.pos + GRID_PADDING / 2, get_current_mask().color, type = .player)
             } else {
                 destroy_enemy(actor^)
             }
@@ -488,7 +479,7 @@ destroy_projectile :: proc(projectile: Projectile)
 
 destroy_enemy :: proc(enemy: Wizard)
 {
-    add_kill_particle(enemy.pos, enemy.color)
+    add_kill_particle(enemy.pos, enemy.color, type = .enemy_1)
 
     // remove enemy
     delete_key(&sprites, enemy.sprite)
