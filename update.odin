@@ -36,11 +36,8 @@ Action_Data :: struct {
     end_cell: [2]int,
 }
 
-add_player_move_action :: proc(dir: Direction)
+add_player_move_action :: proc(start_cell: [2]int, end_cell: [2]int)
 {
-    start_cell := pos_to_cell(player.pos)
-    end_cell := cell_move(start_cell, dir)
-
     action := Action {
         i = action_i,
         update = action_update_player_move,
@@ -153,6 +150,16 @@ update_resolutions :: proc()
 	letterbox_resolution = get_letterbox_res()
 }
 
+contains_move_obstacle :: proc(cell: [2]int) -> bool
+{
+    for wall in walls {
+        if wall.cell == cell {
+            return true
+        }
+    }
+    return false
+}
+
 // general update
 
 update :: proc() 
@@ -195,8 +202,12 @@ update :: proc()
         // player initiate step with movement
         if dir, ok := wizard_direction_request.?; ok { 
             wizard_direction_request = nil
-            add_player_move_action(dir)
-            is_stepping = true
+            start_cell := pos_to_cell(player.pos)
+            end_cell := cell_move(start_cell, dir)
+            if !contains_move_obstacle(end_cell) {
+                add_player_move_action(start_cell, end_cell)
+                is_stepping = true
+            }
         }
         // player initiate step with wait
         if wizard_wait_request {
