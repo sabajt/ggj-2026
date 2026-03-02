@@ -1,11 +1,14 @@
 package main
 
+import "core:math/rand"
+
 Wall :: struct {
 	sprite_i: int,
 	cell: [2]int
 }
 
-walls: [dynamic]Wall
+walls: [dynamic]Wall // TODO: all globals should be moved to one spot?
+enemies: map[int]Wizard
 
 add_wall :: proc(cell: [2]int) 
 {
@@ -19,3 +22,19 @@ add_wall :: proc(cell: [2]int)
 	)
 	append(&walls, Wall { sprite_i = wall_sprite_i, cell = pos_to_cell(wall_pos) })
 }
+
+add_enemy :: proc(cell: [2]int) -> int
+{
+    col_i := rand.int_max(8)
+    color := colors[col_i]
+	i := add_sprite("mask_2.png", pos = cell_pos(cell), col = color, anchor = .bottom_left)
+	enemy := Wizard {
+		sprite = i,
+		pos = cell_pos(cell),
+        color = color,
+        health = 3
+	}
+    enemies[i] = enemy
+    return i
+}
+

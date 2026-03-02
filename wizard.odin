@@ -1,7 +1,6 @@
 package main
 
 import "core:fmt"
-import "core:math/rand"
 
 ACTOR_HIT_T_DUR :: int(70)
 
@@ -25,7 +24,6 @@ player_max_health: int = 3
 wizard_direction_request: Maybe(Direction) = nil
 wizard_spell_request: Maybe(Spell) = nil
 wizard_wait_request: bool = false
-enemies: map[int]Wizard
 
 get_player_sprite :: proc() -> ^Sprite 
 {
@@ -51,22 +49,6 @@ handle_wizard_spell :: proc(spell: Spell)
     if !is_stepping {
         wizard_spell_request = spell
     }
-}
-
-// enemies
-add_enemy :: proc(cell: [2]int) -> int
-{
-    col_i := rand.int_max(8)
-    color := colors[col_i]
-	i := add_sprite("mask_2.png", pos = cell_pos(cell), col = color, anchor = .bottom_left)
-	enemy := Wizard {
-		sprite = i,
-		pos = cell_pos(cell),
-        color = color,
-        health = 3
-	}
-    enemies[i] = enemy
-    return i
 }
 
 get_grid_cell_to_player_path_next_coord :: proc(cell: [2]int) -> [2]int
