@@ -4,10 +4,12 @@
     "enable_hover": true,
     "enable_snippets": false,
     "enable_semantic_tokens": true,
-    "collections": [
-        {
-            "name": "ggj-2026",
-            "path": "/Users/johnsaba/Dev/ggj-2026"
-        }
-    ]
+    "verbose": true,
+    "profile": "default",
+    "profiles": [
+		{ "name": "default", "checker_path": ["."], "defines": { "ODIN_DEBUG": "false" }},
+		{ "name": "linux_profile", "os": "linux", "checker_path": ["src/main.odin"], "defines": { "ODIN_DEBUG": "false" }},
+		{ "name": "mac_profile", "checker_path": ["."], "os": "darwin", "arch": "arm64", "defines": { "ODIN_DEBUG": "false" }},
+		{ "name": "windows_profile", "os": "windows", "checker_path": ["src"], "defines": { "ODIN_DEBUG": "false" }}
+	]
 }

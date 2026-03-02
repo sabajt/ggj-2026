@@ -16,5 +16,6 @@
 	// Disables suggestions based on words in the current file
 	"editor.wordBasedSuggestions": "off",
 	// Stops the suggestion list from showing up automatically on trigger characters
-	"editor.suggestOnTriggerCharacters": false
+	"editor.suggestOnTriggerCharacters": false,
+	"ols.server.path": "/Users/johnsaba/Dev/ols/ols"
 }
