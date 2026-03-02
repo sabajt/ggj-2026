@@ -1,3 +1,4 @@
+- walls
 - normal enemy with line of sight for attack
 - bosses with mask: first boss has fire
 - collect mask from bosses: solid fill cell + flashing black sillouhet?
@@ -17,7 +18,7 @@
 - move between screens
 - connected areas
 - up / down levels 
-- buildings (use line of sight to hide interior)
+- buildings with interior (use line of sight to hide interior)
 - add sound / music
 
 bugs

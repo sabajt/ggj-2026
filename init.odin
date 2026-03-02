@@ -16,6 +16,7 @@ init :: proc() {
 	actions = make(map[int]Action)
 	sprites = make(map[int]Sprite)
 	enemies = make(map[int]Wizard)
+	walls = make([dynamic]Wall)
 	camera = create_camera()
 	// -- 
 

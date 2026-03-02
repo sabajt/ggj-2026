@@ -83,8 +83,9 @@ get_grid_cell_to_player_path_next_coord :: proc(cell: [2]int) -> [2]int
 	astar_grid_clear(&astar)
 
 	// `astar_block` sets points on the grid as impassable.
-    // astar_block(&astar, {0,1})
-    // astar_block(&astar, {2,1})
+    for wall in walls {
+        astar_block(&astar, {i32(wall.cell.x), i32(wall.cell.y)})
+    }
 
 	// // `astar_set_cost` can be used to add an additional cost value to a point, making it a less desirable point to visit.
     // 	pg.astar_set_cost(&astar, {2,0}, 3.)

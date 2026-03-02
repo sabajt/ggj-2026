@@ -47,9 +47,10 @@ reset_game :: proc()
 	clear(&masks)
 	clear(&shapes)
 	clear(&enemies)
+	clear(&walls)
 	clear_sprites()
 	clear_text_items()
-	clear_radius_effects()
+	clear_radius_effects()	
 
 	// add player masks
 	mask := Mask {
@@ -69,6 +70,13 @@ reset_game :: proc()
 	player_pos := cell_pos(cell)
 	spr_i := add_sprite(mask.image_name, pos = player_pos, col = mask.color, anchor = .bottom_left, z = 2)
 	player = Wizard { sprite = spr_i, pos = player_pos, health = 3 }
+
+	// add walls 
+	add_wall({GAME_GRID_SIZE_X / 2, GAME_GRID_SIZE_Y / 2})
+	add_wall({GAME_GRID_SIZE_X / 2, GAME_GRID_SIZE_Y / 2 + 1})
+	add_wall({GAME_GRID_SIZE_X / 2, GAME_GRID_SIZE_Y / 2 + 2})
+	add_wall({GAME_GRID_SIZE_X / 2, GAME_GRID_SIZE_Y / 2 - 1})
+	add_wall({GAME_GRID_SIZE_X / 2, GAME_GRID_SIZE_Y / 2 - 2})
 
 	// add enemy
 	add_enemy({GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y})
