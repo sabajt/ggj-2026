@@ -89,7 +89,7 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
 }
 
 handle_left_stick :: proc(axis_x: sdl.Sint16, axis_y: sdl.Sint16) 
-{
+{ 
     // normalize -1, 1
     val_x := f32(axis_x) / f32(max(sdl.Sint16))
     val_y := -f32(axis_y) / f32(max(sdl.Sint16)) // invert y for some reason
@@ -101,52 +101,17 @@ handle_left_stick :: proc(axis_x: sdl.Sint16, axis_y: sdl.Sint16)
     dir_indicator := &shapes[player_dir_indicator_shape_i]
 
 	if is_rotating {
-		ang := linalg.atan2(left_y_axis_val, left_x_axis_val)
-		if ang < 0 {
-			// neg val is bottom half, convert to 0...TAU going ccw
-			ang = math.TAU - abs(ang)
-		}
-        snap_ang: f32
-        EIGTH_OF_PI := f32(math.PI / 8.0) 
-        if ang >= math.TAU - EIGTH_OF_PI || ang < EIGTH_OF_PI {
-            snap_ang = 0
-            facing_dir = .east
-
-        } else if ang >= EIGTH_OF_PI && ang < 3 * EIGTH_OF_PI {
-            snap_ang = 2 * EIGTH_OF_PI 
-            facing_dir = .northeast
-
-        } else if ang >= 3 * EIGTH_OF_PI && ang < 5 * EIGTH_OF_PI {
-            snap_ang = 4 * EIGTH_OF_PI
-            facing_dir = .north
-
-        } else if ang >= 5 * EIGTH_OF_PI && ang < 7 * EIGTH_OF_PI {
-            snap_ang = 6 * EIGTH_OF_PI
-            facing_dir = .northwest
-
-        } else if ang >= 7 * EIGTH_OF_PI && ang < 9 * EIGTH_OF_PI {
-            snap_ang = math.PI
-            facing_dir = .west
-
-        } else if ang >= 9 * EIGTH_OF_PI && ang < 11 * EIGTH_OF_PI {
-            snap_ang = 10 * EIGTH_OF_PI
-            facing_dir = .southwest
-
-        } else if ang >= 11 * EIGTH_OF_PI && ang < 13 * EIGTH_OF_PI {
-            snap_ang = 12 * EIGTH_OF_PI
-            facing_dir = .south
-
-        } else if ang >= 13 * EIGTH_OF_PI && ang < 15 * EIGTH_OF_PI {
-            snap_ang = 14 * EIGTH_OF_PI 
-            facing_dir = .southeast
-        }
+        ang := angle_from_vec2({left_x_axis_val, left_y_axis_val})
+        info := snap_direction_info(ang)
+        
+        facing_dir = info.direction
         
         tri_pos := pvec(
-            ang = snap_ang, 
+            ang = info.angle, 
             radius = GRID_PADDING / 2.0 + 4, 
             center = player.pos + GRID_PADDING / 2.0
 	    )
-        dir_indicator.tf = tf(tri_pos, snap_ang - math.PI / 2.0 , {5, 5})
+        dir_indicator.tf = tf(tri_pos, info.angle - math.PI / 2.0 , {5, 5})
         dir_indicator.visible = true
     } else {
         dir_indicator.visible = false

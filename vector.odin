@@ -23,3 +23,10 @@ rand_screen_vec :: proc() -> [2]f32
 	}
 }
 
+angle_from_vec2 :: proc(vec2: [2]f32) -> f32
+{
+    ang := math.atan2(vec2.y, vec2.x)
+    if ang < 0 { ang += math.TAU }
+    return ang
+}
+

@@ -368,21 +368,19 @@ update_rhs_menu_spell_title_text :: proc()
     update_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type), mask_spell_cooldown_color(mask))
 }
 
-
 step_enemies :: proc()
 {
     for k, &enemy in enemies {
         cell := pos_to_cell(enemy.pos)
         if enemy.t % 3 == 0 {
-            for dir in CARDINALS { // TODO: shoot towards player (enemy aim)
-                spell := Orb_Spell {
-                    cell=cell, 
-                    dir=dir, 
-                    hostile=true,
-                    color=enemy.color
-                }
-                cast_orb_spell(spell)
+            info := snap_direction_info(angle_from_vec2(player.pos - enemy.pos))
+            spell := Orb_Spell {
+                cell = cell, 
+                dir = info.direction, 
+                hostile = true,
+                color = enemy.color
             }
+            cast_orb_spell(spell)
         } else {
             cell := get_grid_cell_to_player_path_next_coord(cell)
             add_enemy_move_action(i = k, dest = cell)
