@@ -1,7 +1,7 @@
 package main
 
 config := Config {
-    resolution = {700, 700},
+    resolution = 2 * INTERNAL_RES,
     font_size = 18, 
     fullscreen = true,
     title = "Mask Mage"
@@ -15,11 +15,6 @@ config := Config {
 // config := Config {
 //     resolution = 3 * INTERNAL_RES,
 //     font_size = 18 // 32 monogram
-// }
-
-// config := Config {
-//     resolution = 2 * INTERNAL_RES,
-//     font_size = 15 // 20 monogram
 // }
 
 // config := Config {
