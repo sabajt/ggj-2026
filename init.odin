@@ -2,6 +2,7 @@ package main
 
 import "core:fmt"
 import "core:mem"
+import "core:strings"
 import sdl "vendor:sdl3"
 import ttf "vendor:sdl3/ttf"
 
@@ -23,8 +24,14 @@ init :: proc() {
 	ok := sdl.Init({.VIDEO, .GAMEPAD, .AUDIO})
 	assert(ok)
 
-	window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {.HIGH_PIXEL_DENSITY})
-	// window = sdl.CreateWindow("New Project", i32(resolution.x), i32(resolution.y), {.FULLSCREEN})
+	title := strings.clone_to_cstring(config.title, context.temp_allocator)
+	window_flags: sdl.WindowFlags
+	if config.fullscreen {
+		window_flags = {.HIGH_PIXEL_DENSITY, .FULLSCREEN}
+	} else {
+		window_flags = {.HIGH_PIXEL_DENSITY}
+	}
+	window = sdl.CreateWindow(title, i32(resolution.x), i32(resolution.y), window_flags)
 	assert(window != nil)
 
 	gpu = sdl.CreateGPUDevice({.MSL, .SPIRV, .DXIL}, true, nil)
@@ -32,7 +39,7 @@ init :: proc() {
 	ok = sdl.ClaimWindowForGPUDevice(gpu, window)
 	assert(ok)
 
-	letterbox_resolution = get_letterbox_res()
+	update_resolutions()
 
 	init_transfer_mem()
 	init_pipelines()
@@ -159,11 +166,6 @@ init_transfer_mem :: proc()
 	// BAD?: just creating global text_items that next procs depend on?
 	text_items = [dynamic]TTF_Text_Item{} 
 
-	// scale sampler / texture
-
-	// aspect ratio calculation for letterbox not stretch
-	// TODO: bug here in that letterbox res isn't fullscreen yet
-
 	letterbox_texture = sdl.CreateGPUTexture(gpu, {
 		type = .D2,
 		format = sdl.GetGPUSwapchainTextureFormat(gpu, window),
@@ -173,7 +175,6 @@ init_transfer_mem :: proc()
 		num_levels = 1,
 		usage = {.COLOR_TARGET, .SAMPLER} // this is following the MSAA example, for "offscreen" sample. is it right?
 	})
-
 	letterbox_sampler = sdl.CreateGPUSampler(gpu, {
 		min_filter = .NEAREST,
 		mag_filter = .NEAREST,

@@ -53,22 +53,35 @@ render :: proc(dt: f32)
 	if swapchain_texture != nil {
 		render_internal(dt, command_buffer, letterbox_texture)
 
-		// TODO: To reimplement letterboxing using blit instead of sample:
-		// - set destination x, y (offset) 
-		// - figure out glitching in empty space: draw letterbox over the offset borders? or clear / color / something
+		res := get_resolution_pixels()
+		pixel_w := i32(res.x)
+		pixel_h := i32(res.y)
+
+		blit_scale := min(
+			f32(pixel_w) / letterbox_resolution.x,
+			f32(pixel_h) / letterbox_resolution.y,
+		)
+		dest_w := u32(letterbox_resolution.x * blit_scale)
+		dest_h := u32(letterbox_resolution.y * blit_scale)
+		dest_x := u32((f32(pixel_w) - f32(dest_w)) / 2)
+		dest_y := u32((f32(pixel_h) - f32(dest_h)) / 2)
+
 		sdl.BlitGPUTexture(command_buffer, sdl.GPUBlitInfo {
 			source = sdl.GPUBlitRegion {
 				texture = letterbox_texture,
 				w = u32(letterbox_resolution.x),
 				h = u32(letterbox_resolution.y)
-			}, 
+			},
 			destination = sdl.GPUBlitRegion {
 				texture = swapchain_texture,
-				w = u32(resolution.x)*2,
-				h = u32(resolution.y)*2
+				x = dest_x,
+				y = dest_y,
+				w = dest_w,
+				h = dest_h,
 			},
-			load_op = .DONT_CARE, 
-			filter = .NEAREST, 
+			load_op = .CLEAR,
+			clear_color = {0, 0, 0, 1},
+			filter = .LINEAR,
 		})
 	}
 

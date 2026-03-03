@@ -58,15 +58,12 @@ fit_res_vec2 :: proc(val: [2]f32, res: [2]f32) -> [2]f32
 
 get_letterbox_res :: proc() -> [2]f32
 {
-	screen_ratio := resolution.x / resolution.y
-	aspect_ratio := INTERNAL_RES.x / INTERNAL_RES.y
-	letterbox_res: [2]f32
-	if screen_ratio > aspect_ratio {
-		letterbox_res = {INTERNAL_RES.x * resolution.y / INTERNAL_RES.y, resolution.y}
-	} else {
-		letterbox_res = {resolution.x, INTERNAL_RES.y * resolution.x / INTERNAL_RES.x}
-	}
-	return letterbox_res
+	scale := math.ceil(min(
+		resolution.x / INTERNAL_RES.x,
+		resolution.y / INTERNAL_RES.y,
+	))
+    
+	return scale * INTERNAL_RES
 }
 
 

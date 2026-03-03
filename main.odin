@@ -98,3 +98,23 @@ AppQuit :: proc "c" (appstate: rawptr, result: sdl.AppResult)
 
 	sdl.Quit()
 }
+
+// Helpers
+
+get_resolution :: proc () -> [2]f32 
+{
+	size: [2]i32
+	ok := sdl.GetWindowSize(window, &size.x, &size.y)
+	assert(ok)
+	return [2]f32 { f32(size.x), f32(size.y) }
+}
+
+get_resolution_pixels :: proc () -> [2]f32 
+{
+	size: [2]i32
+	ok := sdl.GetWindowSizeInPixels(window, &size.x, &size.y)
+	assert(ok)
+	return [2]f32 { f32(size.x), f32(size.y) }
+}
+
+
