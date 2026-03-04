@@ -4,7 +4,8 @@ import "core:fmt"
 
 ACTOR_HIT_T_DUR :: int(70)
 
-Wizard :: struct {
+// TODO: rename actor?
+Wizard :: struct { 
     sprite: int,
     pos: [2]f32,
     t: int, // cumulative step / turn time
@@ -12,7 +13,10 @@ Wizard :: struct {
     color: [4]f32,
     was_hit_on_step: bool,
     is_hit_t: int, // marked during action step, cleared on decrement to 0 or next step start
-    health: int
+    health: int,
+    masks: [6]Mask,
+    num_masks: int,
+    cur_mask: int
 }
 
 Move_Type :: enum {

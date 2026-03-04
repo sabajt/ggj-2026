@@ -21,6 +21,7 @@ is_game_over: bool = false
 game_over_delay: int = 0
 killed_by: ^Sprite 
 enemy_hit: int // last enemy hit (will need to refactor for many)
+boss_countdown := int(1)
 
 // actions
 
@@ -171,7 +172,7 @@ update :: proc()
                 // player kill particles
                 if is_stepping {
                     if game_step_time % 3 == 0 && game_over_delay < 10 {
-                        add_game_over_particle(player.pos + GRID_PADDING / 2, get_current_mask().color)
+                        add_game_over_particle(player.pos + GRID_PADDING / 2, player.masks[player.cur_mask].color)
                     }
                 }
             }
@@ -210,8 +211,9 @@ update :: proc()
             wizard_spell_request = nil
             is_stepping = true
             
-            mask := get_current_mask()
+            mask := &player.masks[player.cur_mask]
             mask.spell_cool_t = mask.spell_cool_dur + 1
+
             
             switch s in spell {
                 case Fire_Spell:
@@ -244,8 +246,8 @@ update :: proc()
     }
 
     // flash UI where needed
-    if current_mask_spell_ready() {
-        mask := get_current_mask()^
+    if current_mask_spell_ready(player) {
+        mask := player.masks[player.cur_mask]
         color := mask.color
         color.a = flash_8_on ? 1 : 0.2
         update_text_item(rhs_menu_spell_cooldown_text_i, mask_spell_cooldown_number_text(mask), color)
@@ -266,7 +268,7 @@ update :: proc()
     }
 
     if session_t < APPEAR_ANIMATION_DUR && game_step_time % 3 == 0 {
-        add_appear_particle(player.pos + GRID_PADDING / 2, get_current_mask().color)
+        add_appear_particle(player.pos + GRID_PADDING / 2, player.masks[player.cur_mask].color)
     }
 
     update_particles()
@@ -341,17 +343,27 @@ begin_step_player :: proc()
 
 step_mask_cooldowns :: proc()
 {
-    for &mask in masks {
+    for i in 0 ..< player.num_masks {
+        mask := &player.masks[i]
         mask.spell_cool_t = max(0, mask.spell_cool_t - 1)
     }
+
     update_rhs_menu_spell_cooldown_text()
     update_rhs_menu_spell_title_text()
     update_rhs_spell_icon()
+
+    // enemy masks
+    for k, &enemy in enemies {
+        for i in 0 ..< enemy.num_masks {
+            mask := &enemy.masks[i]
+            mask.spell_cool_t = max(0, mask.spell_cool_t - 1)
+        }
+    }
 }
 
 update_rhs_spell_icon :: proc()
 {
-    mask := get_current_mask()^
+    mask := player.masks[player.cur_mask]
     sprite := get_spell_icon_sprite()
 	sprite.name = spell_icon_name(mask.spell_type)
 	sprite.col = mask_spell_cooldown_color(mask)
@@ -359,13 +371,13 @@ update_rhs_spell_icon :: proc()
 
 update_rhs_menu_spell_cooldown_text :: proc()
 {
-    mask := get_current_mask()^
+    mask := player.masks[player.cur_mask]
     update_text_item(rhs_menu_spell_cooldown_text_i, mask_spell_cooldown_number_text(mask), mask.color)
 }
 
 update_rhs_menu_spell_title_text :: proc()
 {
-    mask := get_current_mask()^
+    mask := player.masks[player.cur_mask]
     update_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type), mask_spell_cooldown_color(mask))
 }
 
@@ -439,8 +451,13 @@ check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
             if actor^ == player {
                 is_game_over = true
                 killed_by = &sprites[projectile.spr]
+                
                 kill_slowdown()
-                add_kill_particle(player.pos + GRID_PADDING / 2, get_current_mask().color, type = .player)
+                add_kill_particle(
+                    player.pos + GRID_PADDING / 2, 
+                    player.masks[player.cur_mask].color, 
+                    type = .player
+                )
             } else {
                 destroy_enemy(actor^)
             }
@@ -488,7 +505,12 @@ destroy_enemy :: proc(enemy: Wizard)
     // next enemies
     for i in 0 ..< 2 {
         cell := find_empty_spawn_cell()
-        add_enemy(cell)
+        add_enemy(type = .basic_0, cell = cell)
+    }
+
+    boss_countdown -= 1
+    if boss_countdown == 0 {
+        add_enemy(type = .fire_boss, cell = find_empty_spawn_cell())
     }
 }
 

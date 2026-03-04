@@ -7,6 +7,11 @@ Wall :: struct {
 	cell: [2]int
 }
 
+Enemy_Type :: enum {
+	basic_0,
+	fire_boss
+}
+
 walls: [dynamic]Wall // TODO: all globals should be moved to one spot?
 enemies: map[int]Wizard
 
@@ -23,10 +28,21 @@ add_wall :: proc(cell: [2]int)
 	append(&walls, Wall { sprite_i = wall_sprite_i, cell = pos_to_cell(wall_pos) })
 }
 
-add_enemy :: proc(cell: [2]int) -> int
+add_enemy :: proc(type: Enemy_Type, cell: [2]int) -> int
 {
-    col_i := rand.int_max(8)
-    color := colors[col_i]
+	i: int
+	switch type {
+		case .basic_0:
+			i = add_enemy_basic_0(cell) 
+		case .fire_boss:
+			i = add_enemy_fire_boss(cell)
+	}
+	return i
+}
+
+add_enemy_basic_0 :: proc(cell: [2]int) -> int
+{
+    color := colors[0]
 	i := add_sprite("mask_2.png", pos = cell_pos(cell), col = color, anchor = .bottom_left)
 	enemy := Wizard {
 		sprite = i,
@@ -36,5 +52,19 @@ add_enemy :: proc(cell: [2]int) -> int
 	}
     enemies[i] = enemy
     return i
+}
+
+add_enemy_fire_boss :: proc(cell: [2]int) -> int
+{
+	color := colors[2]
+	i := add_sprite("mask_3.png", pos = cell_pos(cell), col = color, anchor = .bottom_left)
+	enemy := Wizard {
+		sprite = i,
+		pos = cell_pos(cell),
+		color = color,
+		health = 4
+	}
+	enemies[i] = enemy
+	return i
 }
 

@@ -47,9 +47,9 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
                     return .SUCCESS
                 // TODO: keyboard arrow key
                 case .LEFT:
-                    step_mask_index(.down)
+                    step_mask_index(.down, &player)
                 case .RIGHT:
-                    step_mask_index(.up)
+                    step_mask_index(.up, &player)
                 case .X:
                     handle_wizard_wait()
                 // spell
@@ -60,9 +60,9 @@ handle_input :: proc(event: ^sdl.Event) -> sdl.AppResult
 		    button := sdl.GamepadButton(event.gbutton.button)
 		    #partial switch button {
                 case .DPAD_LEFT:
-                    step_mask_index(.down)
+                    step_mask_index(.down, &player)
                 case .DPAD_RIGHT:
-                    step_mask_index(.up)
+                    step_mask_index(.up, &player)
                 case .DPAD_UP: break
                 case .DPAD_DOWN: break
                 case .EAST: break

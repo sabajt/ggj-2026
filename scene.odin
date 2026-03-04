@@ -38,13 +38,12 @@ reset_game :: proc()
 	is_game_over = false
 	game_over_delay = 0
 	killed_by = nil
-	mask_index = 0
 	session_t = 0
+	boss_countdown = 1
 
 	clear(&fires)
 	clear(&orbs)
 	clear(&actions)
-	clear(&masks)
 	clear(&shapes)
 	clear(&enemies)
 	clear(&walls)
@@ -52,24 +51,32 @@ reset_game :: proc()
 	clear_text_items()
 	clear_radius_effects()	
 
-	// add player masks
-	mask := Mask {
-		image_name = "mask_1.png",
-		color = COL_LEMON_LIME,
-		move_type = .step,
-		spell_type = .fire,
-		spell_cool_dur = 3  
-	}
-	add_mask(mask)
-
 	// add player
 	cell := [2]int { 
 		WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_X - 2 * WIZARD_PAD), 
 		WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_Y - 2 * WIZARD_PAD)
 	}
 	player_pos := cell_pos(cell)
-	spr_i := add_sprite(mask.image_name, pos = player_pos, col = mask.color, anchor = .bottom_left, z = 2)
+	starting_mask_image := "mask_1.png"
+	starting_mask_color := COL_LEMON_LIME
+	spr_i := add_sprite(
+		starting_mask_image, 
+		pos = player_pos, 
+		col = starting_mask_color, 
+		anchor = .bottom_left, 
+		z = 2
+	)
 	player = Wizard { sprite = spr_i, pos = player_pos, health = 3 }
+
+	// add player masks
+	mask := Mask {
+		image_name = starting_mask_image,
+		color = starting_mask_color,
+		move_type = .step,
+		spell_type = .fire,
+		spell_cool_dur = 3  
+	}
+	add_mask(mask, &player)
 
 	// add walls 
 	add_wall({GAME_GRID_SIZE_X / 2, GAME_GRID_SIZE_Y / 2})
@@ -79,7 +86,10 @@ reset_game :: proc()
 	add_wall({GAME_GRID_SIZE_X / 2, GAME_GRID_SIZE_Y / 2 - 2})
 
 	// add enemy
-	add_enemy({GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y})
+	add_enemy(
+		type = .basic_0, 
+		cell = {GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y}
+	)
 
 	// UI: attack slot
 	rhs_menu_spell_icon_sprite_i = add_sprite(
@@ -150,41 +160,45 @@ reset_game :: proc()
 	})
 
 	// ------------ Test Add Some Masks ------------
-	add_mask({
-		image_name = "mask_2.png",
-		color = COL_BLUE_RASP,
-		move_type = .step,
-		spell_type = .orb,
-		spell_cool_dur = 1  
-	})
-	add_mask({
-		image_name = "mask_3.png",
-		color = COL_FRESH_ORANGE,
-		move_type = .step,
-		spell_type = .fire,
-		spell_cool_dur = 5  
- 
-	})
-	add_mask({
-		image_name = "mask_1.png",
-		color = COL_PANIC_RED,
-		move_type = .step,
-		spell_type = .orb,
-		spell_cool_dur = 2  
-	})
-	add_mask({
-		image_name = "mask_3.png",
-		color = COL_WARNING_YELLOW,
-		move_type = .step,
-		spell_type = .fire,
-		spell_cool_dur = 6  
-	})
-	add_mask({
-		image_name = "mask_2.png",
-		color = COL_PINKY_PINK,
-		move_type = .step,
-		spell_type = .fire,
-		spell_cool_dur = 8  
-	})
+	add_mask(
+		{
+			image_name = "mask_2.png",
+			color = colors[7],
+			move_type = .step,
+			spell_type = .orb,
+			spell_cool_dur = 1
+		},
+		actor = &player
+	)
+	add_mask(
+		{
+			image_name = "mask_3.png",
+			color = colors[6],
+			move_type = .step,
+			spell_type = .fire,
+			spell_cool_dur = 5
+		},
+		actor = &player
+	)
+	add_mask(
+		{
+			image_name = "mask_1.png",
+			color = colors[5],
+			move_type = .step,
+			spell_type = .orb,
+			spell_cool_dur = 2  
+		},
+		actor = &player
+	)
+	add_mask(
+		{
+			image_name = "mask_3.png",
+			color = colors[4],
+			move_type = .step,
+			spell_type = .fire,
+			spell_cool_dur = 6  
+		},
+		actor = &player
+	)
 }
 

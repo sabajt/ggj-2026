@@ -13,7 +13,6 @@ init :: proc() {
 	shapes = make([dynamic]Shape)
 	fires = make(map[int]Projectile)
 	orbs = make(map[int]Projectile)
-	masks = make([dynamic]Mask)
 	actions = make(map[int]Action)
 	sprites = make(map[int]Sprite)
 	enemies = make(map[int]Wizard)

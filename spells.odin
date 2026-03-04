@@ -68,13 +68,14 @@ spell_title_text :: proc(spell_type: Spell_Type) -> string
     return result
 }
 
-create_current_mask_spell :: proc(cell: [2]int, dir: Direction) -> Spell
+// TODO: refactor to use a prototype spell set on mask (upgradable, and creates spell with cell / dir)
+create_current_mask_spell :: proc(cell: [2]int, dir: Direction, wizard: Wizard) -> Spell
 {
-    mask := masks[mask_index]
+    mask := wizard.masks[wizard.cur_mask]
     spell: Spell
     switch mask.spell_type {
         case .fire:
-            spell =  Fire_Spell {cell=cell, dir=dir, hostile=false, color=mask.color}
+            spell = Fire_Spell {cell=cell, dir=dir, hostile=false, color=mask.color}
         case .orb:
             spell = Orb_Spell {cell=cell, dir=dir, hostile=false, color=mask.color}
     }

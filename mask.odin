@@ -7,7 +7,6 @@ MASK_SLOT_SIDE :: GRID_PADDING
 MASK_SLOT_MARGIN :: f32(4) 
 
 mask_box_refs: [6][2]int = {}
-mask_index: int = 0
 heart_sprite_refs: [6]int = {}
 heart_empty_spot_refs: [6]int = {}
 
@@ -24,25 +23,30 @@ Mask :: struct {
 	spell_cool_t: int, // ready when 0
 	spell_cool_dur: int
 }
-masks: [dynamic]Mask
 
-add_mask :: proc(mask: Mask)
+add_mask :: proc(mask: Mask, actor: ^Wizard)
 {
-	append(&masks, mask)
+	if actor.num_masks == 6 {
+		return 
+	} 
+	actor.masks[actor.num_masks] = mask
+	actor.num_masks += 1
 
-	// UI: mask slot
-	add_sprite(
-		name = mask.image_name, 
-		pos = mask_slot_center(len(masks) - 1), 
-		col = mask.color, 
-		z = 2
-	)
+	// If player: UI: mask slot
+	if actor^ == player {
+		add_sprite(
+			name = mask.image_name, 
+			pos = mask_slot_center(actor.num_masks - 1), 
+			col = mask.color, 
+			z = 2
+		)
+	}
 }
 
 attempt_current_mask_spell :: proc(dir: Direction) 
 {
-    if current_mask_spell_ready() {
-        spell := create_current_mask_spell(pos_to_cell(player.pos), dir = dir)
+    if current_mask_spell_ready(player) {
+        spell := create_current_mask_spell(pos_to_cell(player.pos), dir = dir, wizard = player)
         handle_wizard_spell(spell)
     } else {
 		// TODO: implement "can't cast" feedback or remove
@@ -50,15 +54,10 @@ attempt_current_mask_spell :: proc(dir: Direction)
     }
 }
 
-current_mask_spell_ready :: proc() -> bool
+current_mask_spell_ready :: proc(wizard: Wizard) -> bool
 {
-	mask := get_current_mask()
+	mask := wizard.masks[wizard.cur_mask]
 	return mask.spell_cool_t == 0
-}
-
-get_current_mask :: proc() -> ^Mask 
-{
-	return &masks[mask_index]
 }
 
 mask_spell_cooldown_number_text :: proc(mask: Mask) -> string
@@ -79,30 +78,32 @@ mask_spell_cooldown_color :: proc(mask: Mask) -> [4]f32
 	return result
 }
 
-step_mask_index :: proc(dir: Index_Step_Direction) 
+step_mask_index :: proc(dir: Index_Step_Direction, wizard: ^Wizard) 
 {
-	last_mask_index := mask_index
-	mask_index = dir == .up ? min(mask_index + 1, len(masks) - 1) : max(mask_index - 1, 0) 
+	last_mask_index := wizard.cur_mask
+	wizard.cur_mask = dir == .up ? min(wizard.cur_mask + 1, wizard.num_masks - 1) : max(wizard.cur_mask - 1, 0) 
 
-	if last_mask_index != mask_index {
+	if last_mask_index != wizard.cur_mask {
 		for i in mask_box_refs[last_mask_index] {
 			(&shapes[i]).visible = false
 		}
-		for i in mask_box_refs[mask_index] {
+		for i in mask_box_refs[wizard.cur_mask] {
 			(&shapes[i]).visible = true
 		}
 	}  
 
-	// update player sprite
-	mask := masks[mask_index]
-	sprite := get_player_sprite()
-	sprite.name = mask.image_name
-	sprite.col = mask.color
+	if wizard^ == player {
+		// update player sprite
+		mask := player.masks[player.cur_mask]
+		sprite := get_player_sprite()
+		sprite.name = mask.image_name
+		sprite.col = mask.color
 
-	// update spell UI
-	update_rhs_spell_icon()
-	update_rhs_menu_spell_title_text()
-	update_rhs_menu_spell_cooldown_text()
+		// update spell UI
+		update_rhs_spell_icon()
+		update_rhs_menu_spell_title_text()
+		update_rhs_menu_spell_cooldown_text()
+	}
 }
 
 get_spell_icon_sprite :: proc() -> ^Sprite
