@@ -87,7 +87,7 @@ reset_game :: proc()
 
 	// add enemy
 	add_enemy(
-		type = .basic_0, 
+		type = .enemy_0, 
 		cell = {GAME_GRID_SIZE_X - cell.x, GAME_GRID_SIZE_Y - cell.y}
 	)
 

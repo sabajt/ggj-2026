@@ -4,8 +4,8 @@ import "core:fmt"
 
 ACTOR_HIT_T_DUR :: int(70)
 
-// TODO: rename actor?
 Wizard :: struct { 
+    type: Wizard_Type,
     sprite: int,
     pos: [2]f32,
     t: int, // cumulative step / turn time
@@ -17,6 +17,11 @@ Wizard :: struct {
     masks: [6]Mask,
     num_masks: int,
     cur_mask: int
+}
+
+Wizard_Type :: enum {
+    mask_bearer,
+    enemy_0
 }
 
 Move_Type :: enum {

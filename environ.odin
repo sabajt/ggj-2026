@@ -7,11 +7,6 @@ Wall :: struct {
 	cell: [2]int
 }
 
-Enemy_Type :: enum {
-	basic_0,
-	fire_boss
-}
-
 walls: [dynamic]Wall // TODO: all globals should be moved to one spot?
 enemies: map[int]Wizard
 
@@ -28,14 +23,14 @@ add_wall :: proc(cell: [2]int)
 	append(&walls, Wall { sprite_i = wall_sprite_i, cell = pos_to_cell(wall_pos) })
 }
 
-add_enemy :: proc(type: Enemy_Type, cell: [2]int) -> int
+add_enemy :: proc(type: Wizard_Type, cell: [2]int) -> int
 {
 	i: int
 	switch type {
-		case .basic_0:
+		case .mask_bearer:
+			i = add_enemy_mask_bearer(cell)
+		case .enemy_0:
 			i = add_enemy_basic_0(cell) 
-		case .fire_boss:
-			i = add_enemy_fire_boss(cell)
 	}
 	return i
 }
@@ -45,6 +40,7 @@ add_enemy_basic_0 :: proc(cell: [2]int) -> int
     color := colors[0]
 	i := add_sprite("mask_2.png", pos = cell_pos(cell), col = color, anchor = .bottom_left)
 	enemy := Wizard {
+		type = .enemy_0,
 		sprite = i,
 		pos = cell_pos(cell),
         color = color,
@@ -54,11 +50,12 @@ add_enemy_basic_0 :: proc(cell: [2]int) -> int
     return i
 }
 
-add_enemy_fire_boss :: proc(cell: [2]int) -> int
+add_enemy_mask_bearer :: proc(cell: [2]int) -> int
 {
 	color := colors[2]
 	i := add_sprite("mask_3.png", pos = cell_pos(cell), col = color, anchor = .bottom_left)
 	enemy := Wizard {
+		type = .mask_bearer,
 		sprite = i,
 		pos = cell_pos(cell),
 		color = color,
@@ -67,4 +64,70 @@ add_enemy_fire_boss :: proc(cell: [2]int) -> int
 	enemies[i] = enemy
 	return i
 }
+
+step_enemies :: proc()
+{
+    for k, &enemy in enemies {
+		switch enemy.type {
+			case .mask_bearer:
+				step_enemy_mask_bearer(&enemy)
+			case .enemy_0:
+				step_enemy_0(&enemy)
+		}
+    }
+}
+
+step_enemy_mask_bearer :: proc(enemy: ^Wizard)
+{
+	// TODO: make spell from prototype + context vars (cell, direction etc)
+
+	cell := pos_to_cell(enemy.pos)
+	if enemy.t % 2 == 0 {
+		for dir in CARDINALS {
+			spell := Orb_Spell {
+				cell = cell, 
+				dir = dir, 
+				hostile = true,
+				color = enemy.color
+			}
+			cast_orb_spell(spell)
+		}
+	} else if enemy.t % 5 == 0 {
+		for dir in ORDINALS {
+			spell := Orb_Spell {
+				cell = cell, 
+				dir = dir, 
+				hostile = true,
+				color = enemy.color
+			}
+			cast_orb_spell(spell)
+		}
+	} else {
+		cell := get_grid_cell_to_player_path_next_coord(cell)
+		add_enemy_move_action(enemy, dest = cell)
+	}
+	enemy.t += 1
+}
+
+step_enemy_0 :: proc(enemy: ^Wizard)
+{
+	cell := pos_to_cell(enemy.pos)
+	if enemy.t % 3 == 0 {
+		// TODO: make spell from prototype
+		info := snap_direction_info(angle_from_vec2(player.pos - enemy.pos))
+		spell := Orb_Spell {
+			cell = cell, 
+			dir = info.direction, 
+			hostile = true,
+			color = enemy.color
+		}
+		cast_orb_spell(spell)
+	} else {
+		cell := get_grid_cell_to_player_path_next_coord(cell)
+		add_enemy_move_action(enemy, dest = cell)
+	}
+	enemy.t += 1
+}
+
+
 

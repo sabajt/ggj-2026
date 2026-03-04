@@ -48,13 +48,12 @@ add_player_move_action :: proc(start_cell: [2]int, end_cell: [2]int)
     action_i += 1
 }
 
-add_enemy_move_action :: proc(i: int, dest: [2]int)
+add_enemy_move_action :: proc(enemy: ^Wizard, dest: [2]int)
 {
-    enemy := &enemies[i]
     action := Action {
         i = action_i,
         update = action_update_enemy_move,
-        data = { obj_id = i, start_cell = pos_to_cell(enemy.pos), end_cell = dest}
+        data = { obj_id = enemy.sprite, start_cell = pos_to_cell(enemy.pos), end_cell = dest}
     }
     actions[action_i] = action
     enemy.action_i = action_i
@@ -381,27 +380,6 @@ update_rhs_menu_spell_title_text :: proc()
     update_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type), mask_spell_cooldown_color(mask))
 }
 
-step_enemies :: proc()
-{
-    for k, &enemy in enemies {
-        cell := pos_to_cell(enemy.pos)
-        if enemy.t % 3 == 0 {
-            info := snap_direction_info(angle_from_vec2(player.pos - enemy.pos))
-            spell := Orb_Spell {
-                cell = cell, 
-                dir = info.direction, 
-                hostile = true,
-                color = enemy.color
-            }
-            cast_orb_spell(spell)
-        } else {
-            cell := get_grid_cell_to_player_path_next_coord(cell)
-            add_enemy_move_action(i = k, dest = cell)
-        }
-        enemy.t += 1
-    }
-}
-
 find_empty_spawn_cell :: proc() -> [2]int
 {
     x := WIZARD_PAD + rand.int_max(GAME_GRID_SIZE_X - WIZARD_PAD)
@@ -505,12 +483,12 @@ destroy_enemy :: proc(enemy: Wizard)
     // next enemies
     for i in 0 ..< 2 {
         cell := find_empty_spawn_cell()
-        add_enemy(type = .basic_0, cell = cell)
+        add_enemy(type = .enemy_0, cell = cell)
     }
 
     boss_countdown -= 1
     if boss_countdown == 0 {
-        add_enemy(type = .fire_boss, cell = find_empty_spawn_cell())
+        add_enemy(type = .mask_bearer, cell = find_empty_spawn_cell())
     }
 }
 
