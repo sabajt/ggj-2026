@@ -73,6 +73,9 @@ create_current_mask_spell :: proc(cell: [2]int, dir: Direction, wizard: Wizard) 
     mask := wizard.masks[wizard.cur_mask]
     hostile := wizard != player
     spell: Spell
+
+    // TODO: redundant b/w player / enemy
+
     switch proto in mask.spell_prototype {
         case Fire_Spell:
             spell = Fire_Spell {
@@ -86,7 +89,8 @@ create_current_mask_spell :: proc(cell: [2]int, dir: Direction, wizard: Wizard) 
                 cell = cell, 
                 dir = dir, 
                 hostile = hostile, 
-                color = mask.color}
+                color = mask.color
+            }
     }
     return spell
 }
@@ -94,15 +98,17 @@ create_current_mask_spell :: proc(cell: [2]int, dir: Direction, wizard: Wizard) 
 cast_fire_spell :: proc(spell: Fire_Spell)
 {
     dir := spell.dir
+    hostile := spell.hostile
+    color := spell.color
 
     // adjacent to caster
     cell := cell_move(spell.cell, dir)
-    add_fire(cell, dir, dur = 5 + rand.int_max(4), col = spell.color, hostile = spell.hostile)
+    add_fire(cell, dir, dur = 5 + rand.int_max(4), col = color, hostile = hostile)
 
     // move 4 direction out
     for i in 0 ..< 8 {
         cell = cell_move(cell, dir)
-        add_fire(cell, dir, dur = 5 + rand.int_max(4), col = spell.color, hostile = spell.hostile)
+        add_fire(cell, dir, dur = 5 + rand.int_max(4), col = color, hostile = hostile)
 
         // 1 / 3 chance to have a branch left or right
         if rand.int_max(3) == 0 {
@@ -110,7 +116,7 @@ cast_fire_spell :: proc(spell: Fire_Spell)
             branch_cell := cell
             for i in 0 ..< (3 + rand.int_max(4)) {
                 branch_cell = cell_move(branch_cell, branch_dir)
-                add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = spell.color, hostile = spell.hostile)
+                add_fire(branch_cell, branch_dir, dur = 3 + rand.int_max(3), col = color, hostile = hostile)
             }
         }
     }

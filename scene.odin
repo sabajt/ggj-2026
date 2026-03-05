@@ -73,7 +73,7 @@ reset_game :: proc()
 		image_name = starting_mask_image,
 		color = starting_mask_color,
 		move_type = .step,
-		spell_prototype = Fire_Spell {},
+		spell_prototype = Fire_Spell { },
 		spell_cool_dur = 3  
 	}
 	add_mask(mask, &player)
@@ -165,7 +165,7 @@ reset_game :: proc()
 			image_name = "mask_2.png",
 			color = colors[7],
 			move_type = .step,
-			spell_prototype = Orb_Spell{},
+			spell_prototype = Orb_Spell { hostile = true, color = colors[7] },
 			spell_cool_dur = 1
 		},
 		actor = &player
@@ -175,7 +175,7 @@ reset_game :: proc()
 			image_name = "mask_3.png",
 			color = colors[6],
 			move_type = .step,
-			spell_prototype = Orb_Spell{},
+			spell_prototype = Orb_Spell{ hostile = true, color = colors[6] },
 			spell_cool_dur = 5
 		},
 		actor = &player
@@ -185,7 +185,7 @@ reset_game :: proc()
 			image_name = "mask_1.png",
 			color = colors[5],
 			move_type = .step,
-			spell_prototype = Orb_Spell{},
+			spell_prototype = Orb_Spell{ hostile = true, color = colors[5] },
 			spell_cool_dur = 2  
 		},
 		actor = &player
@@ -195,7 +195,7 @@ reset_game :: proc()
 			image_name = "mask_3.png",
 			color = colors[4],
 			move_type = .step,
-			spell_prototype = Orb_Spell{},
+			spell_prototype = Orb_Spell{ hostile = true, color = colors[4] },
 			spell_cool_dur = 6  
 		},
 		actor = &player

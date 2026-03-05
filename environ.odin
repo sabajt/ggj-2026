@@ -61,6 +61,16 @@ add_enemy_mask_bearer :: proc(cell: [2]int) -> int
 		color = color,
 		health = 4
 	}
+	add_mask(
+		{
+			image_name = "mask_2.png",
+			color = colors[3],
+			move_type = .step,
+			spell_prototype = Fire_Spell { color = colors[3], hostile = true },
+			spell_cool_dur = 6
+		},
+		actor = &enemy
+	)
 	enemies[i] = enemy
 	return i
 }
@@ -77,32 +87,43 @@ step_enemies :: proc()
     }
 }
 
+cast_spell :: proc(prototype: Spell, cell: [2]int, dir: Direction)
+{
+	switch val in prototype {
+		case Fire_Spell:
+			spell := Fire_Spell {
+				cell = cell, 
+				dir = dir, 
+				hostile = val.hostile,
+				color = val.color
+			}
+			cast_fire_spell(spell)
+		case Orb_Spell:
+			spell := Orb_Spell {
+				cell = cell, 
+				dir = dir, 
+				hostile = val.hostile,
+				color = val.color
+			}
+			cast_orb_spell(spell)
+	}
+}
+
 step_enemy_mask_bearer :: proc(enemy: ^Wizard)
 {
-	// TODO: make spell from prototype + context vars (cell, direction etc)
-
 	cell := pos_to_cell(enemy.pos)
-	if enemy.t % 2 == 0 {
-		for dir in CARDINALS {
-			spell := Orb_Spell {
-				cell = cell, 
-				dir = dir, 
-				hostile = true,
-				color = enemy.color
-			}
-			cast_orb_spell(spell)
+	info := snap_direction_info(angle_from_vec2(player.pos - enemy.pos))
+	did_cast := false
+	for i in 0 ..< enemy.num_masks {
+		mask := &enemy.masks[i]
+		if mask.spell_cool_t == 0 {
+			mask.spell_cool_t = mask.spell_cool_dur + 1
+			cast_spell(mask.spell_prototype, cell = cell, dir = info.direction)
+			did_cast = true
+			break
 		}
-	} else if enemy.t % 5 == 0 {
-		for dir in ORDINALS {
-			spell := Orb_Spell {
-				cell = cell, 
-				dir = dir, 
-				hostile = true,
-				color = enemy.color
-			}
-			cast_orb_spell(spell)
-		}
-	} else {
+	}
+	if !did_cast {
 		cell := get_grid_cell_to_player_path_next_coord(cell)
 		add_enemy_move_action(enemy, dest = cell)
 	}
@@ -113,7 +134,6 @@ step_enemy_0 :: proc(enemy: ^Wizard)
 {
 	cell := pos_to_cell(enemy.pos)
 	if enemy.t % 3 == 0 {
-		// TODO: make spell from prototype
 		info := snap_direction_info(angle_from_vec2(player.pos - enemy.pos))
 		spell := Orb_Spell {
 			cell = cell, 
