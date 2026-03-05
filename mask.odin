@@ -19,7 +19,7 @@ Mask :: struct {
 	image_name: string,
 	color: [4]f32,
 	move_type: Move_Type,
-	spell_type: Spell_Type,
+	spell_prototype: Spell,
 	spell_cool_t: int, // ready when 0
 	spell_cool_dur: int
 }

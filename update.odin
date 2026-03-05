@@ -364,7 +364,7 @@ update_rhs_spell_icon :: proc()
 {
     mask := player.masks[player.cur_mask]
     sprite := get_spell_icon_sprite()
-	sprite.name = spell_icon_name(mask.spell_type)
+	sprite.name = spell_icon_name(mask.spell_prototype)
 	sprite.col = mask_spell_cooldown_color(mask)
 }
 
@@ -377,7 +377,7 @@ update_rhs_menu_spell_cooldown_text :: proc()
 update_rhs_menu_spell_title_text :: proc()
 {
     mask := player.masks[player.cur_mask]
-    update_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_type), mask_spell_cooldown_color(mask))
+    update_text_item(rhs_menu_spell_title_text_i, spell_title_text(mask.spell_prototype), mask_spell_cooldown_color(mask))
 }
 
 find_empty_spawn_cell :: proc() -> [2]int

@@ -73,7 +73,7 @@ reset_game :: proc()
 		image_name = starting_mask_image,
 		color = starting_mask_color,
 		move_type = .step,
-		spell_type = .fire,
+		spell_prototype = Fire_Spell {},
 		spell_cool_dur = 3  
 	}
 	add_mask(mask, &player)
@@ -93,14 +93,14 @@ reset_game :: proc()
 
 	// UI: attack slot
 	rhs_menu_spell_icon_sprite_i = add_sprite(
-		name = spell_icon_name(mask.spell_type), 
+		name = spell_icon_name(mask.spell_prototype), 
 		pos = rhs_menu_spell_icon_center(), 
 		col = mask.color, 
 		z = 2
 	)
 
 	// spell title text
-	rhs_menu_spell_title_text_i = add_text_item(spell_title_text(mask.spell_type), color = mask.color)
+	rhs_menu_spell_title_text_i = add_text_item(spell_title_text(mask.spell_prototype), color = mask.color)
 	text_item := &text_items[rhs_menu_spell_title_text_i]
 	// TODO: scale position in render (without scaling texture?). Also why is text top left anchor / easy to control this?
 	text_item.pos = fit_res_vec2(rhs_menu_spell_text_top_left(), letterbox_resolution)
@@ -165,7 +165,7 @@ reset_game :: proc()
 			image_name = "mask_2.png",
 			color = colors[7],
 			move_type = .step,
-			spell_type = .orb,
+			spell_prototype = Orb_Spell{},
 			spell_cool_dur = 1
 		},
 		actor = &player
@@ -175,7 +175,7 @@ reset_game :: proc()
 			image_name = "mask_3.png",
 			color = colors[6],
 			move_type = .step,
-			spell_type = .fire,
+			spell_prototype = Orb_Spell{},
 			spell_cool_dur = 5
 		},
 		actor = &player
@@ -185,7 +185,7 @@ reset_game :: proc()
 			image_name = "mask_1.png",
 			color = colors[5],
 			move_type = .step,
-			spell_type = .orb,
+			spell_prototype = Orb_Spell{},
 			spell_cool_dur = 2  
 		},
 		actor = &player
@@ -195,7 +195,7 @@ reset_game :: proc()
 			image_name = "mask_3.png",
 			color = colors[4],
 			move_type = .step,
-			spell_type = .fire,
+			spell_prototype = Orb_Spell{},
 			spell_cool_dur = 6  
 		},
 		actor = &player

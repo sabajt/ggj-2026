@@ -48,36 +48,45 @@ Kill_Particle :: enum {
 fires: map[int]Projectile
 orbs : map[int]Projectile
 
-spell_icon_name :: proc(spell_type: Spell_Type) -> string
+spell_icon_name :: proc(spell: Spell) -> string
 {
     result: string
-    switch spell_type {
-        case .fire: result = "fire_0.png"
-        case .orb: result = "orb.png"
+    switch _ in spell {
+        case Fire_Spell: result = "fire_0.png"
+        case Orb_Spell: result = "orb.png"
     }
     return result
 }
 
-spell_title_text :: proc(spell_type: Spell_Type) -> string
+spell_title_text :: proc(spell: Spell) -> string
 {
     result: string
-    switch spell_type {
-        case .fire: result = "Fire (Cast)"
-        case .orb: result = "Orb (Cast)"
+    switch _ in spell {
+        case Fire_Spell: result = "Fire (Cast)"
+        case Orb_Spell: result = "Orb (Cast)"
     }
     return result
 }
 
-// TODO: refactor to use a prototype spell set on mask (upgradable, and creates spell with cell / dir)
 create_current_mask_spell :: proc(cell: [2]int, dir: Direction, wizard: Wizard) -> Spell
 {
     mask := wizard.masks[wizard.cur_mask]
+    hostile := wizard != player
     spell: Spell
-    switch mask.spell_type {
-        case .fire:
-            spell = Fire_Spell {cell=cell, dir=dir, hostile=false, color=mask.color}
-        case .orb:
-            spell = Orb_Spell {cell=cell, dir=dir, hostile=false, color=mask.color}
+    switch proto in mask.spell_prototype {
+        case Fire_Spell:
+            spell = Fire_Spell {
+                cell = cell, 
+                dir = dir, 
+                hostile = hostile, 
+                color = mask.color
+            }
+        case Orb_Spell:
+            spell = Orb_Spell {
+                cell = cell, 
+                dir = dir, 
+                hostile = hostile, 
+                color = mask.color}
     }
     return spell
 }
