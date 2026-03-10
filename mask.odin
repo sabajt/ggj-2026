@@ -83,21 +83,19 @@ step_mask_index :: proc(dir: Index_Step_Direction, wizard: ^Wizard)
 	last_mask_index := wizard.cur_mask
 	wizard.cur_mask = dir == .up ? min(wizard.cur_mask + 1, wizard.num_masks - 1) : max(wizard.cur_mask - 1, 0) 
 
-	if last_mask_index != wizard.cur_mask {
-		for i in mask_box_refs[last_mask_index] {
-			(&shapes[i]).visible = false
-		}
-		for i in mask_box_refs[wizard.cur_mask] {
-			(&shapes[i]).visible = true
-		}
-	}  
-
 	if wizard^ == player {
+		// update mask UI
+		if last_mask_index != wizard.cur_mask {
+			for i in mask_box_refs[last_mask_index] {
+				(&shapes[i]).visible = false
+			}
+			for i in mask_box_refs[wizard.cur_mask] {
+				(&shapes[i]).visible = true
+			}
+		}  
 		// update player sprite
 		mask := player.masks[player.cur_mask]
-		sprite := get_player_sprite()
-		sprite.name = mask.image_name
-		sprite.col = mask.color
+		update_sprite(get_player_sprite(), name = mask.image_name, col = mask.color)
 
 		// update spell UI
 		update_rhs_spell_icon()

@@ -52,13 +52,11 @@ add_enemy_basic_0 :: proc(cell: [2]int) -> int
 
 add_enemy_mask_bearer :: proc(cell: [2]int) -> int
 {
-	color := colors[2]
-	i := add_sprite("mask_3.png", pos = cell_pos(cell), col = color, anchor = .bottom_left)
+	i := add_sprite("", pos = cell_pos(cell), anchor = .bottom_left)
 	enemy := Wizard {
 		type = .mask_bearer,
 		sprite = i,
 		pos = cell_pos(cell),
-		color = color,
 		health = 4
 	}
 	add_mask(
@@ -71,6 +69,17 @@ add_enemy_mask_bearer :: proc(cell: [2]int) -> int
 		},
 		actor = &enemy
 	)
+	add_mask(
+		{
+			image_name = "mask_1.png",
+			color = colors[4],
+			move_type = .step,
+			spell_prototype = Orb_Spell { color = colors[4], hostile = true },
+			spell_cool_dur = 3
+		},
+		actor = &enemy
+	)
+	update_enemy_sprite_for_current_mask(&enemy)
 	enemies[i] = enemy
 	return i
 }
@@ -112,22 +121,37 @@ cast_spell :: proc(prototype: Spell, cell: [2]int, dir: Direction)
 step_enemy_mask_bearer :: proc(enemy: ^Wizard)
 {
 	cell := pos_to_cell(enemy.pos)
-	info := snap_direction_info(angle_from_vec2(player.pos - enemy.pos))
-	did_cast := false
-	for i in 0 ..< enemy.num_masks {
-		mask := &enemy.masks[i]
-		if mask.spell_cool_t == 0 {
-			mask.spell_cool_t = mask.spell_cool_dur + 1
-			cast_spell(mask.spell_prototype, cell = cell, dir = info.direction)
-			did_cast = true
-			break
+
+	if current_mask_spell_ready(enemy^) {
+		// cast spell
+		info := snap_direction_info(angle_from_vec2(player.pos - enemy.pos))
+		mask := &enemy.masks[enemy.cur_mask]
+		mask.spell_cool_t = mask.spell_cool_dur + 1
+		cast_spell(mask.spell_prototype, cell = cell, dir = info.direction)
+
+		// find the lowest cooldown num slot and change to it
+		lowest_cooldown := max(int)
+		for i in 0 ..< enemy.num_masks {
+			m := &enemy.masks[i]
+			if m.spell_cool_t < lowest_cooldown {
+				lowest_cooldown = m.spell_cool_t
+				enemy.cur_mask = i
+			}
 		}
-	}
-	if !did_cast {
+		update_enemy_sprite_for_current_mask(enemy)
+
+	} else {
+		// move
 		cell := get_grid_cell_to_player_path_next_coord(cell)
 		add_enemy_move_action(enemy, dest = cell)
 	}
 	enemy.t += 1
+}
+
+update_enemy_sprite_for_current_mask :: proc(enemy: ^Wizard)
+{
+	next_mask := &enemy.masks[enemy.cur_mask]
+	update_sprite(&sprites[enemy.sprite], name = next_mask.image_name, col = next_mask.color)
 }
 
 step_enemy_0 :: proc(enemy: ^Wizard)
