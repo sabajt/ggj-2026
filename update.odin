@@ -406,29 +406,49 @@ check_hits :: proc()
     for k, projectile in orbs {
         check_projectile_hit(projectile)
     }
+
+    // enemies
+    for k, &enemy in enemies {
+        check_hit_player_enemy(&enemy)
+    }
 }
 
 check_projectile_hit :: proc(projectile: Projectile) 
 {
     if projectile.hostile {
-        check_and_handle_actor_hit(projectile, &player)
+        check_hit_proj_wiz(projectile, &player)
     } else {
         for k, &enemy in enemies {
-            check_and_handle_actor_hit(projectile, &enemy)
+            check_hit_proj_wiz(projectile, &enemy)
         }
     }
 }
 
-check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
+check_hit_player_enemy :: proc(enemy: ^Wizard)
 {
-    if actor.was_hit_on_step == false && grid_item_collide(projectile.pos, actor.pos) {
-        actor.was_hit_on_step = true
-        actor.is_hit_t = ACTOR_HIT_T_DUR
-        actor.health -= 1
-        if actor.health <= 0 {
-            if actor^ == player {
+    check_hit_wiz_item(wiz = &player, item_pos = enemy.pos, item_spr = enemy.sprite)
+    check_hit_wiz_item(wiz = enemy, item_pos = player.pos, item_spr = player.sprite)
+}
+
+check_hit_proj_wiz :: proc(proj: Projectile, wiz: ^Wizard)
+{
+    if check_hit_wiz_item(wiz = wiz, item_pos = proj.pos, item_spr = proj.spr) {
+        if !is_game_over {
+            destroy_projectile(proj)
+        }
+    }
+}
+
+check_hit_wiz_item :: proc(wiz: ^Wizard, item_pos: [2]f32, item_spr: int) -> bool
+{
+    if wiz.was_hit_on_step == false && grid_item_collide(item_pos, wiz.pos) {
+        wiz.was_hit_on_step = true
+        wiz.is_hit_t = ACTOR_HIT_T_DUR
+        wiz.health -= 1
+        if wiz.health <= 0 {
+            if wiz^ == player {
                 is_game_over = true
-                killed_by = &sprites[projectile.spr]
+                killed_by = &sprites[item_spr]
                 
                 kill_slowdown()
                 add_kill_particle(
@@ -436,14 +456,13 @@ check_and_handle_actor_hit :: proc(projectile: Projectile, actor: ^Wizard)
                     player.masks[player.cur_mask].color, 
                     type = .player
                 )
-            } else {
-                destroy_enemy(actor^)
+            } else if !is_game_over { 
+                destroy_enemy(wiz^)
             }
         }
-        if !is_game_over {
-            destroy_projectile(projectile)
-        }
+        return true
     }
+    return false
 }
 
 kill_slowdown :: proc()
