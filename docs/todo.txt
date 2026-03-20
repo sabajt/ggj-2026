@@ -1,9 +1,8 @@
 
-- normal enemy with line of sight for attack
-- bosses with mask: first boss has fire
 - collect mask from bosses: solid fill cell + flashing black sillouhet?
 - black outline of player dir arrow to cut over sprites
-//////
+- line of sight for attack
+- bag system? bag to collect abilities (map items) that can plug into mask slots (perm)?
 - projectiles hit projectiles: quad tree or similar
 - effect on enemy kill: xp going to rhs mask slot
 - UI: current mask and its stats
@@ -27,6 +26,8 @@ bugs
 
 done
 
+x normal enemy 
+x bosses with mask: first boss has fire
 x walls
 x enemy aim
 x projectiles indicate dir
