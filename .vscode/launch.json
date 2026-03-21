@@ -5,7 +5,16 @@
 			"type": "lldb",
 			"request": "launch",
 			"preLaunchTask": "Build",
-			"name": "Debug",
+			"name": "Debug MacOS",
+			"program": "${workspaceFolder}/${workspaceFolderBasename}",
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "cppvsdbg",
+			"request": "launch",
+			"preLaunchTask": "Build",
+			"name": "Debug Windows",
 			"program": "${workspaceFolder}/${workspaceFolderBasename}",
 			"args": [],
 			"cwd": "${workspaceFolder}"
