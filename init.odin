@@ -275,60 +275,7 @@ init_transfer_mem :: proc()
 
 init_pipelines :: proc()
 {
-	// load shaders
-	// vert
- 	vs_wrap_shape := load_shader(
- 		gpu, 
- 		vs_batch_shape_code, 
- 		.VERTEX, 
- 		num_uniform_buffers = 1, 
- 		num_storage_buffers = 2
- 	)
- 	vs_grid := load_shader(
- 		gpu, 
- 		vs_grid_code, 
- 		.VERTEX, 
- 		num_uniform_buffers = 3
- 	)
-	vs_text := load_shader(
-		gpu,
-		vs_text_code,
-		.VERTEX,
-		num_uniform_buffers = 1
-	)
-	vs_sprite := load_shader(
-		gpu,
-		vs_sprite_code,
-		.VERTEX,
-		num_uniform_buffers = 1,
-		num_storage_buffers = 1
-	)
-	vs_fullscreen_quad := load_shader(
-		gpu,
-		vs_fullscreen_quad_code,
-		.VERTEX,
-		num_uniform_buffers = 1
-	)
-
-	// frag
-	fs_solid_col := load_shader(
-		gpu, 
-		fs_solid_color_code, 
-		.FRAGMENT, 
-		num_uniform_buffers = 1
-	)
-	fs_sdf_quad := load_shader(
-		gpu, 
-		fs_sdf_quad_code, 
-		.FRAGMENT, 
-		num_uniform_buffers = 1
-	)
-	fs_text := load_shader(
-		gpu, 
-		fs_textured_quad_code, 
-		.FRAGMENT, 
-		num_samplers = 1
-	)
+	load_shaders(gpu)
 
 	// setup base fill pipeline    
 

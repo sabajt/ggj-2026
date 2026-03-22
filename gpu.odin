@@ -1,19 +1,53 @@
 package main
 
 import "core:math/linalg"
+import "core:strings"
 import sdl "vendor:sdl3"
 
-// shaders
+vs_wrap_shape:^sdl.GPUShader
+vs_grid:^sdl.GPUShader
+vs_text:^sdl.GPUShader
+vs_sprite:^sdl.GPUShader
+vs_fullscreen_quad:^sdl.GPUShader
+fs_solid_col:^sdl.GPUShader
+fs_sdf_quad:^sdl.GPUShader
+fs_text:^sdl.GPUShader
 
-vs_grid_code := #load("shaders/compiled/msl/Grid.vert.msl")
-vs_batch_shape_code := #load("shaders/compiled/msl/BatchShape.vert.msl")
-vs_text_code := #load("shaders/compiled/msl/Text.vert.msl")
-vs_sprite_code := #load("shaders/compiled/msl/BatchSprite.vert.msl")
-vs_fullscreen_quad_code := #load("shaders/compiled/msl/FullscreenQuad.vert.msl")
+vs_grid_code: []u8
+vs_batch_shape_code: []u8
+vs_text_code: []u8
+vs_sprite_code: []u8
+vs_fullscreen_quad_code: []u8
+fs_solid_color_code: []u8
+fs_sdf_quad_code: []u8
+fs_textured_quad_code: []u8
 
-fs_solid_color_code := #load("shaders/compiled/msl/SolidColor.frag.msl")
-fs_sdf_quad_code := #load("shaders/compiled/msl/SDFQuad.frag.msl")
-fs_textured_quad_code := #load("shaders/compiled/msl/TexturedQuad.frag.msl")
+_vs_grid_code_msl := #load("shaders/compiled/msl/Grid.vert.msl")
+_vs_batch_shape_code_msl := #load("shaders/compiled/msl/BatchShape.vert.msl")
+_vs_text_code_msl := #load("shaders/compiled/msl/Text.vert.msl")
+_vs_sprite_code_msl := #load("shaders/compiled/msl/BatchSprite.vert.msl")
+_vs_fullscreen_quad_code_msl := #load("shaders/compiled/msl/FullscreenQuad.vert.msl")
+_fs_solid_color_code_msl := #load("shaders/compiled/msl/SolidColor.frag.msl")
+_fs_sdf_quad_code_msl := #load("shaders/compiled/msl/SDFQuad.frag.msl")
+_fs_textured_quad_code_msl := #load("shaders/compiled/msl/TexturedQuad.frag.msl")
+
+_vs_grid_code_dxil := #load("shaders/compiled/dxil/Grid.vert.dxil")
+_vs_batch_shape_code_dxil := #load("shaders/compiled/dxil/BatchShape.vert.dxil")
+_vs_text_code_dxil := #load("shaders/compiled/dxil/Text.vert.dxil")
+_vs_sprite_code_dxil := #load("shaders/compiled/dxil/BatchSprite.vert.dxil")
+_vs_fullscreen_quad_code_dxil := #load("shaders/compiled/dxil/FullscreenQuad.vert.dxil")
+_fs_solid_color_code_dxil := #load("shaders/compiled/dxil/SolidColor.frag.dxil")
+_fs_sdf_quad_code_dxil := #load("shaders/compiled/dxil/SDFQuad.frag.dxil")
+_fs_textured_quad_code_dxil := #load("shaders/compiled/dxil/TexturedQuad.frag.dxil")
+
+_vs_grid_code_spv := #load("shaders/compiled/spirv/Grid.vert.spv")
+_vs_batch_shape_code_spv := #load("shaders/compiled/spirv/BatchShape.vert.spv")
+_vs_text_code_spv := #load("shaders/compiled/spirv/Text.vert.spv")
+_vs_sprite_code_spv := #load("shaders/compiled/spirv/BatchSprite.vert.spv")
+_vs_fullscreen_quad_code_spv := #load("shaders/compiled/spirv/FullscreenQuad.vert.spv")
+_fs_solid_color_code_spv := #load("shaders/compiled/spirv/SolidColor.frag.spv")
+_fs_sdf_quad_code_spv := #load("shaders/compiled/spirv/SDFQuad.frag.spv")
+_fs_textured_quad_code_spv := #load("shaders/compiled/spirv/TexturedQuad.frag.spv")
 
 // shader models
 
@@ -164,11 +198,122 @@ batch_shape_models_storage_buffer : ^sdl.GPUBuffer
 first_sdf_input := int(0)
 last_sdf_input := int(0)
 
+load_shaders :: proc(device: ^sdl.GPUDevice)
+{
+	formats := sdl.GetGPUShaderFormats(device)
+	format := sdl.GPU_SHADERFORMAT_INVALID
+	entrypoint := "main"
+
+	if .MSL in formats {
+		format = {.MSL}
+		entrypoint = "main0"
+		vs_grid_code = _vs_grid_code_msl
+		vs_batch_shape_code = _vs_batch_shape_code_msl
+		vs_text_code = _vs_text_code_msl
+		vs_sprite_code = _vs_sprite_code_msl
+		vs_fullscreen_quad_code = _vs_fullscreen_quad_code_msl
+		fs_solid_color_code = _fs_solid_color_code_msl
+		fs_sdf_quad_code = _fs_sdf_quad_code_msl
+		fs_textured_quad_code = _fs_textured_quad_code_msl
+	} else if .DXIL in formats {
+		format = {.DXIL}
+		vs_grid_code = _vs_grid_code_dxil
+		vs_batch_shape_code = _vs_batch_shape_code_dxil
+		vs_text_code = _vs_text_code_dxil
+		vs_sprite_code = _vs_sprite_code_dxil
+		vs_fullscreen_quad_code = _vs_fullscreen_quad_code_dxil
+		fs_solid_color_code = _fs_solid_color_code_dxil
+		fs_sdf_quad_code = _fs_sdf_quad_code_dxil
+		fs_textured_quad_code = _fs_textured_quad_code_dxil
+	} else if .SPIRV in formats {
+		format = {.SPIRV}
+		vs_grid_code = _vs_grid_code_spv
+		vs_batch_shape_code = _vs_batch_shape_code_spv
+		vs_text_code = _vs_text_code_spv
+		vs_sprite_code = _vs_sprite_code_spv
+		vs_fullscreen_quad_code = _vs_fullscreen_quad_code_spv
+		fs_solid_color_code = _fs_solid_color_code_spv
+		fs_sdf_quad_code = _fs_sdf_quad_code_spv
+		fs_textured_quad_code = _fs_textured_quad_code_spv
+	}
+
+	// vert
+ 	vs_wrap_shape = load_shader(
+ 		gpu, 
+ 		vs_batch_shape_code, 
+ 		.VERTEX,
+		format,
+		entrypoint,  
+ 		num_uniform_buffers = 1, 
+ 		num_storage_buffers = 2
+ 	)
+ 	vs_grid = load_shader(
+ 		gpu, 
+ 		vs_grid_code, 
+ 		.VERTEX,
+		format,
+		entrypoint,  
+ 		num_uniform_buffers = 3
+ 	)
+	vs_text = load_shader(
+		gpu,
+		vs_text_code,
+		.VERTEX,
+		format,
+		entrypoint, 
+		num_uniform_buffers = 1
+	)
+	vs_sprite = load_shader(
+		gpu,
+		vs_sprite_code,
+		.VERTEX,
+		format,
+		entrypoint,
+		num_uniform_buffers = 1,
+		num_storage_buffers = 1
+	)
+	vs_fullscreen_quad = load_shader(
+		gpu,
+		vs_fullscreen_quad_code,
+		.VERTEX,
+		format,
+		entrypoint,
+		num_uniform_buffers = 1
+	)
+
+	// frag
+	fs_solid_col = load_shader(
+		gpu, 
+		fs_solid_color_code, 
+		.FRAGMENT,
+		format,
+		entrypoint, 
+		num_uniform_buffers = 1
+	)
+	fs_sdf_quad = load_shader(
+		gpu, 
+		fs_sdf_quad_code, 
+		.FRAGMENT,
+		format,
+		entrypoint,  
+		num_uniform_buffers = 1
+	)
+	fs_text = load_shader(
+		gpu, 
+		fs_textured_quad_code, 
+		.FRAGMENT,
+		format,
+		entrypoint,  
+		num_samplers = 1
+	)
+}
 
 load_shader :: proc(
 	device: ^sdl.GPUDevice, 
 	code: []u8, 
 	stage: sdl.GPUShaderStage, 
+	format: sdl.GPUShaderFormat,
+	entrypoint: string,
 	num_samplers: u32 = 0,
 	num_uniform_buffers: u32 = 0, 
 	num_storage_buffers: u32 = 0,
@@ -176,9 +321,9 @@ load_shader :: proc(
 {
 	return sdl.CreateGPUShader(device, {
 		code_size = len(code),
-		code = raw_data(code),   
-		entrypoint = "main0",
-		format = {.MSL},
+		code = raw_data(code),
+		entrypoint = strings.clone_to_cstring(entrypoint, context.temp_allocator),
+		format = format,
 		stage = stage,
 		num_samplers = num_samplers,
 		num_uniform_buffers = num_uniform_buffers,
