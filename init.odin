@@ -60,20 +60,32 @@ init_transfer_mem :: proc()
 {
 	// setup vertex buffers
 
-	batch_shape_inputs_vertex_buffer = sdl.CreateGPUBuffer(gpu, {
+	batch_shape_solid_inputs_vertex_buffer = sdl.CreateGPUBuffer(gpu, {
 		usage = {.VERTEX},
-		size = u32(batch_shape_inputs_byte_size)
+		size = u32(batch_shape_solid_inputs_byte_size)
+	})
+	batch_shape_sdf_inputs_vertex_buffer = sdl.CreateGPUBuffer(gpu, {
+		usage = {.VERTEX},
+		size = u32(batch_shape_sdf_inputs_byte_size)
 	})
 
 	// setup storage buffers
 
-	batch_shape_vertex_storage_buffer = sdl.CreateGPUBuffer(gpu, {
+	batch_shape_solid_vertex_storage_buffer = sdl.CreateGPUBuffer(gpu, {
 		usage = {.GRAPHICS_STORAGE_READ},
-		size = u32(batch_shape_verts_byte_size)
+		size = u32(batch_shape_solid_verts_byte_size)
 	})
-	batch_shape_models_storage_buffer = sdl.CreateGPUBuffer(gpu, {
+	batch_shape_solid_models_storage_buffer = sdl.CreateGPUBuffer(gpu, {
 		usage = {.GRAPHICS_STORAGE_READ},
-		size = u32(batch_shape_models_byte_size)
+		size = u32(batch_shape_solid_models_byte_size)
+	})
+	batch_shape_sdf_vertex_storage_buffer = sdl.CreateGPUBuffer(gpu, {
+		usage = {.GRAPHICS_STORAGE_READ},
+		size = u32(batch_shape_sdf_verts_byte_size)
+	})
+	batch_shape_sdf_models_storage_buffer = sdl.CreateGPUBuffer(gpu, {
+		usage = {.GRAPHICS_STORAGE_READ},
+		size = u32(batch_shape_sdf_models_byte_size)
 	})
 
 	// grid vertex buffer
@@ -187,9 +199,12 @@ init_transfer_mem :: proc()
 	// create main shared transfer buffer for dynamic data
 	/////////////////////////
 
-	transfer_buffer_byte_size := batch_shape_inputs_byte_size + 
-		batch_shape_verts_byte_size + 
-		batch_shape_models_byte_size + 
+	transfer_buffer_byte_size := batch_shape_solid_inputs_byte_size + 
+		batch_shape_sdf_inputs_byte_size +
+		batch_shape_solid_verts_byte_size + 
+		batch_shape_sdf_verts_byte_size +
+		batch_shape_solid_models_byte_size + 
+		batch_shape_sdf_models_byte_size +
 		text_vert_buf_byte_size + 
 		text_index_buf_byte_size + 
 		sprite_data_byte_size
@@ -306,7 +321,7 @@ init_pipelines :: proc()
 	}
 
 	pipeline_info : sdl.GPUGraphicsPipelineCreateInfo = {
-		vertex_shader = vs_wrap_shape,
+		vertex_shader = vs_batch_shape_solid,
 		fragment_shader = fs_solid_col,
 		primitive_type = .TRIANGLELIST,
 		target_info = {
@@ -330,6 +345,7 @@ init_pipelines :: proc()
 
 	// sdf quad pipeline
 
+	pipeline_info.vertex_shader = vs_batch_shape_sdf
 	pipeline_info.fragment_shader = fs_sdf_quad
 	pipeline_sdf =  sdl.CreateGPUGraphicsPipeline(gpu, pipeline_info)
 
@@ -434,7 +450,8 @@ init_pipelines :: proc()
 
 	// cleanup
 
-	sdl.ReleaseGPUShader(gpu, vs_wrap_shape)
+	sdl.ReleaseGPUShader(gpu, vs_batch_shape_solid)
+	sdl.ReleaseGPUShader(gpu, vs_batch_shape_sdf)
 	sdl.ReleaseGPUShader(gpu, vs_grid)
 	sdl.ReleaseGPUShader(gpu, vs_text)
 	sdl.ReleaseGPUShader(gpu, vs_sprite)

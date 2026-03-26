@@ -13,12 +13,11 @@ cbuffer ResUBO : register(b0, space3)
 struct Input {
     float4 Color : TEXCOORD0;
     float2 uv : TEXCOORD1;
-    float period : TEXCOORD2;
-    float2 model_pos : TEXCOORD3;
-    float2 model_scale : TEXCOORD4;
-    float thic : TEXCOORD5;
-    float fade : TEXCOORD6;
-    float2 arc_range : TEXCOORD7;
+    float2 model_pos : TEXCOORD2;
+    float2 model_scale : TEXCOORD3;
+    float thic : TEXCOORD4;
+    float fade : TEXCOORD5;
+    float2 arc_range : TEXCOORD6;
 };
 
 float4 main(Input input) : SV_Target0

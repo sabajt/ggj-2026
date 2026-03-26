@@ -17,25 +17,25 @@ struct main0_in
 {
     float4 in_var_TEXCOORD0 [[user(locn0)]];
     float2 in_var_TEXCOORD1 [[user(locn1)]];
+    float2 in_var_TEXCOORD2 [[user(locn2)]];
     float2 in_var_TEXCOORD3 [[user(locn3)]];
-    float2 in_var_TEXCOORD4 [[user(locn4)]];
+    float in_var_TEXCOORD4 [[user(locn4)]];
     float in_var_TEXCOORD5 [[user(locn5)]];
-    float in_var_TEXCOORD6 [[user(locn6)]];
-    float2 in_var_TEXCOORD7 [[user(locn7)]];
+    float2 in_var_TEXCOORD6 [[user(locn6)]];
 };
 
 fragment main0_out main0(main0_in in [[stage_in]], constant type_ResUBO& ResUBO [[buffer(0)]])
 {
     main0_out out = {};
     float4 _40 = in.in_var_TEXCOORD0;
-    float2 _53 = (((in.in_var_TEXCOORD1 * float2(0.5)) + float2(0.5)) * ResUBO.res_cam.xy) - (in.in_var_TEXCOORD3 - ResUBO.res_cam.zw);
-    float _60 = precise::min(in.in_var_TEXCOORD4.x * 0.5, in.in_var_TEXCOORD4.y * 0.5);
+    float2 _53 = (((in.in_var_TEXCOORD1 * float2(0.5)) + float2(0.5)) * ResUBO.res_cam.xy) - (in.in_var_TEXCOORD2 - ResUBO.res_cam.zw);
+    float _60 = precise::min(in.in_var_TEXCOORD3.x * 0.5, in.in_var_TEXCOORD3.y * 0.5);
     float _61 = length(_53);
     float _64 = precise::atan2(_53.y, _53.x);
     bool _73;
-    if (in.in_var_TEXCOORD7.x == 0.0)
+    if (in.in_var_TEXCOORD6.x == 0.0)
     {
-        _73 = in.in_var_TEXCOORD7.y == 0.0;
+        _73 = in.in_var_TEXCOORD6.y == 0.0;
     }
     else
     {
@@ -45,19 +45,19 @@ fragment main0_out main0(main0_in in [[stage_in]], constant type_ResUBO& ResUBO 
     float _81;
     if (_73)
     {
-        _80 = in.in_var_TEXCOORD7.y;
+        _80 = in.in_var_TEXCOORD6.y;
         _81 = -3.1415927410125732421875;
     }
     else
     {
-        bool _77 = in.in_var_TEXCOORD7.x > in.in_var_TEXCOORD7.y;
-        _80 = _77 ? 3.1415927410125732421875 : in.in_var_TEXCOORD7.y;
-        _81 = _77 ? (-3.1415927410125732421875) : in.in_var_TEXCOORD7.x;
+        bool _77 = in.in_var_TEXCOORD6.x > in.in_var_TEXCOORD6.y;
+        _80 = _77 ? 3.1415927410125732421875 : in.in_var_TEXCOORD6.y;
+        _81 = _77 ? (-3.1415927410125732421875) : in.in_var_TEXCOORD6.x;
     }
     bool _87;
     if (_64 > _81)
     {
-        _87 = _64 < (_73 ? 3.1415927410125732421875 : in.in_var_TEXCOORD7.y);
+        _87 = _64 < (_73 ? 3.1415927410125732421875 : in.in_var_TEXCOORD6.y);
     }
     else
     {
@@ -67,7 +67,7 @@ fragment main0_out main0(main0_in in [[stage_in]], constant type_ResUBO& ResUBO 
     if (!_87)
     {
         bool _95;
-        if (_64 > in.in_var_TEXCOORD7.x)
+        if (_64 > in.in_var_TEXCOORD6.x)
         {
             _95 = _64 < _80;
         }
@@ -85,9 +85,9 @@ fragment main0_out main0(main0_in in [[stage_in]], constant type_ResUBO& ResUBO 
     if (!(_61 > _60))
     {
         bool _106;
-        if (in.in_var_TEXCOORD5 > 0.0)
+        if (in.in_var_TEXCOORD4 > 0.0)
         {
-            _106 = _61 < (_60 - in.in_var_TEXCOORD5);
+            _106 = _61 < (_60 - in.in_var_TEXCOORD4);
         }
         else
         {
@@ -116,17 +116,17 @@ fragment main0_out main0(main0_in in [[stage_in]], constant type_ResUBO& ResUBO 
     else
     {
         float _133;
-        if (in.in_var_TEXCOORD6 > 0.0)
+        if (in.in_var_TEXCOORD5 > 0.0)
         {
-            float _120 = (_60 - in.in_var_TEXCOORD5) + in.in_var_TEXCOORD6;
+            float _120 = (_60 - in.in_var_TEXCOORD4) + in.in_var_TEXCOORD5;
             float _132;
             if (_61 > _120)
             {
-                _132 = precise::min((_60 - _61) / in.in_var_TEXCOORD6, 1.0);
+                _132 = precise::min((_60 - _61) / in.in_var_TEXCOORD5, 1.0);
             }
             else
             {
-                _132 = 1.0 - precise::min((_120 - _61) / in.in_var_TEXCOORD6, 1.0);
+                _132 = 1.0 - precise::min((_120 - _61) / in.in_var_TEXCOORD5, 1.0);
             }
             _133 = _132;
         }

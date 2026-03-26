@@ -12,26 +12,16 @@ struct Output
     float4 color : TEXCOORD0;
     float2 uv : TEXCOORD1;
     float period : TEXCOORD2;
-
-    // out for SDF shader
-    float2 model_pos : TEXCOORD3;
-    float2 model_scale : TEXCOORD4;
-    float thic : TEXCOORD5;
-    float fade : TEXCOORD6;
-    float2 arc_range : TEXCOORD7; 
 };
 
 struct Model
 {
     float3 position;
     float rotation;
-    float2 scale;
-    float2 arc_range; // -PI to PI, clockwise
     float4 color;
-    float thic;
-    float fade;
+    float2 scale;
     float period;
-    float padding_b;
+    float padding;
 };
 
 struct Vertex
@@ -82,16 +72,8 @@ Output main(Input input)
     Output output;
     output.position = mul(view_projection, float4(vertex_pos, 1.0f));
     output.color = vertex.color * model.color;
-
-    // output for SDF shader
-
     output.uv = output.position.xy;
     output.period = model.period;
-    output.model_pos = model.position.xy;
-    output.model_scale = model.scale;
-    output.thic = model.thic;
-    output.fade = model.fade;
-    output.arc_range = model.arc_range;
 
     return output;
 }

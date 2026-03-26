@@ -259,9 +259,9 @@ create_particle_effect :: proc(
 	}
 }
 
-pack_radius_particles :: proc(dt: f32, cam: [2]f32) 
+pack_radius_particles_solid :: proc(dt: f32, cam: [2]f32) 
 {
-	particle_input_start = len(batch_shape_inputs)
+	particle_input_start = len(batch_shape_solid_inputs)
 
 	// pack fill and lines
 	for arr in radius_effects {
@@ -272,7 +272,7 @@ pack_radius_particles :: proc(dt: f32, cam: [2]f32)
 			}
 		}
 	}
-	particle_input_end = len(batch_shape_inputs)
+	particle_input_end = len(batch_shape_solid_inputs)
 }
 // TODO: same as above except p.mode == or != .Circles
 pack_radius_particles_sdf :: proc(dt: f32, cam: [2]f32) 
@@ -289,7 +289,9 @@ pack_radius_particles_sdf :: proc(dt: f32, cam: [2]f32)
 
 pack_radius_particle :: proc(p: Radius_Effect, dt: f32, cam: [2]f32)
 {
-	model: Batch_Shape_Model
+	solid_model: Batch_Shape_Solid_Model
+	sdf_model: Batch_Shape_SDF_Model
+
 	blend_t := math.lerp(p.last_t, p.t, dt)
 
 	rad := math.lerp(p.rad_start, p.rad_end, blend_t)
@@ -306,13 +308,11 @@ pack_radius_particle :: proc(p: Radius_Effect, dt: f32, cam: [2]f32)
 	pos = fit_res_vec2(pos, letterbox_resolution) 
 
 	if p.mode == .Solid || p.mode == .Line {
-		model = Batch_Shape_Model {
+		solid_model = Batch_Shape_Solid_Model {
 			position = { pos.x, pos.y, 1 },
 			rotation = rot,
 			scale = 1,
 			color = col,
-			thic = p.thic,
-			fade = p.fade,
 			period = 0
 		}
 	}	
@@ -395,26 +395,27 @@ pack_radius_particle :: proc(p: Radius_Effect, dt: f32, cam: [2]f32)
 				pos.y + rad * math.sin(angle) 
 			}
 
-			model = Batch_Shape_Model {
+			sdf_model = Batch_Shape_SDF_Model {
 				position = { pos.x, pos.y, 1 },
 				rotation = 0,
 				scale = blend_node_rad * 2.0,
 				color = col,
 				thic = p.thic,
 				fade = p.fade,
-				period = 0
 			}
 
-			pack_batch_shape_vert_ref(
-				vert_index = vert_ref_quad, 
+			pack_batch_shape_sdf_vert_ref(
+				vert_index = vert_ref_quad_sdf, 
 				count = 6, 
-				model = model
+				model = sdf_model
 			)
 		}
 	}
 
 	if p.mode != .Circles {
-		pack_batch_shape(verts[:], model)
+		pack_batch_shape_solid(verts[:], solid_model)
+	} else {
+		pack_batch_shape_sdf(verts[:], sdf_model)
 	}
 
 	delete(verts)

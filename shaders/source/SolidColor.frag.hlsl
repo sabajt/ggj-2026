@@ -7,11 +7,6 @@ struct Input {
     float4 color : TEXCOORD0;
     float2 uv : TEXCOORD1;
     float period : TEXCOORD2;
-    float2 model_pos : TEXCOORD3;
-    float2 model_scale : TEXCOORD4;
-    float thic : TEXCOORD5;
-    float fade : TEXCOORD6;
-    float2 arc_range : TEXCOORD7;
 };
 
 float4 main(Input input) : SV_Target0

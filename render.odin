@@ -30,9 +30,13 @@ create_camera :: proc() -> Camera
 
 clear_batch_shape :: proc() 
 {
-	clear(&batch_shape_inputs)
-	clear(&batch_shape_verts)
-	clear(&batch_shape_models)
+	clear(&batch_shape_solid_inputs)
+	clear(&batch_shape_solid_verts)
+	clear(&batch_shape_solid_models)
+
+	clear(&batch_shape_sdf_inputs)
+	clear(&batch_shape_sdf_verts)
+	clear(&batch_shape_sdf_models)
 }
 
 clear_sprite :: proc()
@@ -289,7 +293,7 @@ render :: proc(dt: f32)
 		sdl.BindGPUVertexBuffers(
 			render_pass, 
 			first_slot = 0, 
-			bindings = &(sdl.GPUBufferBinding { buffer = batch_shape_inputs_vertex_buffer }), 
+			bindings = &(sdl.GPUBufferBinding { buffer = batch_shape_solid_inputs_vertex_buffer }), 
 			num_bindings = 1
 		)
 
@@ -297,13 +301,13 @@ render :: proc(dt: f32)
 		sdl.BindGPUVertexStorageBuffers(
 			render_pass,
 			first_slot = 0,
-			storage_buffers = &batch_shape_vertex_storage_buffer,
+			storage_buffers = &batch_shape_solid_vertex_storage_buffer,
 			num_bindings = 1
 		)
 		sdl.BindGPUVertexStorageBuffers(
 			render_pass,
 			first_slot = 1,
-			storage_buffers = &batch_shape_models_storage_buffer,
+			storage_buffers = &batch_shape_solid_models_storage_buffer,
 			num_bindings = 1
 		)
 
@@ -340,12 +344,42 @@ render :: proc(dt: f32)
 	if sdf_len > 0 {
 		// draw batched shapes: sdf circles
 		sdl.BindGPUGraphicsPipeline(render_pass, pipeline_sdf)
+		
+		sdl.BindGPUVertexBuffers(
+			render_pass, 
+			first_slot = 0, 
+			bindings = &(sdl.GPUBufferBinding { buffer = batch_shape_sdf_inputs_vertex_buffer }), 
+			num_bindings = 1
+		)
+
+		// TODO: figure out how to do in 1 call (how to build multi pointer?)
+		sdl.BindGPUVertexStorageBuffers(
+			render_pass,
+			first_slot = 0,
+			storage_buffers = &batch_shape_sdf_vertex_storage_buffer,
+			num_bindings = 1
+		)
+		sdl.BindGPUVertexStorageBuffers(
+			render_pass,
+			first_slot = 1,
+			storage_buffers = &batch_shape_sdf_models_storage_buffer,
+			num_bindings = 1
+		)
+
+		view_projection := proj_mat * camera_mat
+		sdl.PushGPUVertexUniformData(
+			command_buffer, 
+			slot_index = 0, 
+			data = &view_projection, 
+			length = size_of(view_projection)
+		)
+
 		res_ubo := Res_Ubo { res_cam = {res.x, res.y, camera_blend_pos.x, camera_blend_pos.y } }
 		sdl.PushGPUFragmentUniformData(command_buffer, 0, &res_ubo, size_of(res_ubo))
 
 		sdl.DrawGPUPrimitives(
 			render_pass, 
-			num_vertices = u32(sdf_len), // TODO: z ordering
+			num_vertices = u32(sdf_len), // TODO: z ordering but really REMOVE
 			num_instances = 1, 
 			first_vertex = u32(sdf_start),  // TODO: z ordering
 			first_instance = 0
@@ -519,9 +553,13 @@ render :: proc(dt: f32)
 {
 	// copy data into transfer buffer
 
-	inputs_sz := len(batch_shape_inputs) * size_of(Batch_Shape_Input)
-	verts_sz := len(batch_shape_verts) * size_of(Batch_Shape_Vertex)
-	models_sz := len(batch_shape_models) * size_of(Batch_Shape_Model)
+	solid_inputs_sz := len(batch_shape_solid_inputs) * size_of(Batch_Shape_Input)
+	solid_verts_sz := len(batch_shape_solid_verts) * size_of(Batch_Shape_Vertex)
+	solid_models_sz := len(batch_shape_solid_models) * size_of(Batch_Shape_Solid_Model)
+
+	sdf_inputs_sz := len(batch_shape_sdf_inputs) * size_of(Batch_Shape_Input)
+	sdf_verts_sz := len(batch_shape_sdf_verts) * size_of(Batch_Shape_Vertex)
+	sdf_models_sz := len(batch_shape_sdf_models) * size_of(Batch_Shape_SDF_Model)
 
 	text_verts_sz := 0 
 	text_verts := [dynamic]Text_Vertex {}
@@ -545,27 +583,47 @@ render :: proc(dt: f32)
 
 	transfer_memory := transmute([^]byte)sdl.MapGPUTransferBuffer(gpu, transfer_buffer, true) // TODO: should cycle?
 
-	if len(batch_shape_inputs) > 0 {
+	if len(batch_shape_solid_inputs) > 0 {
 		mem.copy(
 			transfer_memory, 
-			raw_data(batch_shape_inputs), 
-			inputs_sz
+			raw_data(batch_shape_solid_inputs), 
+			solid_inputs_sz
 		)
-		mem_loc := batch_shape_inputs_byte_size
+		mem_loc := batch_shape_solid_inputs_byte_size
 		mem.copy(
 			transfer_memory[mem_loc:], 
-			raw_data(batch_shape_verts), 
-			verts_sz
+			raw_data(batch_shape_solid_verts), 
+			solid_verts_sz
 		)
-		mem_loc += batch_shape_verts_byte_size
+		mem_loc += batch_shape_solid_verts_byte_size
 		mem.copy(
 			transfer_memory[mem_loc:],
-			raw_data(batch_shape_models), 
-			models_sz
+			raw_data(batch_shape_solid_models), 
+			solid_models_sz
+		)
+	}
+	if len(batch_shape_sdf_inputs) > 0 {
+		mem.copy(
+			transfer_memory, 
+			raw_data(batch_shape_sdf_inputs), 
+			sdf_inputs_sz
+		)
+		mem_loc := batch_shape_sdf_inputs_byte_size
+		mem.copy(
+			transfer_memory[mem_loc:], 
+			raw_data(batch_shape_sdf_verts), 
+			sdf_verts_sz
+		)
+		mem_loc += batch_shape_sdf_verts_byte_size
+		mem.copy(
+			transfer_memory[mem_loc:],
+			raw_data(batch_shape_sdf_models), 
+			sdf_models_sz
 		)
 	}
 	if needs_text_render {
-		mem_loc := batch_shape_inputs_byte_size + batch_shape_verts_byte_size + batch_shape_models_byte_size
+		mem_loc := batch_shape_solid_inputs_byte_size + batch_shape_solid_verts_byte_size + batch_shape_solid_models_byte_size + 
+			batch_shape_sdf_inputs_byte_size + batch_shape_sdf_verts_byte_size + batch_shape_sdf_models_byte_size
 		mem.copy(
 			transfer_memory[mem_loc:],
 			raw_data(text_verts),
@@ -579,7 +637,9 @@ render :: proc(dt: f32)
 		)
 	}
 	if len(gpu_sprites) > 0 {
-		mem_loc := batch_shape_inputs_byte_size + batch_shape_verts_byte_size + batch_shape_models_byte_size + text_vert_buf_byte_size + text_index_buf_byte_size
+		mem_loc := batch_shape_solid_inputs_byte_size + batch_shape_solid_verts_byte_size + batch_shape_solid_models_byte_size + 
+			batch_shape_sdf_inputs_byte_size + batch_shape_sdf_verts_byte_size + batch_shape_sdf_models_byte_size + 
+			text_vert_buf_byte_size + text_index_buf_byte_size
 		mem.copy(
 			transfer_memory[mem_loc:],
 			raw_data(gpu_sprites),
@@ -593,19 +653,19 @@ render :: proc(dt: f32)
 
 	copy_pass := sdl.BeginGPUCopyPass(command_buffer)
 
-	if len(batch_shape_inputs) > 0 {
+	if len(batch_shape_solid_inputs) > 0 {
 		sdl.UploadToGPUBuffer(
 			copy_pass, 
 			source = {
 				transfer_buffer = transfer_buffer
 			},
 			destination = {
-				buffer = batch_shape_inputs_vertex_buffer, 
-				size = u32(batch_shape_inputs_byte_size)
+				buffer = batch_shape_solid_inputs_vertex_buffer, 
+				size = u32(batch_shape_solid_inputs_byte_size)
 			},
 			cycle = true
 		)
-		offset := u32(batch_shape_inputs_byte_size)
+		offset := u32(batch_shape_solid_inputs_byte_size)
 		sdl.UploadToGPUBuffer(
 			copy_pass, 
 			source = {
@@ -614,12 +674,12 @@ render :: proc(dt: f32)
 
 			},
 			destination = {
-				buffer = batch_shape_vertex_storage_buffer, 
-				size = u32(batch_shape_verts_byte_size)
+				buffer = batch_shape_solid_vertex_storage_buffer, 
+				size = u32(batch_shape_solid_verts_byte_size)
 			},
 			cycle = false 
 		)
-		offset += u32(batch_shape_verts_byte_size)
+		offset += u32(batch_shape_solid_verts_byte_size)
 		sdl.UploadToGPUBuffer(
 			copy_pass, 
 			source = {
@@ -627,14 +687,55 @@ render :: proc(dt: f32)
 				offset = offset
 			},
 			destination = {
-				buffer = batch_shape_models_storage_buffer, 
-				size = u32(batch_shape_models_byte_size)
+				buffer = batch_shape_solid_models_storage_buffer, 
+				size = u32(batch_shape_solid_models_byte_size)
+			},
+			cycle = false
+		)
+	}
+	if len(batch_shape_sdf_inputs) > 0 {
+		sdl.UploadToGPUBuffer(
+			copy_pass, 
+			source = {
+				transfer_buffer = transfer_buffer
+			},
+			destination = {
+				buffer = batch_shape_sdf_inputs_vertex_buffer, 
+				size = u32(batch_shape_sdf_inputs_byte_size)
+			},
+			cycle = true
+		)
+		offset := u32(batch_shape_sdf_inputs_byte_size)
+		sdl.UploadToGPUBuffer(
+			copy_pass, 
+			source = {
+				transfer_buffer = transfer_buffer,
+				offset = offset
+
+			},
+			destination = {
+				buffer = batch_shape_sdf_vertex_storage_buffer, 
+				size = u32(batch_shape_sdf_verts_byte_size)
+			},
+			cycle = false 
+		)
+		offset += u32(batch_shape_sdf_verts_byte_size)
+		sdl.UploadToGPUBuffer(
+			copy_pass, 
+			source = {
+				transfer_buffer = transfer_buffer, 
+				offset = offset
+			},
+			destination = {
+				buffer = batch_shape_sdf_models_storage_buffer, 
+				size = u32(batch_shape_sdf_models_byte_size)
 			},
 			cycle = false
 		)
 	}
 	if needs_text_render {
-		offset := u32(batch_shape_inputs_byte_size + batch_shape_verts_byte_size + batch_shape_models_byte_size)
+		offset := u32(batch_shape_solid_inputs_byte_size + batch_shape_solid_verts_byte_size + batch_shape_solid_models_byte_size +
+			batch_shape_sdf_inputs_byte_size + batch_shape_sdf_verts_byte_size + batch_shape_sdf_models_byte_size)
 		sdl.UploadToGPUBuffer(
 			copy_pass, 
 			source = {
@@ -662,7 +763,9 @@ render :: proc(dt: f32)
 		)
 	}
 	if len(sprites) > 0 {
-		offset := u32(batch_shape_inputs_byte_size + batch_shape_verts_byte_size + batch_shape_models_byte_size  + text_vert_buf_byte_size + text_index_buf_byte_size)
+		offset := u32(batch_shape_solid_inputs_byte_size + batch_shape_solid_verts_byte_size + batch_shape_solid_models_byte_size +
+			batch_shape_sdf_inputs_byte_size + batch_shape_sdf_verts_byte_size + batch_shape_sdf_models_byte_size + 
+			text_vert_buf_byte_size + text_index_buf_byte_size)
 		sdl.UploadToGPUBuffer(
 			copy_pass, 
 			source = {

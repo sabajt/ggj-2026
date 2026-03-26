@@ -4,7 +4,8 @@ import "core:math/linalg"
 import "core:strings"
 import sdl "vendor:sdl3"
 
-vs_wrap_shape:^sdl.GPUShader
+vs_batch_shape_solid:^sdl.GPUShader
+vs_batch_shape_sdf:^sdl.GPUShader
 vs_grid:^sdl.GPUShader
 vs_text:^sdl.GPUShader
 vs_sprite:^sdl.GPUShader
@@ -14,7 +15,8 @@ fs_sdf_quad:^sdl.GPUShader
 fs_text:^sdl.GPUShader
 
 vs_grid_code: []u8
-vs_batch_shape_code: []u8
+vs_batch_shape_solid_code: []u8
+vs_batch_shape_sdf_code: []u8
 vs_text_code: []u8
 vs_sprite_code: []u8
 vs_fullscreen_quad_code: []u8
@@ -23,7 +25,8 @@ fs_sdf_quad_code: []u8
 fs_textured_quad_code: []u8
 
 _vs_grid_code_msl := #load("shaders/compiled/msl/Grid.vert.msl")
-_vs_batch_shape_code_msl := #load("shaders/compiled/msl/BatchShape.vert.msl")
+_vs_batch_shape_solid_code_msl := #load("shaders/compiled/msl/BatchShapeSolid.vert.msl")
+_vs_batch_shape_sdf_code_msl := #load("shaders/compiled/msl/BatchShapeSDF.vert.msl")
 _vs_text_code_msl := #load("shaders/compiled/msl/Text.vert.msl")
 _vs_sprite_code_msl := #load("shaders/compiled/msl/BatchSprite.vert.msl")
 _vs_fullscreen_quad_code_msl := #load("shaders/compiled/msl/FullscreenQuad.vert.msl")
@@ -32,7 +35,8 @@ _fs_sdf_quad_code_msl := #load("shaders/compiled/msl/SDFQuad.frag.msl")
 _fs_textured_quad_code_msl := #load("shaders/compiled/msl/TexturedQuad.frag.msl")
 
 _vs_grid_code_dxil := #load("shaders/compiled/dxil/Grid.vert.dxil")
-_vs_batch_shape_code_dxil := #load("shaders/compiled/dxil/BatchShape.vert.dxil")
+_vs_batch_shape_solid_code_dxil := #load("shaders/compiled/dxil/BatchShapeSolid.vert.dxil")
+_vs_batch_shape_sdf_code_dxil := #load("shaders/compiled/dxil/BatchShapeSDF.vert.dxil")
 _vs_text_code_dxil := #load("shaders/compiled/dxil/Text.vert.dxil")
 _vs_sprite_code_dxil := #load("shaders/compiled/dxil/BatchSprite.vert.dxil")
 _vs_fullscreen_quad_code_dxil := #load("shaders/compiled/dxil/FullscreenQuad.vert.dxil")
@@ -41,7 +45,8 @@ _fs_sdf_quad_code_dxil := #load("shaders/compiled/dxil/SDFQuad.frag.dxil")
 _fs_textured_quad_code_dxil := #load("shaders/compiled/dxil/TexturedQuad.frag.dxil")
 
 _vs_grid_code_spv := #load("shaders/compiled/spirv/Grid.vert.spv")
-_vs_batch_shape_code_spv := #load("shaders/compiled/spirv/BatchShape.vert.spv")
+_vs_batch_shape_solid_code_spv := #load("shaders/compiled/spirv/BatchShapeSolid.vert.spv")
+_vs_batch_shape_sdf_code_spv := #load("shaders/compiled/spirv/BatchShapeSDF.vert.spv")
 _vs_text_code_spv := #load("shaders/compiled/spirv/Text.vert.spv")
 _vs_sprite_code_spv := #load("shaders/compiled/spirv/BatchSprite.vert.spv")
 _vs_fullscreen_quad_code_spv := #load("shaders/compiled/spirv/FullscreenQuad.vert.spv")
@@ -62,7 +67,16 @@ Batch_Shape_Vertex :: struct {
 	padding : [2]f32
 }
 
-Batch_Shape_Model :: struct {
+Batch_Shape_Solid_Model :: struct {
+	position: [3]f32,
+	rotation: f32,
+	color: [4]f32,
+	scale: [2]f32,
+	period: f32, // for solid rendering: 0 -> solid, >=2 -> transparent "stripes"
+	padding: f32
+}
+
+Batch_Shape_SDF_Model :: struct {
     position: [3]f32,
     rotation: f32,
     scale: [2]f32,
@@ -70,8 +84,7 @@ Batch_Shape_Model :: struct {
     color: [4]f32, // overrides vert colors
     thic: f32, // thickness of circle if SDF
     fade: f32, // fade length of circle if SDF
-    period: f32, // for solid rendering: 0 -> solid, >=2 -> transparent "stripes"
-    padding_b: f32
+    padding: [2]f32
 }
 
 GPU_Sprite :: struct {
@@ -123,23 +136,39 @@ Resolution_Uniform_Buffer:: struct {
 
 // helpers
 
-create_batch_shape_model :: proc(
+create_batch_shape_solid_model :: proc(
     pos: [2]f32 = 0,
     rot: f32 = 0,
     scale: [2]f32 = 1,
     col: [4]f32 = 1, 
-    thic: f32 = 0,
-    fade: f32 = 0, 
-    period: f32 = 0) -> Batch_Shape_Model
+    period: f32 = 0) -> Batch_Shape_Solid_Model
 {
-	return Batch_Shape_Model {
+	return Batch_Shape_Solid_Model {
 		position = {pos.x, pos.y, 1},
 		rotation = rot,
 		scale = scale,
 		color = col,
+		period = period
+	}
+}
+
+create_batch_shape_sdf_model :: proc(
+    pos: [2]f32 = 0,
+    rot: f32 = 0,
+    scale: [2]f32 = 1,
+    arc_range: [2]f32 = 0,
+    col: [4]f32 = 1,
+    thic: f32 = 0,
+    fade: f32 = 0) -> Batch_Shape_SDF_Model
+{
+	return Batch_Shape_SDF_Model {
+		position = {pos.x, pos.y, 1},
+		rotation = rot,
+		scale = scale,
+		arc_range = arc_range,
+		color = col,
 		thic = thic,
 		fade = fade,
-		period = period
 	}
 }
 
@@ -182,18 +211,29 @@ text_index_buf_byte_size := size_of(u32) * 6000
 
 // batch fill shapes
 
-batch_shape_inputs := [dynamic]Batch_Shape_Input {}
-batch_shape_inputs_byte_size := 80_000 * size_of(Batch_Shape_Input) // TODO: rename max size?
-batch_shape_inputs_vertex_buffer : ^sdl.GPUBuffer
+batch_shape_solid_inputs := [dynamic]Batch_Shape_Input {}
+batch_shape_solid_inputs_byte_size := 80_000 * size_of(Batch_Shape_Input) // TODO: rename max size?
+batch_shape_solid_inputs_vertex_buffer : ^sdl.GPUBuffer
 
-batch_shape_verts := [dynamic]Batch_Shape_Vertex {}
-batch_shape_verts_byte_size := 40_000 * size_of(Batch_Shape_Vertex) 
-batch_shape_vertex_storage_buffer: ^sdl.GPUBuffer
+batch_shape_sdf_inputs := [dynamic]Batch_Shape_Input {}
+batch_shape_sdf_inputs_byte_size := 80_000 * size_of(Batch_Shape_Input) // TODO: rename max size?
+batch_shape_sdf_inputs_vertex_buffer : ^sdl.GPUBuffer
 
-batch_shape_models := [dynamic]Batch_Shape_Model {}
-batch_shape_models_byte_size := 20_000 * size_of(Batch_Shape_Model)
-batch_shape_models_storage_buffer : ^sdl.GPUBuffer
+batch_shape_solid_verts := [dynamic]Batch_Shape_Vertex {}
+batch_shape_solid_verts_byte_size := 40_000 * size_of(Batch_Shape_Vertex) 
+batch_shape_solid_vertex_storage_buffer: ^sdl.GPUBuffer
 
+batch_shape_sdf_verts := [dynamic]Batch_Shape_Vertex {}
+batch_shape_sdf_verts_byte_size := 40_000 * size_of(Batch_Shape_Vertex) 
+batch_shape_sdf_vertex_storage_buffer: ^sdl.GPUBuffer
+
+batch_shape_solid_models := [dynamic]Batch_Shape_Solid_Model {}
+batch_shape_solid_models_byte_size := 20_000 * size_of(Batch_Shape_Solid_Model)
+batch_shape_solid_models_storage_buffer : ^sdl.GPUBuffer
+
+batch_shape_sdf_models := [dynamic]Batch_Shape_SDF_Model {}
+batch_shape_sdf_models_byte_size := 20_000 * size_of(Batch_Shape_SDF_Model)
+batch_shape_sdf_models_storage_buffer : ^sdl.GPUBuffer
 
 first_sdf_input := int(0)
 last_sdf_input := int(0)
@@ -208,7 +248,8 @@ load_shaders :: proc(device: ^sdl.GPUDevice)
 		format = {.MSL}
 		entrypoint = "main0"
 		vs_grid_code = _vs_grid_code_msl
-		vs_batch_shape_code = _vs_batch_shape_code_msl
+		vs_batch_shape_solid_code = _vs_batch_shape_solid_code_msl
+		vs_batch_shape_sdf_code = _vs_batch_shape_sdf_code_msl
 		vs_text_code = _vs_text_code_msl
 		vs_sprite_code = _vs_sprite_code_msl
 		vs_fullscreen_quad_code = _vs_fullscreen_quad_code_msl
@@ -218,7 +259,8 @@ load_shaders :: proc(device: ^sdl.GPUDevice)
 	} else if .DXIL in formats {
 		format = {.DXIL}
 		vs_grid_code = _vs_grid_code_dxil
-		vs_batch_shape_code = _vs_batch_shape_code_dxil
+		vs_batch_shape_solid_code = _vs_batch_shape_solid_code_dxil
+		vs_batch_shape_sdf_code = _vs_batch_shape_sdf_code_dxil
 		vs_text_code = _vs_text_code_dxil
 		vs_sprite_code = _vs_sprite_code_dxil
 		vs_fullscreen_quad_code = _vs_fullscreen_quad_code_dxil
@@ -228,7 +270,8 @@ load_shaders :: proc(device: ^sdl.GPUDevice)
 	} else if .SPIRV in formats {
 		format = {.SPIRV}
 		vs_grid_code = _vs_grid_code_spv
-		vs_batch_shape_code = _vs_batch_shape_code_spv
+		vs_batch_shape_solid_code = _vs_batch_shape_solid_code_spv
+		vs_batch_shape_sdf_code = _vs_batch_shape_sdf_code_spv
 		vs_text_code = _vs_text_code_spv
 		vs_sprite_code = _vs_sprite_code_spv
 		vs_fullscreen_quad_code = _vs_fullscreen_quad_code_spv
@@ -238,9 +281,18 @@ load_shaders :: proc(device: ^sdl.GPUDevice)
 	}
 
 	// vert
- 	vs_wrap_shape = load_shader(
+ 	vs_batch_shape_solid = load_shader(
  		gpu, 
- 		vs_batch_shape_code, 
+ 		vs_batch_shape_solid_code, 
+ 		.VERTEX,
+		format,
+		entrypoint,  
+ 		num_uniform_buffers = 1, 
+ 		num_storage_buffers = 2
+ 	)
+	vs_batch_shape_sdf = load_shader(
+ 		gpu, 
+ 		vs_batch_shape_sdf_code, 
  		.VERTEX,
 		format,
 		entrypoint,  

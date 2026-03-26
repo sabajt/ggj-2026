@@ -3,9 +3,13 @@ package main
 import "core:fmt"
 import "core:math"
 
-vert_ref_quad := 0 // len 6 
-vert_ref_quad_bl := 0 // len 6
-vert_ref_tri := 0 // len 3
+vert_ref_quad_solid := 0 // len 6 
+vert_ref_quad_bl_solid := 0 // len 6
+vert_ref_tri_solid := 0 // len 3
+
+vert_ref_quad_sdf := 0 // len 6 
+vert_ref_quad_bl_sdf := 0 // len 6
+vert_ref_tri_sdf := 0 // len 3
 
 solid_input_start_0: int
 solid_input_end_0: int
@@ -95,7 +99,7 @@ pack :: proc(dt: f32, cam: [2]f32)
 			// state specific packing
 		}
 	}
-	pack_radius_particles(sim_dt, cam)
+	pack_radius_particles_solid(sim_dt, cam)
 	pack_sdf(sim_dt, cam)
 	pack_text_ttf()
 }
@@ -103,19 +107,19 @@ pack :: proc(dt: f32, cam: [2]f32)
 pack_shapes :: proc(dt: f32, cam: [2]f32, z: int)
 {
 	if z == 0 {
-		solid_input_start_0 = len(batch_shape_inputs)
+		solid_input_start_0 = len(batch_shape_solid_inputs)
 	} else if z == 1 {
-		solid_input_start_1 = len(batch_shape_inputs)
+		solid_input_start_1 = len(batch_shape_solid_inputs)
 	} else if z == 2 {
-		solid_input_start_2 = len(batch_shape_inputs)
+		solid_input_start_2 = len(batch_shape_solid_inputs)
 	}
 	defer {
 		if z == 0 {
-			solid_input_end_0 = len(batch_shape_inputs)
+			solid_input_end_0 = len(batch_shape_solid_inputs)
 		} else if z == 1 {
-			solid_input_end_1 = len(batch_shape_inputs)
+			solid_input_end_1 = len(batch_shape_solid_inputs)
 		} else if z == 2 {
-			solid_input_end_2 = len(batch_shape_inputs)
+			solid_input_end_2 = len(batch_shape_solid_inputs)
 		}
 	}
 
@@ -174,7 +178,8 @@ pack_shared_verts :: proc()
 		{ position = {0.5, 0.5}, color = {1, 1, 1, 1} },
 		{ position = {-0.5, 0.5}, color = {1, 1, 1, 1} }
 	}
-	vert_ref_quad = pack_vert_ref(verts[:])
+	vert_ref_quad_solid = pack_vert_ref_solid(verts[:])
+	vert_ref_quad_sdf = pack_vert_ref_sdf(verts[:])
 
 	// quad: bottom left 
 	verts = []Batch_Shape_Vertex {
@@ -185,7 +190,8 @@ pack_shared_verts :: proc()
 		{ position = {1, 1}, color = {1, 1, 1, 1} },
 		{ position = {0, 1}, color = {1, 1, 1, 1} }
 	}
-	vert_ref_quad_bl = pack_vert_ref(verts[:])
+	vert_ref_quad_bl_solid = pack_vert_ref_solid(verts[:])
+	vert_ref_quad_bl_sdf = pack_vert_ref_sdf(verts[:])
 
 	// triangle: centered
 	verts = []Batch_Shape_Vertex {
@@ -193,12 +199,14 @@ pack_shared_verts :: proc()
 		{ position = {0.5, -0.5}, color = {1, 1, 1, 1} },
 		{ position = {0, 0.5}, color = {1, 1, 1, 1} },
 	}
-	vert_ref_tri = pack_vert_ref(verts[:])
+	vert_ref_tri_solid = pack_vert_ref_solid(verts[:])
+	vert_ref_tri_sdf = pack_vert_ref_sdf(verts[:])
 }
 
 pack_sdf :: proc(dt: f32, cam: [2]f32)
 {
-	first_sdf_input = len(batch_shape_inputs)
+	// TODO: prolly don't input flags anymore since in their own arr
+	first_sdf_input = len(batch_shape_sdf_inputs)
 
 	pack_radius_particles_sdf(dt, cam)
 
@@ -207,26 +215,25 @@ pack_sdf :: proc(dt: f32, cam: [2]f32)
 		// state specific sdf packing
 	}
 
-	last_sdf_input = len(batch_shape_inputs)
+	last_sdf_input = len(batch_shape_sdf_inputs)
 }
 
 pack_render_data_sdf :: proc(data: RenderPackData, dt: f32, cam: [2]f32)
 {
-	models := [dynamic]Batch_Shape_Model{}
+	models := [dynamic]Batch_Shape_SDF_Model{}
 	blend_rad: f32 = data.rad // TODO: rad isn't being blended here... does it need to be?
 	blend_rad = fit_res_x(blend_rad, letterbox_resolution)
 
 	blend_pos := math.lerp(data.last_pos, data.pos, dt)
 	blend_pos = fit_res_vec2(blend_pos, letterbox_resolution)
 
-	model := Batch_Shape_Model {
+	model := Batch_Shape_SDF_Model {
 		position = { blend_pos.x, blend_pos.y, 1 },
 		rotation = 0,
 		scale = blend_rad * 2.0,
 		color = data.col,
 		thic = data.thic,
 		fade = data.fade,
-		period = 0
 	}
 
 	// TODO: instead of appending dups, reference a common quad
@@ -258,7 +265,7 @@ pack_render_data_sdf :: proc(data: RenderPackData, dt: f32, cam: [2]f32)
 		color = {1, 1, 1, 1}
 	})
 
-	pack_batch_shape(verts[:], model)
+	pack_batch_shape_sdf(verts[:], model)
 
 	delete(models)
 	delete(verts)
@@ -266,78 +273,83 @@ pack_render_data_sdf :: proc(data: RenderPackData, dt: f32, cam: [2]f32)
 
 // pack a shape based on existing vert ref
 // DOING: could give a z index (or z enum?) referencing different models and inputs
-pack_batch_shape_vert_ref :: proc (vert_index: int, count: int, model: Batch_Shape_Model)
+pack_batch_shape_solid_vert_ref :: proc (vert_index: int, count: int, model: Batch_Shape_Solid_Model)
 {
-	model_index := uint(len(batch_shape_models))
-	append(&batch_shape_models, model)
+	model_index := uint(len(batch_shape_solid_models))
+	append(&batch_shape_solid_models, model)
 
 	for i := vert_index; i < vert_index + count; i += 1 {
 		input := Batch_Shape_Input { 
 			vertex_index = uint(i),
 			model_index = model_index
 		}
-		append(&batch_shape_inputs, input)
+		append(&batch_shape_solid_inputs, input)
+	}
+}
+pack_batch_shape_sdf_vert_ref :: proc (vert_index: int, count: int, model: Batch_Shape_SDF_Model)
+{
+	model_index := uint(len(batch_shape_sdf_models))
+	append(&batch_shape_sdf_models, model)
+
+	for i := vert_index; i < vert_index + count; i += 1 {
+		input := Batch_Shape_Input { 
+			vertex_index = uint(i),
+			model_index = model_index
+		}
+		append(&batch_shape_sdf_inputs, input)
 	}
 }
 
 // add a new vert ref, return index
-pack_vert_ref :: proc(verts : []Batch_Shape_Vertex) -> (vert_index: int)
+pack_vert_ref_solid :: proc(verts : []Batch_Shape_Vertex) -> (vert_index: int)
 {
-	i := len(batch_shape_verts)
+	i := len(batch_shape_solid_verts)
 	for &v in verts {
-		append(&batch_shape_verts, v)
+		append(&batch_shape_solid_verts, v)
+	}
+	return i
+}
+// add a new vert ref, return index
+pack_vert_ref_sdf :: proc(verts : []Batch_Shape_Vertex) -> (vert_index: int)
+{
+	i := len(batch_shape_sdf_verts)
+	for &v in verts {
+		append(&batch_shape_sdf_verts, v)
 	}
 	return i
 }
 
-pack_batch_shape :: proc(verts : []Batch_Shape_Vertex, model: Batch_Shape_Model) 
+pack_batch_shape_solid :: proc(verts : []Batch_Shape_Vertex, model: Batch_Shape_Solid_Model) 
 {
-	// TODO: understand odin reference / arg passing rules 
-
-	model_index := uint(len(batch_shape_models))
-	append(&batch_shape_models, model)
+	model_index := uint(len(batch_shape_solid_models))
+	append(&batch_shape_solid_models, model)
 
 	for &v in verts {
-		vertex_index := uint(len(batch_shape_verts))
-		append(&batch_shape_verts, v)
+		vertex_index := uint(len(batch_shape_solid_verts))
+		append(&batch_shape_solid_verts, v)
 
 		input := Batch_Shape_Input { 
 			vertex_index = vertex_index,
 			model_index = model_index
 		}
-		append(&batch_shape_inputs, input)
+		append(&batch_shape_solid_inputs, input)
 	}
 }
 
-// TODO: separate packing concenrs...
-// some pack functions like this don't need to translate 
-// models to letterbox / screen scale. refactor for clarity...
-pack_batch_shape_arr :: proc(
-	src_verts : []Batch_Shape_Vertex, 
-	src_models: []Batch_Shape_Model, 
-	dest_verts: ^[dynamic]Batch_Shape_Vertex,
-	dest_models: ^[dynamic]Batch_Shape_Model,
-	dest_inputs: ^[dynamic]Batch_Shape_Input) 
+pack_batch_shape_sdf :: proc(verts : []Batch_Shape_Vertex, model: Batch_Shape_SDF_Model) 
 {
-	vertex_start_index := len(dest_verts)
-	num_verts := len(src_verts)
+	model_index := uint(len(batch_shape_sdf_models))
+	append(&batch_shape_sdf_models, model)
 
-	for &v in src_verts {
-		append(dest_verts, v)
-	}
+	for &v in verts {
+		vertex_index := uint(len(batch_shape_sdf_verts))
+		append(&batch_shape_sdf_verts, v)
 
-	for m in src_models {
-		model_index := uint(len(dest_models))
-		append(dest_models, m)
-
-		for i := 0; i < num_verts; i += 1 {
-
-			input := Batch_Shape_Input { 
-				vertex_index = uint(vertex_start_index + i),
-				model_index = model_index
-			}
-			append(dest_inputs, input)
+		input := Batch_Shape_Input { 
+			vertex_index = vertex_index,
+			model_index = model_index
 		}
+		append(&batch_shape_sdf_inputs, input)
 	}
 }
 
@@ -348,15 +360,15 @@ pack_rect :: proc(shape: Shape, dt: f32)
 	vert_ref: int
 	switch shape.anchor {
 		case .center:
-			vert_ref = vert_ref_quad
+			vert_ref = vert_ref_quad_solid
 		case .bottom_left:
-			vert_ref = vert_ref_quad_bl
+			vert_ref = vert_ref_quad_bl_solid
 	}
 
-	pack_batch_shape_vert_ref(
+	pack_batch_shape_solid_vert_ref(
 		vert_ref,  
 		count = 6, 
-		model = Batch_Shape_Model {
+		model = Batch_Shape_Solid_Model {
 			position = {tf.pos.x, tf.pos.y, 1},
 			rotation = tf.rot, // + math.PI/2
 			scale = tf.scale,
@@ -370,10 +382,10 @@ pack_tri :: proc(shape: Shape, dt: f32)
 {
 	tf := blend_fit_res_letterbox(shape.tf, dt)
 
-	pack_batch_shape_vert_ref(
-		vert_ref_tri,  
+	pack_batch_shape_solid_vert_ref(
+		vert_ref_tri_solid,  
 		count = 3, 
-		model = Batch_Shape_Model {
+		model = Batch_Shape_Solid_Model {
 			position = {tf.pos.x, tf.pos.y, 1},
 			rotation = tf.rot, // + math.PI/2
 			scale = tf.scale,
