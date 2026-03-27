@@ -603,12 +603,13 @@ render :: proc(dt: f32)
 		)
 	}
 	if len(batch_shape_sdf_inputs) > 0 {
+		mem_loc := batch_shape_solid_inputs_byte_size + batch_shape_solid_verts_byte_size + batch_shape_solid_models_byte_size
 		mem.copy(
-			transfer_memory, 
+			transfer_memory[mem_loc:], 
 			raw_data(batch_shape_sdf_inputs), 
 			sdf_inputs_sz
 		)
-		mem_loc := batch_shape_sdf_inputs_byte_size
+		mem_loc += batch_shape_sdf_inputs_byte_size
 		mem.copy(
 			transfer_memory[mem_loc:], 
 			raw_data(batch_shape_sdf_verts), 
@@ -694,10 +695,12 @@ render :: proc(dt: f32)
 		)
 	}
 	if len(batch_shape_sdf_inputs) > 0 {
+		offset := u32(batch_shape_solid_inputs_byte_size + batch_shape_solid_verts_byte_size + batch_shape_solid_models_byte_size)
 		sdl.UploadToGPUBuffer(
 			copy_pass, 
 			source = {
-				transfer_buffer = transfer_buffer
+				transfer_buffer = transfer_buffer,
+				offset = offset
 			},
 			destination = {
 				buffer = batch_shape_sdf_inputs_vertex_buffer, 
@@ -705,7 +708,7 @@ render :: proc(dt: f32)
 			},
 			cycle = true
 		)
-		offset := u32(batch_shape_sdf_inputs_byte_size)
+		offset += u32(batch_shape_sdf_inputs_byte_size)
 		sdl.UploadToGPUBuffer(
 			copy_pass, 
 			source = {

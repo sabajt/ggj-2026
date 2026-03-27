@@ -24,7 +24,7 @@ struct Model
     float4 color;
     float thic;
     float fade;
-    float2 padding_b;
+    float2 padding;
 };
 
 struct type_StructuredBuffer_Model
