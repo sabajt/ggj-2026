@@ -321,7 +321,7 @@ load_shaders :: proc(device: ^sdl.GPUDevice)
 		.VERTEX,
 		format,
 		entrypoint,
-		num_uniform_buffers = 1,
+		num_uniform_buffers = 2,
 		num_storage_buffers = 1
 	)
 	vs_fullscreen_quad = load_shader(

@@ -249,11 +249,19 @@ render :: proc(dt: f32)
 		length = size_of(view_projection)
 	)
 
+	base_sprite_index := u32(current_batch_start)
+	sdl.PushGPUVertexUniformData(
+		command_buffer,
+		slot_index = 1,
+		data = &base_sprite_index,
+		length = size_of(base_sprite_index)
+	)
+
 	sdl.DrawGPUPrimitives(
-		render_pass, 
+		render_pass,
 		u32(current_batch_len) * 6,
-		num_instances = 1, 
-		first_vertex = u32(current_batch_start * 6),
+		num_instances = 1,
+		first_vertex = 0,
 		first_instance = 0
 	)
 }

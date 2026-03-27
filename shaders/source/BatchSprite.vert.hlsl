@@ -29,6 +29,11 @@ cbuffer ViewProjection : register(b0, space1)
     float4x4 view_projection : packoffset(c0);
 };
 
+cbuffer SpriteOffset : register(b0, space2)
+{
+    uint base_sprite_index : packoffset(c0);
+};
+
 static const uint triangle_indices[6] = {0, 1, 2, 3, 2, 1};
 static const float2 vertex_pos[4] = {
     {-0.5f, -0.5f},
@@ -39,7 +44,7 @@ static const float2 vertex_pos[4] = {
 
 Output main(uint id : SV_VertexID)
 {
-    uint sprite_index = id / 6;
+    uint sprite_index = (id / 6) + base_sprite_index;
     uint vert = triangle_indices[id % 6];
     SpriteData sprite = DataBuffer[sprite_index];
 
