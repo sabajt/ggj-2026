@@ -29,7 +29,7 @@ cbuffer ViewProjection : register(b0, space1)
     float4x4 view_projection : packoffset(c0);
 };
 
-cbuffer SpriteOffset : register(b0, space2)
+cbuffer SpriteOffset : register(b1, space1)
 {
     uint base_sprite_index : packoffset(c0);
 };
