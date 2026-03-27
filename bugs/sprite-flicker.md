@@ -1,3 +1,4 @@
+
 In render.odin, sprites_sz on line 582 uses len(sprites) (the full map including invisible sprites) but should use len(gpu_sprites) (the packed visible subset). This causes a buffer overread on Windows, making sprites flicker. Same fix needed on line 768 for the upload guard.
 
 sprites_sz := len(sprites) * size_of(GPU_Sprite)

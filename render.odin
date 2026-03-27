@@ -579,7 +579,7 @@ render :: proc(dt: f32)
 		}
 	}
 
-	sprites_sz := len(sprites) * size_of(GPU_Sprite) 
+	sprites_sz := len(gpu_sprites) * size_of(GPU_Sprite) 
 
 	transfer_memory := transmute([^]byte)sdl.MapGPUTransferBuffer(gpu, transfer_buffer, true) // TODO: should cycle?
 
@@ -765,7 +765,7 @@ render :: proc(dt: f32)
 			cycle = false
 		)
 	}
-	if len(sprites) > 0 {
+	if len(gpu_sprites) > 0 {
 		offset := u32(batch_shape_solid_inputs_byte_size + batch_shape_solid_verts_byte_size + batch_shape_solid_models_byte_size +
 			batch_shape_sdf_inputs_byte_size + batch_shape_sdf_verts_byte_size + batch_shape_sdf_models_byte_size + 
 			text_vert_buf_byte_size + text_index_buf_byte_size)
