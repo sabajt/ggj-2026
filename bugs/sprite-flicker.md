@@ -10,16 +10,6 @@ The reason it's Windows-specific: Mac memory likely happens to be zeroed beyond 
 
 ----
 
-The debug log will tell us if it's 11 drawn vs 12 drawn with 1 invisible. But here's my hypothesis for a Windows-specific root cause:
-
-The sprite shader uses SV_VertexID / 6 to compute sprite_index. On D3D12, SV_VertexID should include StartVertexLocation (= first_vertex). But if any sprites exist at z=1 (e.g. the mask box sprites at mask.odin:204), the z=2 draw call fires with first_vertex = sprite_start_2 * 6 > 0.
-
-If the D3D12 backend or the DXIL compiled by shadercross doesn't correctly propagate first_vertex into SV_VertexID for a pipeline with no vertex input state (which the sprite pipeline has — no vertex_input_state set), then the z=2 draw starts SV_VertexID at 0 again instead of at sprite_start_2 * 6. This means:
-
-sprite_index = 0 to N_z2-1 instead of N_z1 to N_z1+N_z2-1
-The last sprite (DataBuffer[N_z1+N_z2-1]) is never accessed
-DataBuffer[0] (a z=1 sprite) gets drawn a second time at the z=2 position — visually it might look like just one fewer
-
 The SV_VertexID + StartVertexLocation Bug
 Why it happens
 BatchSprite.vert.hlsl has no vertex input attributes — it derives everything from SV_VertexID:

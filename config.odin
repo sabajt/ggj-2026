@@ -3,7 +3,7 @@ package main
 config := Config {
     resolution = 2.8 * INTERNAL_RES,
     font_size = 18, 
-    fullscreen = false,
+    fullscreen = true,
     title = "Mask Mage"
 }
 
