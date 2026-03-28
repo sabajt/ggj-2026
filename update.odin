@@ -152,9 +152,10 @@ contains_move_obstacle :: proc(cell: [2]int) -> bool
 
 // general update
 
-update :: proc() 
+update :: proc()
 {
     update_resolutions()
+    update_text_item(fps_text_i, fmt.tprintf("%v fps", fps_display))
     check_input()
 
     defer {

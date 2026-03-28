@@ -13,6 +13,7 @@ rhs_menu_spell_icon_sprite_i: int
 rhs_menu_spell_title_text_i: int
 rhs_menu_spell_cooldown_text_i: int
 rhs_menu_hp_text_i: int
+fps_text_i: int
 
 Game_State :: enum {
 	main
@@ -200,5 +201,9 @@ reset_game :: proc()
 		},
 		actor = &player
 	)
+
+	// fps counter text
+	fps_text_i = add_text_item("0 fps", color = COL_GRAY_0)
+	text_items[fps_text_i].pos = fit_res_vec2({20, 20}, letterbox_resolution)
 }
 

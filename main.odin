@@ -23,6 +23,11 @@ sim_time := sdl.Uint64(0)
 lag_time := sdl.Uint64(0)
 game_step_time := int(0)
 
+// fps counter
+fps_frame_count := sdl.Uint64(0)
+fps_timer       := sdl.Uint64(0)
+fps_display     := sdl.Uint64(0)
+
 MAX_FRAME_TIME : sdl.Uint64 : sdl.Uint64(0.25 * 1000.0)
 MS_PER_UPDATE : sdl.Uint64 : 16
 
@@ -63,6 +68,14 @@ AppIterate :: proc "c" (appstate: rawptr) -> sdl.AppResult
 
 	real_time = new_time
 	lag_time += frame_time
+
+	fps_frame_count += 1
+	fps_timer += frame_time
+	if fps_timer >= 1000 {
+		fps_display = fps_frame_count
+		fps_frame_count = 0
+		fps_timer -= 1000
+	}
 
 	for lag_time >= MS_PER_UPDATE {
 		sim_time += MS_PER_UPDATE
