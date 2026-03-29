@@ -135,8 +135,8 @@ update_actions :: proc()
 
 update_resolutions :: proc()
 {
-    // update resolution from current window size
-	resolution = get_resolution()
+    // update resolution from current window size (always use physical/2 for consistent 2x behavior cross-platform)
+	resolution = get_resolution_pixels() / 2
 	letterbox_resolution = get_letterbox_res()
 }
 
